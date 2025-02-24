@@ -1,7 +1,6 @@
 import os
 import sys
 
-import abjad
 import rmakers
 
 sys.path.insert(0, os.path.abspath("../../source"))
