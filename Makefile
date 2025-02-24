@@ -1,5 +1,5 @@
-.PHONY: black-check black-reformat build clean flake8 install isort-check \
-	isort-reformat mypy pytest reformat release lint test
+.PHONY: black-check black-reformat build clean flake8 gh-pages install \
+	isort-check isort-reformat mypy pytest reformat release lint test
 
 black-check:
 	black --check --diff .
@@ -22,13 +22,18 @@ flake8:
 
 gh-pages:
 	rm -rf gh-pages/
-	git clone --depth=1 https://github.com/Abjad/rmakers.github.io.git gh-pages
-	rsync -rtv --delete --exclude=.git docs/build/html/ gh-pages/
+	git clone --depth=1 https://github.com/Abjad/rmakers.git gh-pages
 	cd gh-pages && \
-		touch .nojekyll && \
+	if git checkout gh-pages; then \
+	    echo "Using existing gh-pages branch"; \
+	else \
+	    git checkout --orphan gh-pages && git rm -rf .; \
+	fi
+	rsync -rtv --delete --exclude=.git docs/build/html/ gh-pages/
+	cd gh-pages && touch .nojekyll && \
 		git add --all . && \
 		git commit --allow-empty -m "Update docs" && \
-		git push origin master
+		git push --force origin gh-pages
 	rm -rf gh-pages/
 
 isort-check:
