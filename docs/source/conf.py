@@ -19,6 +19,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
+    "sphinx_toggleprompt",
     "uqbar.sphinx.api",
     "uqbar.sphinx.book",
     "uqbar.sphinx.inheritance",
