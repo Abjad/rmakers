@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        lilypond-version: ["2.25.23"]
+        lilypond-version: ["2.25.24"]
         python-version: ["3.12", "3.13"]
 
     steps:
@@ -36,7 +36,7 @@ jobs:
         key: >
           ${{ runner.os }}-pip-
           ${{ matrix.python-version }}-
-          ${{ hashFiles('ci/requirements.txt') }}
+          ${{ hashFiles('pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-pip-${{ matrix.python-version }}-
           ${{ runner.os }}-pip-
@@ -61,21 +61,12 @@ jobs:
       with:
         lilypond-version: ${{ matrix.lilypond-version }}
 
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r ci/requirements.txt --no-cache-dir
-
     - name: Install Abjad
       run: |
+        # [dev] for black, flake8, isort, mypy, pytest
         git clone -b trevor/dev https://github.com/Abjad/abjad.git /tmp/abjad
+        python -m pip install --upgrade pip
         python -m pip install /tmp/abjad[dev]
-
-    - name: Install this package
-      run: |
-        # Namespace packages require -e installation;
-        # remove -e after rmakers is changed back to a vanilla package
-        python -m pip install -e .
 
     - name: Log Python dependencies
       run: |
@@ -85,6 +76,10 @@ jobs:
         mypy --version
         pip --version
         pytest --version
+
+    - name: Install this package
+      run: |
+        python -m pip install .
 
     - name: Run lints
       run: |
