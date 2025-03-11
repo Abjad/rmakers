@@ -25,6 +25,11 @@ dependencies = [
 [project.urls]
 Homepage = "http://rmakers.github.io"
 
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
+doctest_optionflags = "ELLIPSIS NORMALIZE_WHITESPACE"
+testpaths = ["source", "tests"]
+
 [tool.setuptools]
 package-dir = { "" = "source" }
 
