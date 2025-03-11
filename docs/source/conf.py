@@ -29,18 +29,12 @@ extensions = [
 graphviz_dot_args = ["-s32"]
 graphviz_output_format = "svg"
 
-# html_favicon = "_static/favicon.ico"
-# html_logo = "_static/abjad-logo.png"
-# html_show_copyright = False
-# html_show_sourcelink = False
-# html_show_sphinx = False
+html_last_updated_fmt = "%b %d, %Y"
+html_show_sphinx = False
 html_static_path = ["_static"]
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {
     "canonical_url": "https://rmakers.github.io",
-    # most important setting:
-    # navigation_depth=1 makes sidebar completely flat;
-    # leave flat navigation in place forever:
     "navigation_depth": 1,
     "sticky_navigation": False,
     "style_external_links": True,
@@ -55,22 +49,19 @@ intersphinx_mapping = {
 project = "rmakers"
 pygments_style = "sphinx"
 
-release = rmakers.__version__
-
 smartquotes = True
 
 templates_path = ["_templates"]
 todo_include_todos = True
 
-uqbar_api_title = "rmakers API"
-uqbar_api_source_paths = ["rmakers"]
-uqbar_api_root_documenter_class = "uqbar.apis.SummarizingRootDocumenter"
-uqbar_api_module_documenter_class = "uqbar.apis.SummarizingModuleDocumenter"
 uqbar_api_member_documenter_classes = [
     "uqbar.apis.FunctionDocumenter",
     "uqbar.apis.SummarizingClassDocumenter",
 ]
-
+uqbar_api_module_documenter_class = "uqbar.apis.SummarizingModuleDocumenter"
+uqbar_api_root_documenter_class = "uqbar.apis.SummarizingRootDocumenter"
+uqbar_api_source_paths = ["rmakers"]
+uqbar_api_title = "rmakers API"
 uqbar_book_console_setup = [
     "import abjad",
     "import rmakers",
