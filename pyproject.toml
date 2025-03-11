@@ -31,8 +31,13 @@ doctest_optionflags = "ELLIPSIS NORMALIZE_WHITESPACE"
 testpaths = ["source", "tests"]
 
 [tool.setuptools]
+include-package-data = true
+packages = ["rmakers"]
 package-dir = { "" = "source" }
 
-[tool.setuptools.packages.find]
-where = ["source"]
-include = ["rmakers*"]
+[tool.setuptools.package-data]
+"*" = ["LICENSE", "README.md", "conftest.py"]
+"rmakers" = ["**/*"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["docs/*"]
