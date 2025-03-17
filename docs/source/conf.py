@@ -34,11 +34,11 @@ html_show_sphinx = False
 html_static_path = ["_static"]
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {
-    "canonical_url": "https://rmakers.github.io",
+    "canonical_url": "https://abjad.github.io/rmakers",
     "navigation_depth": 1,
     "sticky_navigation": False,
     "style_external_links": True,
-    "style_nav_header_background": "#ffeedd",
+    "style_nav_header_background": "#000000",
 }
 
 intersphinx_mapping = {
