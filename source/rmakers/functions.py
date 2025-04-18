@@ -1448,7 +1448,7 @@ def before_grace_container(
                 abjad.beam(notes)
 
 
-def denominator(argument, denominator: int | abjad.typings.Duration) -> None:
+def denominator(argument, denominator: int | abjad.Duration) -> None:
     r"""
     Sets tuplet ratio denominator of tuplets in ``argument``.
 
@@ -1549,7 +1549,8 @@ def denominator(argument, denominator: int | abjad.typings.Duration) -> None:
             as "x in the time of y sixteenth notes":
 
             >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
-            >>> lilypond_file = make_lilypond_file(pairs, denominator=(1, 16))
+            >>> denominator = abjad.Duration(1, 16)
+            >>> lilypond_file = make_lilypond_file(pairs, denominator=denominator)
             >>> abjad.show(lilypond_file) # doctest: +SKIP
 
             ..  docs::
@@ -1614,7 +1615,8 @@ def denominator(argument, denominator: int | abjad.typings.Duration) -> None:
             "x in the time of y thirty-second notes":
 
             >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
-            >>> lilypond_file = make_lilypond_file(pairs, denominator=(1, 32))
+            >>> denominator = abjad.Duration(1, 32)
+            >>> lilypond_file = make_lilypond_file(pairs, denominator=denominator)
             >>> abjad.show(lilypond_file) # doctest: +SKIP
 
             ..  docs::
@@ -1679,7 +1681,7 @@ def denominator(argument, denominator: int | abjad.typings.Duration) -> None:
             "x in the time of y sixty-fourth notes":
 
             >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
-            >>> lilypond_file = make_lilypond_file(pairs, (1, 64))
+            >>> lilypond_file = make_lilypond_file(pairs, abjad.Duration(1, 64))
             >>> abjad.show(lilypond_file) # doctest: +SKIP
 
             ..  docs::
@@ -1931,8 +1933,7 @@ def denominator(argument, denominator: int | abjad.typings.Duration) -> None:
                 }
 
     """
-    if isinstance(denominator, tuple):
-        denominator = abjad.Duration(denominator)
+    assert isinstance(denominator, (int, abjad.Duration)), repr(denominator)
     for tuplet in abjad.select.tuplets(argument):
         if isinstance(denominator, abjad.Duration):
             unit_duration = denominator
@@ -1965,6 +1966,20 @@ def duration_bracket(argument) -> None:
             string = abjad.illustrators.components_to_score_markup_string(components)
         string = rf"\markup \scale #'(0.75 . 0.75) {string}"
         abjad.override(tuplet).TupletNumber.text = string
+
+
+def durations(items: list) -> list[abjad.Duration]:
+    """
+    Change list of arbitrary ``items`` to list of durations.
+
+    ..  container:: example
+
+        >>> rmakers.durations([(1, 8), (1, 2), (1, 16)])
+        [Duration(1, 8), Duration(1, 2), Duration(1, 16)]
+
+    """
+    durations = [abjad.Duration(_) for _ in items]
+    return durations
 
 
 def example(
@@ -3214,17 +3229,17 @@ def invisible_music(argument, *, tag: abjad.Tag | None = None) -> None:
 
 
 def interpolate(
-    start_duration: abjad.typings.Duration,
-    stop_duration: abjad.typings.Duration,
-    written_duration: abjad.typings.Duration,
+    start_duration: abjad.Duration,
+    stop_duration: abjad.Duration,
+    written_duration: abjad.Duration,
 ) -> _classes.Interpolation:
     """
     Makes interpolation.
     """
     return _classes.Interpolation(
-        abjad.Duration(start_duration),
-        abjad.Duration(stop_duration),
-        abjad.Duration(written_duration),
+        start_duration,
+        stop_duration,
+        written_duration,
     )
 
 
@@ -3248,7 +3263,7 @@ def on_beat_grace_container(
     nongrace_leaf_lists: typing.Sequence[typing.Sequence[abjad.Leaf]],
     counts: typing.Sequence[int],
     *,
-    grace_leaf_duration: abjad.typings.Duration | None = None,
+    grace_leaf_duration: abjad.Duration | None = None,
     grace_polyphony_command: abjad.VoiceNumber = abjad.VoiceNumber(1),
     nongrace_polyphony_command: abjad.VoiceNumber = abjad.VoiceNumber(2),
     tag: abjad.Tag | None = None,
@@ -6727,10 +6742,11 @@ def wrap_in_time_signature_staff(
     return music_voice
 
 
-def written_duration(argument, duration: abjad.typings.Duration) -> None:
+def written_duration(argument, duration: abjad.Duration) -> None:
     """
     Sets written duration of leaves in ``argument``.
     """
+    assert isinstance(duration, abjad.Duration), repr(duration)
     duration_ = abjad.Duration(duration)
     leaves = abjad.select.leaves(argument)
     for leaf in leaves:

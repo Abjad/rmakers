@@ -749,7 +749,7 @@ def _split_talea_extended_to_weights(preamble, read_talea_once_only, talea, weig
 
 def accelerando(
     durations,
-    *interpolations: typing.Sequence[abjad.typings.Duration],
+    *interpolations: typing.Sequence[abjad.Duration],
     previous_state: dict | None = None,
     spelling: _classes.Spelling = _classes.Spelling(),
     state: dict | None = None,
@@ -1122,8 +1122,7 @@ def accelerando(
             }
 
     """
-    _assert_are_pairs_durations_or_time_signatures(durations)
-    durations = [abjad.Duration(_) for _ in durations]
+    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     interpolations_ = []
@@ -3185,7 +3184,7 @@ def multiplied_duration(
     durations,
     prototype: type = abjad.Note,
     *,
-    duration: abjad.typings.Duration = (1, 1),
+    duration: abjad.Duration = abjad.Duration(1, 1),
     spelling: _classes.Spelling = _classes.Spelling(),
     tag: abjad.Tag | None = None,
 ) -> list[abjad.Leaf]:
@@ -3266,11 +3265,12 @@ def multiplied_duration(
                 }
             }
 
-        Makes multiplied-duration half notes when ``duration=(1, 2)``:
+        Makes multiplied-duration half notes when ``duration=abjad.Duration(1, 2)``:
 
         >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
         >>> durations = [abjad.Duration(_) for _ in time_signatures]
-        >>> components = rmakers.multiplied_duration(durations, duration=(1, 2))
+        >>> duration = abjad.Duration(1, 2)
+        >>> components = rmakers.multiplied_duration(durations, duration=duration)
         >>> lilypond_file = rmakers.example(components, time_signatures)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
@@ -3302,11 +3302,12 @@ def multiplied_duration(
                 }
             }
 
-        Makes multiplied-duration quarter notes when ``duration=(1, 4)``:
+        Makes multiplied-duration quarter notes when ``duration=abjad.Duration(1, 4)``:
 
         >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
         >>> durations = [abjad.Duration(_) for _ in time_signatures]
-        >>> components = rmakers.multiplied_duration(durations, duration=(1, 4))
+        >>> duration = abjad.Duration(1, 4)
+        >>> components = rmakers.multiplied_duration(durations, duration=duration)
         >>> lilypond_file = rmakers.example(components, time_signatures)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
@@ -3496,7 +3497,7 @@ def multiplied_duration(
     tag = tag.append(_function_name(inspect.currentframe()))
     _assert_are_pairs_durations_or_time_signatures(durations)
     durations = [abjad.Duration(_) for _ in durations]
-    duration = abjad.Duration(duration)
+    assert isinstance(duration, abjad.Duration), repr(duration)
     leaf: abjad.Leaf
     leaves = []
     for duration_ in durations:
@@ -6413,7 +6414,7 @@ def tuplet(
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam(voice)
         ...     rmakers.rewrite_dots(voice)
-        ...     rmakers.denominator(voice, (1, 16))
+        ...     rmakers.denominator(voice, abjad.Duration(1, 16))
         ...     return lilypond_file
 
         >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
@@ -6479,7 +6480,7 @@ def tuplet(
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam(voice)
         ...     rmakers.rewrite_dots(voice)
-        ...     rmakers.denominator(voice, (1, 32))
+        ...     rmakers.denominator(voice, abjad.Duration(1, 32))
         ...     return lilypond_file
 
         >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
@@ -6545,7 +6546,7 @@ def tuplet(
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam(voice)
         ...     rmakers.rewrite_dots(voice)
-        ...     rmakers.denominator(voice, (1, 64))
+        ...     rmakers.denominator(voice, abjad.Duration(1, 64))
         ...     return lilypond_file
 
         >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
