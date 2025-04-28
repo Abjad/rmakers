@@ -1519,11 +1519,11 @@ def denominator(argument, denominator: int | abjad.Duration) -> None:
                             c'4
                         }
                         \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 5/6
+                        \tuplet 5/3
                         {
                             \time 6/16
-                            c'16
-                            c'4
+                            c'8
+                            c'2
                         }
                         \tweak text #tuplet-number::calc-fraction-text
                         \tuplet 5/4
@@ -1591,11 +1591,11 @@ def denominator(argument, denominator: int | abjad.Duration) -> None:
                                 c'4
                             }
                             \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 5/6
+                            \tuplet 10/6
                             {
                                 \time 6/16
-                                c'16
-                                c'4
+                                c'8
+                                c'2
                             }
                             \tweak text #tuplet-number::calc-fraction-text
                             \tuplet 10/8
@@ -1657,11 +1657,11 @@ def denominator(argument, denominator: int | abjad.Duration) -> None:
                                 c'4
                             }
                             \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 10/12
+                            \tuplet 20/12
                             {
                                 \time 6/16
-                                c'16
-                                c'4
+                                c'8
+                                c'2
                             }
                             \tweak text #tuplet-number::calc-fraction-text
                             \tuplet 20/16
@@ -1721,11 +1721,11 @@ def denominator(argument, denominator: int | abjad.Duration) -> None:
                                 c'4
                             }
                             \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 10/12
+                            \tuplet 20/12
                             {
                                 \time 6/16
-                                c'16
-                                c'4
+                                c'8
+                                c'2
                             }
                             \tweak text #tuplet-number::calc-fraction-text
                             \tuplet 20/16
@@ -1789,11 +1789,11 @@ def denominator(argument, denominator: int | abjad.Duration) -> None:
                                 c'4
                             }
                             \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 10/12
+                            \tuplet 20/12
                             {
                                 \time 6/16
-                                c'16
-                                c'4
+                                c'8
+                                c'2
                             }
                             \tweak text #tuplet-number::calc-fraction-text
                             \tuplet 20/16
@@ -1852,11 +1852,11 @@ def denominator(argument, denominator: int | abjad.Duration) -> None:
                                 c'4
                             }
                             \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 10/12
+                            \tuplet 20/12
                             {
                                 \time 6/16
-                                c'16
-                                c'4
+                                c'8
+                                c'2
                             }
                             \tweak text #tuplet-number::calc-fraction-text
                             \tuplet 20/16
@@ -1915,11 +1915,11 @@ def denominator(argument, denominator: int | abjad.Duration) -> None:
                                 c'4
                             }
                             \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 10/12
+                            \tuplet 20/12
                             {
                                 \time 6/16
-                                c'16
-                                c'4
+                                c'8
+                                c'2
                             }
                             \tweak text #tuplet-number::calc-fraction-text
                             \tuplet 20/16
