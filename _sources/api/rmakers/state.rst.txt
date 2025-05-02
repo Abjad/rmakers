@@ -1,0 +1,27 @@
+.. _rmakers--state:
+
+state
+=====
+
+.. automodule:: rmakers.state
+
+.. currentmodule:: rmakers.state
+
+.. container:: svg-container
+
+   .. inheritance-diagram:: rmakers
+      :lineage: rmakers.state
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: section-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~sphinx
+
+.. autofunction:: sphinx

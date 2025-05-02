@@ -1,0 +1,52 @@
+\version "2.19.83"
+\language "english"
+\include "abjad.ily"
+\layout
+{
+    \context
+    {
+        \Score
+        proportionalNotationDuration = \musicLength 1*1/24
+    }
+}
+
+\context Score = "Score"
+{
+    \context RhythmicStaff = "Staff"
+    \with
+    {
+        \override Clef.stencil = ##f
+    }
+    {
+        \context Voice = "Voice"
+        {
+            \tuplet 15/12
+            {
+                \time 2/16
+                c'32
+                [
+                c'8
+                ]
+            }
+            \tuplet 15/12
+            {
+                \time 4/16
+                c'16
+                c'4
+            }
+            \tweak text #tuplet-number::calc-fraction-text
+            \tuplet 20/12
+            {
+                \time 6/16
+                c'8
+                c'2
+            }
+            \tuplet 15/12
+            {
+                \time 8/16
+                c'8
+                c'2
+            }
+        }
+    }
+}
