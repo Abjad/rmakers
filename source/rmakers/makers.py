@@ -4899,11 +4899,6 @@ def tuplet(
     durations,
     tuplet_ratios: typing.Sequence[tuple[int, ...]],
     *,
-    # TODO: is 'denominator' unused?
-    # TODO: remove in favor of dedicated denominator control commands:
-    denominator: int | abjad.Duration | str | None = None,
-    # TODO: is 'spelling' unused?
-    spelling: _classes.Spelling = _classes.Spelling(),
     tag: abjad.Tag | None = None,
 ) -> list[abjad.Tuplet]:
     r"""

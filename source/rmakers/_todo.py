@@ -195,7 +195,7 @@
 #                )
 
 
-# TODO: allow statal GROUP_BY_MEASURE selector (or maybe tuplet selecctor) to work here:
+# TODO: allow statal GROUP_BY_MEASURE selector (or maybe tuplet selector) to work here:
 #            Only tuplet 7 is rested here:
 #
 #            >>> durations = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -253,7 +253,7 @@
 #                )
 
 
-# TODO: allow statal GROUP_BY_MEASURE selector (or maybe tuplet selecctor) to work here:
+# TODO: allow statal GROUP_BY_MEASURE selector (or maybe tuplet selector) to work here:
 #            Incomplete first note is rested here:
 #
 #            >>> durations = [(3, 8), (4, 8), (3, 8), (4, 8)]

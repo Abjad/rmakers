@@ -4702,7 +4702,9 @@ def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
         tuplet.multiplier = (1, 1)
 
 
-def split_measures(voice, *, durations=None, tag: abjad.Tag | None = None) -> None:
+def split_measures(
+    voice: abjad.Voice, *, durations=None, tag: abjad.Tag | None = None
+) -> None:
     r"""
     Splits measures in ``voice``.
 
@@ -4711,10 +4713,10 @@ def split_measures(voice, *, durations=None, tag: abjad.Tag | None = None) -> No
     Tries to find time signature information (from the staff that contains ``voice``)
     when ``durations`` is none.
     """
+    assert isinstance(voice, abjad.Voice), repr(voice)
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     if not durations:
-        # TODO: implement abjad.get() method for measure durations
         staff = abjad.get.parentage(voice).parent
         assert isinstance(staff, abjad.Staff)
         voice_ = staff["TimeSignatureVoice"]
