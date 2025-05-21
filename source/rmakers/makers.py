@@ -332,13 +332,6 @@ def _make_leaf_and_tuplet_list(
             forbidden_rest_duration=forbidden_rest_duration,
             tag=tag,
         )
-        # TODO: is this needed?
-        if (
-            1 < len(leaves_and_tuplets_)
-            and abjad.get.logical_tie(leaves_and_tuplets_[0]).is_trivial
-            and not isinstance(leaves_and_tuplets_[0], abjad.Rest)
-        ):
-            abjad.tie(leaves_and_tuplets_)
         leaves_and_tuplets.extend(leaves_and_tuplets_)
     return leaves_and_tuplets
 
