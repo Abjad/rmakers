@@ -4703,7 +4703,10 @@ def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
 
 
 def split_measures(
-    voice: abjad.Voice, *, durations=None, tag: abjad.Tag | None = None
+    voice: abjad.Voice,
+    *,
+    durations: list[abjad.Duration] | None = None,
+    tag: abjad.Tag | None = None,
 ) -> None:
     r"""
     Splits measures in ``voice``.
@@ -4722,6 +4725,7 @@ def split_measures(
         voice_ = staff["TimeSignatureVoice"]
         assert isinstance(voice_, abjad.Voice)
         durations = [abjad.get.duration(_) for _ in voice_]
+    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     total_duration = sum(durations)
     music_duration = abjad.get.duration(voice)
     if total_duration != music_duration:
@@ -6724,7 +6728,8 @@ def untie(argument) -> None:
 
 
 def wrap_in_time_signature_staff(
-    components, time_signatures: list[abjad.TimeSignature]
+    components: typing.Sequence[abjad.Component],
+    time_signatures: list[abjad.TimeSignature],
 ) -> abjad.Voice:
     """
     Wraps ``components`` in two-voice staff.

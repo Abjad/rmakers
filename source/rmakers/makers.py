@@ -85,12 +85,6 @@ def _apply_ties_to_split_notes(
                 abjad.detach(abjad.Tie, previous_leaf)
 
 
-def _assert_are_pairs_durations_or_time_signatures(argument):
-    for item in abjad.sequence.flatten(argument, classes=(list,)):
-        if not isinstance(item, tuple | abjad.Duration | abjad.TimeSignature):
-            raise Exception(argument)
-
-
 def _fix_rounding_error(leaves, total_duration, interpolation):
     duration = abjad.get.duration(leaves)
     if not duration == total_duration:
@@ -742,7 +736,7 @@ def _split_talea_extended_to_weights(preamble, read_talea_once_only, talea, weig
 
 
 def accelerando(
-    durations,
+    durations: typing.Sequence[abjad.Duration],
     *interpolations: typing.Sequence[abjad.Duration],
     previous_state: dict | None = None,
     spelling: _classes.Spelling = _classes.Spelling(),
@@ -1153,7 +1147,7 @@ def accelerando(
 
 
 def even_division(
-    durations,
+    durations: typing.Sequence[abjad.Duration],
     denominators: typing.Sequence[int],
     *,
     denominator: str | int = "from_counts",
@@ -2513,7 +2507,7 @@ def even_division(
             rhythms.
 
     """
-    _assert_are_pairs_durations_or_time_signatures(durations)
+    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     durations = [abjad.Duration(_) for _ in durations]
@@ -2586,7 +2580,7 @@ def even_division(
 
 
 def incised(
-    durations,
+    durations: typing.Sequence[abjad.Duration],
     *,
     body_ratio: tuple[int, ...] = (1,),
     extra_counts: typing.Sequence[int] = (),
@@ -3114,7 +3108,7 @@ def incised(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    _assert_are_pairs_durations_or_time_signatures(durations)
+    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     durations = [abjad.Duration(_) for _ in durations]
     incise = _classes.Incise(
         body_ratio=body_ratio,
@@ -3175,7 +3169,7 @@ def incised(
 
 
 def multiplied_duration(
-    durations,
+    durations: typing.Sequence[abjad.Duration],
     prototype: type = abjad.Note,
     *,
     duration: abjad.Duration = abjad.Duration(1, 1),
@@ -3489,7 +3483,7 @@ def multiplied_duration(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    _assert_are_pairs_durations_or_time_signatures(durations)
+    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     durations = [abjad.Duration(_) for _ in durations]
     assert isinstance(duration, abjad.Duration), repr(duration)
     leaf: abjad.Leaf
@@ -3507,7 +3501,7 @@ def multiplied_duration(
 
 
 def note(
-    durations,
+    durations: typing.Sequence[abjad.Duration],
     *,
     spelling: _classes.Spelling = _classes.Spelling(),
     tag: abjad.Tag | None = None,
@@ -4306,7 +4300,7 @@ def note(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    _assert_are_pairs_durations_or_time_signatures(durations)
+    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     durations = [abjad.Duration(_) for _ in durations]
     lists = []
     for duration in durations:
@@ -4325,7 +4319,7 @@ def note(
 
 
 def talea(
-    durations,
+    durations: typing.Sequence[abjad.Duration],
     counts: typing.Sequence[int],
     denominator: int,
     *,
@@ -4849,7 +4843,7 @@ def talea(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    _assert_are_pairs_durations_or_time_signatures(durations)
+    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     durations = [abjad.Duration(_) for _ in durations]
     talea = _classes.Talea(
         counts=counts,
@@ -4889,7 +4883,7 @@ def talea(
 
 
 def tuplet(
-    durations,
+    durations: typing.Sequence[abjad.Duration],
     tuplet_ratios: typing.Sequence[tuple[int, ...]],
     *,
     tag: abjad.Tag | None = None,
@@ -7116,7 +7110,7 @@ def tuplet(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    _assert_are_pairs_durations_or_time_signatures(durations)
+    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     durations = [abjad.Duration(_) for _ in durations]
     tuplets = _make_tuplet_rhythm_maker_music(
         durations,
