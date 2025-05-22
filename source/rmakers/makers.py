@@ -254,7 +254,8 @@ def _make_accelerando(
         stop_duration=interpolation.stop_duration,
     )
     if durations == "too small":
-        notes = abjad.makers.make_notes([0], [duration], tag=tag)
+        pitches = abjad.makers.make_pitches([0])
+        notes = abjad.makers.make_notes(pitches, [duration], tag=tag)
         tuplet = abjad.Tuplet((1, 1), notes, tag=tag)
         return tuplet
     durations = _round_durations(durations, 2**10)
@@ -2536,7 +2537,8 @@ def even_division(
         basic_duration = abjad.Duration(1, denominator_)
         unprolated_note_count = None
         if duration < 2 * basic_duration:
-            notes = abjad.makers.make_notes([0], [duration], tag=tag)
+            pitches = abjad.makers.make_pitches([0])
+            notes = abjad.makers.make_notes(pitches, [duration], tag=tag)
         else:
             unprolated_note_count = duration / basic_duration
             unprolated_note_count = int(unprolated_note_count)
@@ -2549,8 +2551,9 @@ def even_division(
                 extra_count = abs(extra_count) % modulus
                 extra_count *= -1
             note_count = unprolated_note_count + extra_count
+            pitches = abjad.makers.make_pitches([0])
             durations_ = note_count * [basic_duration]
-            notes = abjad.makers.make_notes([0], durations_, tag=tag)
+            notes = abjad.makers.make_notes(pitches, durations_, tag=tag)
             assert all(_.written_duration.denominator == denominator_ for _ in notes)
         tuplet_duration = duration
         tuplet = abjad.Tuplet.from_duration(tuplet_duration, notes, tag=tag)
