@@ -4305,7 +4305,7 @@ def note(
     lists = []
     for duration in durations:
         list_ = abjad.makers.make_leaves(
-            pitches=0,
+            pitches=[0],
             durations=[duration],
             increase_monotonic=spelling.increase_monotonic,
             forbidden_note_duration=spelling.forbidden_note_duration,
