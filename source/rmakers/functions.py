@@ -433,7 +433,8 @@ def after_grace_container(
         if not count:
             continue
         stop = start + count
-        durations = talea[start:stop]
+        # TOOD: use abjad.makers.make_durations()
+        durations = [abjad.Duration(_) for _ in talea[start:stop]]
         notes = abjad.makers.make_leaves([0], durations, tag=tag)
         container = abjad.AfterGraceContainer(notes, tag=tag)
         abjad.attach(container, leaf)
@@ -1414,7 +1415,8 @@ def before_grace_container(
         if not count:
             continue
         stop = start + count
-        durations = talea[start:stop]
+        # TODO: use abjad.makers.make_durations()
+        durations = [abjad.Duration(_) for _ in talea[start:stop]]
         notes = abjad.makers.make_leaves([0], durations)
         if len(notes) == 1:
             if slash is False and slur is False:
@@ -3617,7 +3619,8 @@ def on_beat_grace_container(
         if not count:
             continue
         stop = start + count
-        durations = talea[start:stop]
+        # TODO: use abjad.makers.make_durations
+        durations = [abjad.Duration(_) for _ in talea[start:stop]]
         grace_leaves = abjad.makers.make_leaves([0], durations)
         abjad.on_beat_grace_container(
             grace_leaves,
