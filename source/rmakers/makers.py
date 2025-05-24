@@ -312,15 +312,14 @@ def _make_leaf_and_tuplet_list(
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     assert all(_ != 0 for _ in durations), repr(durations)
     leaves_and_tuplets: list[abjad.Leaf | abjad.Tuplet] = []
-    pitches: list[int | None]
     for duration in durations:
         if 0 < duration:
-            pitches = [0]
+            pitch_list = [abjad.NamedPitch("c'")]
         else:
-            pitches = [None]
+            pitch_list = []
         duration = abs(duration)
         leaves_and_tuplets_ = abjad.makers.make_leaves(
-            pitches,
+            [pitch_list],
             [duration],
             increase_monotonic=increase_monotonic,
             forbidden_note_duration=forbidden_note_duration,
@@ -4308,8 +4307,8 @@ def note(
     lists = []
     for duration in durations:
         list_ = abjad.makers.make_leaves(
-            pitches=[0],
-            durations=[duration],
+            [[abjad.NamedPitch("c'")]],
+            [duration],
             increase_monotonic=spelling.increase_monotonic,
             forbidden_note_duration=spelling.forbidden_note_duration,
             forbidden_rest_duration=spelling.forbidden_rest_duration,

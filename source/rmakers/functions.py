@@ -433,9 +433,9 @@ def after_grace_container(
         if not count:
             continue
         stop = start + count
-        # TOOD: use abjad.makers.make_durations()
-        durations = [abjad.Duration(_) for _ in talea[start:stop]]
-        notes = abjad.makers.make_leaves([0], durations, tag=tag)
+        pitch_list = [abjad.NamedPitch("c'")]
+        durations = abjad.makers.make_durations(list(talea[start:stop]))
+        notes = abjad.makers.make_leaves([pitch_list], durations, tag=tag)
         container = abjad.AfterGraceContainer(notes, tag=tag)
         abjad.attach(container, leaf)
         if 1 < len(notes):
@@ -1415,9 +1415,9 @@ def before_grace_container(
         if not count:
             continue
         stop = start + count
-        # TODO: use abjad.makers.make_durations()
-        durations = [abjad.Duration(_) for _ in talea[start:stop]]
-        notes = abjad.makers.make_leaves([0], durations)
+        pitch_list = [abjad.NamedPitch("c'")]
+        durations = abjad.makers.make_durations(list(talea[start:stop]))
+        notes = abjad.makers.make_leaves([pitch_list], durations)
         if len(notes) == 1:
             if slash is False and slur is False:
                 command = r"\grace"
@@ -1955,8 +1955,9 @@ def duration_bracket(argument) -> None:
     Applies duration bracket to tuplets in ``argument``.
     """
     for tuplet in abjad.select.tuplets(argument):
+        pitch_list = [abjad.NamedPitch("c'")]
         duration_ = abjad.get.duration(tuplet)
-        components = abjad.makers.make_leaves([0], [duration_])
+        components = abjad.makers.make_leaves([pitch_list], [duration_])
         if all(isinstance(_, abjad.Note) for _ in components):
             durations = [abjad.get.duration(_) for _ in components]
             strings = [_.lilypond_duration_string for _ in durations]
@@ -3619,9 +3620,9 @@ def on_beat_grace_container(
         if not count:
             continue
         stop = start + count
-        # TODO: use abjad.makers.make_durations
-        durations = [abjad.Duration(_) for _ in talea[start:stop]]
-        grace_leaves = abjad.makers.make_leaves([0], durations)
+        pitch_list = [abjad.NamedPitch("c'")]
+        durations = abjad.makers.make_durations(list(talea[start:stop]))
+        grace_leaves = abjad.makers.make_leaves([pitch_list], durations)
         abjad.on_beat_grace_container(
             grace_leaves,
             nongrace_leaves,
@@ -4340,7 +4341,7 @@ def rewrite_rest_filled(
             continue
         duration = abjad.get.duration(tuplet)
         rests = abjad.makers.make_leaves(
-            [None],
+            [[]],
             [duration],
             increase_monotonic=increase_monotonic,
             forbidden_note_duration=forbidden_note_duration,
