@@ -2985,6 +2985,7 @@ def incised(
         ...         body_ratio=(1, 1, 1),
         ...         talea_denominator=16,
         ...     )
+        ...     abjad.makers.tweak_tuplet_bracket_edge_height(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam(voice)
@@ -4005,6 +4006,7 @@ def note(
         ...     time_signatures = rmakers.time_signatures(pairs)
         ...     durations = [abjad.Duration(_) for _ in time_signatures]
         ...     nested_music = rmakers.note(durations)
+        ...     abjad.makers.tweak_tuplet_bracket_edge_height(nested_music)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
         ...     components = abjad.mutate.eject_contents(container)
@@ -4058,6 +4060,7 @@ def note(
         ...     time_signatures = rmakers.time_signatures(pairs)
         ...     durations = [abjad.Duration(_) for _ in time_signatures]
         ...     nested_music = rmakers.note(durations)
+        ...     abjad.makers.tweak_tuplet_bracket_edge_height(nested_music)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
         ...     rmakers.force_augmentation(container)
@@ -7039,6 +7042,7 @@ def tuplet(
         ...     time_signatures = rmakers.time_signatures(pairs)
         ...     durations = [abjad.Duration(_) for _ in time_signatures]
         ...     tuplets = rmakers.tuplet(durations, [(1,)])
+        ...     abjad.makers.tweak_tuplet_bracket_edge_height(tuplets)
         ...     container = abjad.Container(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.example(components, time_signatures)
