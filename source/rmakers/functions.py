@@ -2495,14 +2495,6 @@ def force_diminution(argument) -> None:
             tuplet.toggle_prolation()
 
 
-def force_fraction(argument) -> None:
-    """
-    Sets ``force_fraction=True`` on tuplets in ``argument``.
-    """
-    for tuplet in abjad.select.tuplets(argument):
-        tuplet.force_fraction = True
-
-
 def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
     r"""
     Replaces leaves in ``argument`` with notes.
