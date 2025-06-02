@@ -1,4 +1,4 @@
-rmakers 3.24
+rmakers 3.25
 ============
 
 [![Python 3.12](
