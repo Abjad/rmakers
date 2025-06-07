@@ -1469,7 +1469,6 @@ def denominator(argument, denominator: int | abjad.Duration) -> None:
         ...     tuplets = rmakers.tuplet(durations, [(1, 4)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.rewrite_dots(voice)
         ...     rmakers.beam(voice)
         ...     if denominator is not None:
         ...         rmakers.denominator(voice, denominator)
@@ -1547,222 +1546,207 @@ def denominator(argument, denominator: int | abjad.Duration) -> None:
                 }
             }
 
-    ..  container:: example
+        **16th notes.** This attempts to set the denominator of each tuplet
+        ratio in terms of sixteenth notes. Because the first tuplet is so
+        short, its ratio must be read as "5 in the time of 4 thirty-second
+        notes." But the ratios of the three longer tuplets can now be read
+        as "x in the time of y sixteenth notes":
 
-        Spelling tuplet ratios in terms of a given duration.
+        >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
+        >>> denominator = abjad.Duration(1, 16)
+        >>> lilypond_file = make_lilypond_file(pairs, denominator=denominator)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
 
-        ..  container:: example
+        ..  docs::
 
-            **16th notes.** This attempts to set the denominator of each tuplet
-            ratio in terms of sixteenth notes. Because the first tuplet is so
-            short, its ratio must be read as "5 in the time of 4 thirty-second
-            notes." But the ratios of the three longer tuplets can now be read
-            as "x in the time of y sixteenth notes":
-
-            >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
-            >>> denominator = abjad.Duration(1, 16)
-            >>> lilypond_file = make_lilypond_file(pairs, denominator=denominator)
-            >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-            ..  docs::
-
-                >>> score = lilypond_file["Score"]
-                >>> string = abjad.lilypond(score)
-                >>> print(string)
-                \context Score = "Score"
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            \with
+            {
+                \override TupletBracket.bracket-visibility = ##t
+                \override TupletBracket.staff-padding = 4.5
+                tupletFullLength = ##t
+            }
+            {
+                \context RhythmicStaff = "Staff"
                 \with
                 {
-                    \override TupletBracket.bracket-visibility = ##t
-                    \override TupletBracket.staff-padding = 4.5
-                    tupletFullLength = ##t
+                    \override Clef.stencil = ##f
                 }
                 {
-                    \context RhythmicStaff = "Staff"
-                    \with
+                    \context Voice = "Voice"
                     {
-                        \override Clef.stencil = ##f
-                    }
-                    {
-                        \context Voice = "Voice"
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 5/4
                         {
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 5/4
-                            {
-                                \time 2/16
-                                c'32
-                                [
-                                c'8
-                                ]
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 5/4
-                            {
-                                \time 4/16
-                                c'16
-                                c'4
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 10/6
-                            {
-                                \time 6/16
-                                c'8
-                                c'2
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 10/8
-                            {
-                                \time 8/16
-                                c'8
-                                c'2
-                            }
+                            \time 2/16
+                            c'32
+                            [
+                            c'8
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 5/4
+                        {
+                            \time 4/16
+                            c'16
+                            c'4
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 10/6
+                        {
+                            \time 6/16
+                            c'8
+                            c'2
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 10/8
+                        {
+                            \time 8/16
+                            c'8
+                            c'2
                         }
                     }
                 }
+            }
 
-        ..  container:: example
+        **32nd notes.** This sets the denominator of each tuplet ratios in
+        terms of thirty-second notes. All tuplet ratios can now be read as
+        "x in the time of y thirty-second notes":
 
-            **32nd notes.** This sets the denominator of each tuplet ratios in
-            terms of thirty-second notes. All tuplet ratios can now be read as
-            "x in the time of y thirty-second notes":
+        >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
+        >>> denominator = abjad.Duration(1, 32)
+        >>> lilypond_file = make_lilypond_file(pairs, denominator=denominator)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
 
-            >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
-            >>> denominator = abjad.Duration(1, 32)
-            >>> lilypond_file = make_lilypond_file(pairs, denominator=denominator)
-            >>> abjad.show(lilypond_file) # doctest: +SKIP
+        ..  docs::
 
-            ..  docs::
-
-                >>> score = lilypond_file["Score"]
-                >>> string = abjad.lilypond(score)
-                >>> print(string)
-                \context Score = "Score"
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            \with
+            {
+                \override TupletBracket.bracket-visibility = ##t
+                \override TupletBracket.staff-padding = 4.5
+                tupletFullLength = ##t
+            }
+            {
+                \context RhythmicStaff = "Staff"
                 \with
                 {
-                    \override TupletBracket.bracket-visibility = ##t
-                    \override TupletBracket.staff-padding = 4.5
-                    tupletFullLength = ##t
+                    \override Clef.stencil = ##f
                 }
                 {
-                    \context RhythmicStaff = "Staff"
-                    \with
+                    \context Voice = "Voice"
                     {
-                        \override Clef.stencil = ##f
-                    }
-                    {
-                        \context Voice = "Voice"
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 5/4
                         {
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 5/4
-                            {
-                                \time 2/16
-                                c'32
-                                [
-                                c'8
-                                ]
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 10/8
-                            {
-                                \time 4/16
-                                c'16
-                                c'4
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 20/12
-                            {
-                                \time 6/16
-                                c'8
-                                c'2
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 20/16
-                            {
-                                \time 8/16
-                                c'8
-                                c'2
-                            }
+                            \time 2/16
+                            c'32
+                            [
+                            c'8
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 10/8
+                        {
+                            \time 4/16
+                            c'16
+                            c'4
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 20/12
+                        {
+                            \time 6/16
+                            c'8
+                            c'2
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 20/16
+                        {
+                            \time 8/16
+                            c'8
+                            c'2
                         }
                     }
                 }
+            }
 
-        ..  container:: example
+        **64th notes.** This sets the denominator of each tuplet ratios in
+        terms of sixth-fourth notes. All tuplet ratios can now be read as
+        "x in the time of y sixty-fourth notes":
 
-            **64th notes.** This sets the denominator of each tuplet ratios in
-            terms of sixth-fourth notes. All tuplet ratios can now be read as
-            "x in the time of y sixty-fourth notes":
+        >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
+        >>> lilypond_file = make_lilypond_file(pairs, abjad.Duration(1, 64))
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
 
-            >>> pairs = [(2, 16), (4, 16), (6, 16), (8, 16)]
-            >>> lilypond_file = make_lilypond_file(pairs, abjad.Duration(1, 64))
-            >>> abjad.show(lilypond_file) # doctest: +SKIP
+        ..  docs::
 
-            ..  docs::
-
-                >>> string = abjad.lilypond(score)
-                >>> print(string)
-                \context Score = "Score"
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            \with
+            {
+                \override TupletBracket.bracket-visibility = ##t
+                \override TupletBracket.staff-padding = 4.5
+                tupletFullLength = ##t
+            }
+            {
+                \context RhythmicStaff = "Staff"
                 \with
                 {
-                    \override TupletBracket.bracket-visibility = ##t
-                    \override TupletBracket.staff-padding = 4.5
-                    tupletFullLength = ##t
+                    \override Clef.stencil = ##f
                 }
                 {
-                    \context RhythmicStaff = "Staff"
-                    \with
+                    \context Voice = "Voice"
                     {
-                        \override Clef.stencil = ##f
-                    }
-                    {
-                        \context Voice = "Voice"
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 5/4
                         {
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 5/4
-                            {
-                                \time 2/16
-                                c'32
-                                [
-                                c'8
-                                ]
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 10/8
-                            {
-                                \time 4/16
-                                c'16
-                                c'4
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 20/12
-                            {
-                                \time 6/16
-                                c'8
-                                c'2
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 20/16
-                            {
-                                \time 8/16
-                                c'8
-                                c'2
-                            }
+                            \time 2/16
+                            c'32
+                            [
+                            c'8
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 10/8
+                        {
+                            \time 4/16
+                            c'16
+                            c'4
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 20/12
+                        {
+                            \time 6/16
+                            c'8
+                            c'2
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 20/16
+                        {
+                            \time 8/16
+                            c'8
+                            c'2
                         }
                     }
                 }
+            }
 
     """
-    assert isinstance(denominator, (int, abjad.Duration)), repr(denominator)
+    assert isinstance(denominator, abjad.Duration), repr(denominator)
     for tuplet in abjad.select.tuplets(argument):
-        if isinstance(denominator, abjad.Duration):
-            unit_duration = denominator
-            assert unit_duration.numerator == 1
-            duration = abjad.get.duration(tuplet)
-            denominator_ = unit_duration.denominator
-            pair = abjad.duration.with_denominator(duration, denominator_)
-            tuplet.denominator = pair[0]
-        else:
-            assert abjad.math.is_positive_integer(denominator)
-            raise Exception(f"DERPECATED: use duration instead of {denominator}.")
-            # tuplet.denominator = denominator
+        unit_duration = denominator
+        assert unit_duration.numerator == 1
+        duration = abjad.get.duration(tuplet)
+        denominator_ = unit_duration.denominator
+        pair = abjad.duration.with_denominator(duration, denominator_)
+        tuplet.denominator = pair[0]
 
 
 def duration_bracket(argument) -> None:
