@@ -1150,7 +1150,6 @@ def even_division(
     durations: typing.Sequence[abjad.Duration],
     denominators: typing.Sequence[int],
     *,
-    denominator: str | None = "from_counts",
     extra_counts: typing.Sequence[int] = (0,),
     previous_state: dict | None = None,
     spelling: _classes.Spelling = _classes.Spelling(),
@@ -1440,229 +1439,6 @@ def even_division(
 
             (Fills tuplets less than twice the duration of a half note with a single
             attack.)
-
-    ..  container:: example
-
-        Using ``rmakers.even_division()`` with the ``denominator`` keyword.
-
-        ..  container:: example
-
-            With ``denominator=None``. Expresses tuplet ratios in the usual way
-            with numerator and denominator relatively prime:
-
-            >>> def make_lilypond_file(pairs):
-            ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [abjad.Duration(_) for _ in time_signatures]
-            ...     tuplets = rmakers.even_division(
-            ...         durations, [16], extra_counts=[4], denominator=None
-            ...     )
-            ...     abjad.makers.tweak_tuplet_number_text(tuplets)
-            ...     lilypond_file = rmakers.example(tuplets, time_signatures)
-            ...     voice = lilypond_file["Voice"]
-            ...     rmakers.beam(voice)
-            ...     return lilypond_file
-
-            >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
-            >>> lilypond_file = make_lilypond_file(pairs)
-            >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-            ..  docs::
-
-                >>> score = lilypond_file["Score"]
-                >>> string = abjad.lilypond(score)
-                >>> print(string)
-                \context Score = "Score"
-                {
-                    \context RhythmicStaff = "Staff"
-                    \with
-                    {
-                        \override Clef.stencil = ##f
-                    }
-                    {
-                        \context Voice = "Voice"
-                        {
-                            \tuplet 3/2
-                            {
-                                \time 4/8
-                                c'16
-                                [
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                ]
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 5/3
-                            {
-                                \time 3/8
-                                c'16
-                                [
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                ]
-                            }
-                            \tuplet 3/2
-                            {
-                                \time 4/8
-                                c'16
-                                [
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                ]
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 5/3
-                            {
-                                \time 3/8
-                                c'16
-                                [
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                ]
-                            }
-                        }
-                    }
-                }
-
-        ..  container:: example
-
-            With ``denominator="from_counts"``:
-
-            >>> def make_lilypond_file(pairs):
-            ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [abjad.Duration(_) for _ in time_signatures]
-            ...     tuplets = rmakers.even_division(
-            ...         durations, [16], extra_counts=[4], denominator="from_counts"
-            ...     )
-            ...     abjad.makers.tweak_tuplet_number_text(tuplets)
-            ...     lilypond_file = rmakers.example(tuplets, time_signatures)
-            ...     voice = lilypond_file["Voice"]
-            ...     rmakers.beam(voice)
-            ...     return lilypond_file
-
-            >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
-            >>> lilypond_file = make_lilypond_file(pairs)
-            >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-            ..  docs::
-
-                >>> score = lilypond_file["Score"]
-                >>> string = abjad.lilypond(score)
-                >>> print(string)
-                \context Score = "Score"
-                {
-                    \context RhythmicStaff = "Staff"
-                    \with
-                    {
-                        \override Clef.stencil = ##f
-                    }
-                    {
-                        \context Voice = "Voice"
-                        {
-                            \tuplet 12/8
-                            {
-                                \time 4/8
-                                c'16
-                                [
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                ]
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 10/6
-                            {
-                                \time 3/8
-                                c'16
-                                [
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                ]
-                            }
-                            \tuplet 12/8
-                            {
-                                \time 4/8
-                                c'16
-                                [
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                ]
-                            }
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 10/6
-                            {
-                                \time 3/8
-                                c'16
-                                [
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                c'16
-                                ]
-                            }
-                        }
-                    }
-                }
 
     ..  container:: example
 
@@ -2194,8 +1970,6 @@ def even_division(
     tag = tag.append(_function_name(inspect.currentframe()))
     durations = [abjad.Duration(_) for _ in durations]
     assert all(isinstance(_, int) for _ in denominators), repr(denominators)
-    if denominator is not None:
-        assert denominator == "from_counts", repr(denominator)
     assert all(isinstance(_, int) for _ in extra_counts), repr(extra_counts)
     previous_state = previous_state or {}
     if state is None:
@@ -2238,7 +2012,7 @@ def even_division(
             assert all(_.written_duration.denominator == denominator_ for _ in notes)
         tuplet_duration = duration
         tuplet = abjad.Tuplet.from_duration(tuplet_duration, notes, tag=tag)
-        if denominator == "from_counts" and unprolated_note_count is not None:
+        if unprolated_note_count is not None:
             tuplet.denominator = unprolated_note_count
         tuplets.append(tuplet)
     assert all(isinstance(_, abjad.Tuplet) for _ in tuplets), repr(tuplets)
