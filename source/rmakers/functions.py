@@ -2694,7 +2694,7 @@ def hide_trivial(argument) -> None:
                             c'8
                             ]
                         }
-                        \scaleDurations #'(1 . 1)
+                        \scaleDurations #'(3 . 3)
                         {
                             c'8
                             [
@@ -2702,7 +2702,7 @@ def hide_trivial(argument) -> None:
                             c'8
                             ]
                         }
-                        \scaleDurations #'(1 . 1)
+                        \scaleDurations #'(3 . 3)
                         {
                             c'8
                             [
@@ -4128,12 +4128,12 @@ def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
                             ]
                         }
                         \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 2/2
+                        \tuplet 1/1
                         {
                             c'4
                         }
                         \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 2/2
+                        \tuplet 1/1
                         {
                             c'4
                         }

@@ -1147,7 +1147,9 @@ def accelerando(
 
 
 def even_division(
+    # TODO: list[abjad.Duration]
     durations: typing.Sequence[abjad.Duration],
+    # TODO: list[int]
     denominators: typing.Sequence[int],
     *,
     extra_counts: typing.Sequence[int] = (0,),
@@ -1647,6 +1649,7 @@ def even_division(
                                 c'16
                                 ]
                             }
+                            \tweak text #tuplet-number::calc-fraction-text
                             \tuplet 9/6
                             {
                                 c'16
@@ -1735,6 +1738,7 @@ def even_division(
                                 c'16
                                 ]
                             }
+                            \tweak text #tuplet-number::calc-fraction-text
                             \tuplet 9/6
                             {
                                 c'16
@@ -1968,7 +1972,6 @@ def even_division(
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    durations = [abjad.Duration(_) for _ in durations]
     assert all(isinstance(_, int) for _ in denominators), repr(denominators)
     assert all(isinstance(_, int) for _ in extra_counts), repr(extra_counts)
     previous_state = previous_state or {}
@@ -1985,17 +1988,19 @@ def even_division(
     extra_counts__ = abjad.sequence.rotate(extra_counts__, -durations_consumed)
     cyclic_extra_counts = abjad.CyclicTuple(extra_counts__)
     for i, duration in enumerate(durations):
-        if not abjad.math.is_positive_integer_power_of_two(duration.denominator):
-            raise Exception(f"non-power-of-two durations not implemented: {duration}")
+        tuplet_duration = duration
+        if not abjad.math.is_positive_integer_power_of_two(tuplet_duration.denominator):
+            raise Exception(f"nondyadic durations not implemented: {tuplet_duration}")
         denominator_ = cyclic_denominators[i]
         extra_count = cyclic_extra_counts[i]
-        basic_duration = abjad.Duration(1, denominator_)
+        note_duration = abjad.Duration(1, denominator_)
+        assert abjad.math.is_positive_integer_power_of_two(note_duration.denominator)
         unprolated_note_count = None
-        if duration < 2 * basic_duration:
-            pitches = abjad.makers.make_pitches([0])
-            notes = abjad.makers.make_notes(pitches, [duration], tag=tag)
+        pitches = abjad.makers.make_pitches([0])
+        if tuplet_duration < 2 * note_duration:
+            note_durations = [tuplet_duration]
         else:
-            unprolated_note_count = duration / basic_duration
+            unprolated_note_count = tuplet_duration / note_duration
             unprolated_note_count = int(unprolated_note_count)
             unprolated_note_count = unprolated_note_count or 1
             if 0 < extra_count:
@@ -2006,14 +2011,18 @@ def even_division(
                 extra_count = abs(extra_count) % modulus
                 extra_count *= -1
             note_count = unprolated_note_count + extra_count
-            pitches = abjad.makers.make_pitches([0])
-            durations_ = note_count * [basic_duration]
-            notes = abjad.makers.make_notes(pitches, durations_, tag=tag)
-            assert all(_.written_duration.denominator == denominator_ for _ in notes)
-        tuplet_duration = duration
+            note_durations = note_count * [note_duration]
+        notes = abjad.makers.make_notes(pitches, note_durations, tag=tag)
         tuplet = abjad.Tuplet.from_duration(tuplet_duration, notes, tag=tag)
         if unprolated_note_count is not None:
-            tuplet.denominator = unprolated_note_count
+            multiplier_numerator, multiplier_denominator = tuplet.multiplier
+            if multiplier_denominator < note_count:
+                scalar = note_count / multiplier_denominator
+                assert scalar == int(scalar)
+                scalar = int(scalar)
+                pair = (scalar * multiplier_numerator, scalar * multiplier_denominator)
+                tuplet.multiplier = pair
+                assert tuplet.multiplier[1] == note_count
         tuplets.append(tuplet)
     assert all(isinstance(_, abjad.Tuplet) for _ in tuplets), repr(tuplets)
     voice = abjad.Voice(tuplets)
