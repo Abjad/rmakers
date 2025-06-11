@@ -602,7 +602,7 @@ def _make_talea_tuplets(
         talea,
     )
     for tuplet in abjad.iterate.components(tuplets, abjad.Tuplet):
-        tuplet.normalize_multiplier()
+        tuplet.normalize_ratio()
     assert isinstance(self_state, dict)
     advanced_talea = _classes.Talea(
         counts=prepared.talea,
@@ -644,7 +644,7 @@ def _make_tuplet_rhythm_maker_music(
     for i, duration in enumerate(durations):
         ratio = tuplet_ratios[i]
         tuplet = abjad.makers.tuplet_from_ratio_and_pair(ratio, duration.pair, tag=tag)
-        tuplet.normalize_multiplier()
+        tuplet.normalize_ratio()
         tuplets.append(tuplet)
     return tuplets
 

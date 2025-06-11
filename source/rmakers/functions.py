@@ -256,7 +256,7 @@ def _make_time_signature_staff(time_signatures):
 
 def _validate_tuplets(argument):
     for tuplet in abjad.iterate.components(argument, abjad.Tuplet):
-        assert abjad.Duration(tuplet.multiplier).normalized(), repr(tuplet)
+        assert tuplet.ratio.normalized(), repr(tuplet)
         assert len(tuplet), repr(tuplet)
 
 
