@@ -3346,14 +3346,17 @@ def repeat_tie(argument, *, tag: abjad.Tag | None = None) -> None:
         abjad.attach(tie, leaf, tag=tag)
 
 
+# TODO: rename to reduce_tuplet_ratio()
 def reduce_multiplier(argument) -> None:
     """
     Reduces multipliers of tuplets in ``argument``.
     """
     for tuplet in abjad.select.tuplets(argument):
-        fraction = abjad.Fraction(*tuplet.multiplier)
-        pair = fraction.numerator, fraction.denominator
-        tuplet.multiplier = pair
+        ratio = abjad.Ratio(
+            tuplet.fraction_multiplier.denominator,
+            tuplet.fraction_multiplier.numerator,
+        )
+        tuplet.ratio = ratio
 
 
 def rewrite_dots(argument, *, tag: abjad.Tag | None = None) -> None:
@@ -3858,7 +3861,7 @@ def rewrite_rest_filled(
             tag=tag,
         )
         abjad.mutate.replace(tuplet[:], rests)
-        tuplet.multiplier = (1, 1)
+        tuplet.ratio = abjad.Ratio(1, 1)
 
 
 def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
@@ -4215,7 +4218,7 @@ def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
         if not last_leaf_has_tie:
             abjad.detach(abjad.Tie, tuplet[-1])
         abjad.mutate._set_leaf_duration(tuplet[0], duration, tag=tag)
-        tuplet.multiplier = (1, 1)
+        tuplet.ratio = abjad.Ratio(1, 1)
 
 
 def split_measures(

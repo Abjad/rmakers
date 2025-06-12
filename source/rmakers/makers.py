@@ -2015,14 +2015,16 @@ def even_division(
         notes = abjad.makers.make_notes(pitches, note_durations, tag=tag)
         tuplet = abjad.Tuplet.from_duration(tuplet_duration, notes, tag=tag)
         if unprolated_note_count is not None:
-            multiplier_numerator, multiplier_denominator = tuplet.multiplier
+            multiplier_numerator = tuplet.ratio.denominator
+            multiplier_denominator = tuplet.ratio.numerator
             if multiplier_denominator < note_count:
                 scalar = note_count / multiplier_denominator
                 assert scalar == int(scalar)
                 scalar = int(scalar)
-                pair = (scalar * multiplier_numerator, scalar * multiplier_denominator)
-                tuplet.multiplier = pair
-                assert tuplet.multiplier[1] == note_count
+                multiplier_denominator *= scalar
+                multiplier_numerator *= scalar
+                tuplet.ratio = abjad.Ratio(multiplier_denominator, multiplier_numerator)
+                assert tuplet.ratio.numerator == note_count
         tuplets.append(tuplet)
     assert all(isinstance(_, abjad.Tuplet) for _ in tuplets), repr(tuplets)
     voice = abjad.Voice(tuplets)
