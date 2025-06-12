@@ -3353,8 +3353,8 @@ def reduce_multiplier(argument) -> None:
     """
     for tuplet in abjad.select.tuplets(argument):
         ratio = abjad.Ratio(
-            tuplet.fraction_multiplier.denominator,
-            tuplet.fraction_multiplier.numerator,
+            tuplet.multiplier().denominator,
+            tuplet.multiplier().numerator,
         )
         tuplet.ratio = ratio
 
