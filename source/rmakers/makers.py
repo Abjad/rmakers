@@ -635,15 +635,17 @@ def _make_talea_rhythm_maker_tuplets(durations, leaf_lists, *, tag):
 
 def _make_tuplet_rhythm_maker_music(
     durations,
-    self_tuplet_ratios,
+    tuplet_proportions,
     *,
     tag=None,
 ):
     tuplets = []
-    tuplet_ratios = abjad.CyclicTuple(self_tuplet_ratios)
+    cyclic_tuplet_proportions = abjad.CyclicTuple(tuplet_proportions)
     for i, duration in enumerate(durations):
-        ratio = tuplet_ratios[i]
-        tuplet = abjad.makers.tuplet_from_ratio_and_pair(ratio, duration.pair, tag=tag)
+        tuplet_proportion = cyclic_tuplet_proportions[i]
+        tuplet = abjad.makers.tuplet_from_proportion_and_pair(
+            tuplet_proportion, duration.pair, tag=tag
+        )
         tuplet.normalize_ratio()
         tuplets.append(tuplet)
     return tuplets
@@ -4357,7 +4359,7 @@ def talea(
 
 def tuplet(
     durations: typing.Sequence[abjad.Duration],
-    tuplet_ratios: typing.Sequence[tuple[int, ...]],
+    tuplet_proportions: typing.Sequence[tuple[int, ...]],
     *,
     tag: abjad.Tag | None = None,
 ) -> list[abjad.Tuplet]:
@@ -6212,10 +6214,9 @@ def tuplet(
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    durations = [abjad.Duration(_) for _ in durations]
     tuplets = _make_tuplet_rhythm_maker_music(
         durations,
-        tuplet_ratios,
+        tuplet_proportions,
         tag=tag,
     )
     assert all(isinstance(_, abjad.Tuplet) for _ in tuplets), repr(tuplets)
