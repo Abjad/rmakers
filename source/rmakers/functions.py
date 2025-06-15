@@ -256,7 +256,7 @@ def _make_time_signature_staff(time_signatures):
 
 def _validate_tuplets(argument):
     for tuplet in abjad.iterate.components(argument, abjad.Tuplet):
-        assert tuplet.ratio.normalized(), repr(tuplet)
+        assert tuplet.ratio.is_normalized(), repr(tuplet)
         assert len(tuplet), repr(tuplet)
 
 
@@ -1524,7 +1524,7 @@ def extract_rest_filled(argument) -> None:
     """
     tuplets = abjad.select.tuplets(argument)
     for tuplet in tuplets:
-        if tuplet.rest_filled():
+        if tuplet.is_rest_filled():
             abjad.mutate.extract(tuplet)
 
 
@@ -1601,7 +1601,7 @@ def extract_trivial(argument) -> None:
     """
     tuplets = abjad.select.tuplets(argument)
     for tuplet in tuplets:
-        if tuplet.trivial():
+        if tuplet.is_trivial():
             abjad.mutate.extract(tuplet)
 
 
@@ -1822,7 +1822,7 @@ def force_augmentation(argument) -> None:
 
     """
     for tuplet in abjad.select.tuplets(argument):
-        if not tuplet.augmentation():
+        if not tuplet.ratio.is_augmented():
             tuplet.toggle_prolation()
 
 
@@ -1989,7 +1989,7 @@ def force_diminution(argument) -> None:
 
     """
     for tuplet in abjad.select.tuplets(argument):
-        if not tuplet.diminution():
+        if not tuplet.ratio.is_diminished():
             tuplet.toggle_prolation()
 
 
@@ -2717,7 +2717,7 @@ def hide_trivial(argument) -> None:
     """
     tuplets = abjad.select.tuplets(argument)
     for tuplet in tuplets:
-        if tuplet.trivial():
+        if tuplet.is_trivial():
             tuplet.hide = True
 
 
@@ -3849,7 +3849,7 @@ def rewrite_rest_filled(
         forbidden_note_duration = None
         forbidden_rest_duration = None
     for tuplet in abjad.select.tuplets(argument):
-        if not tuplet.rest_filled():
+        if not tuplet.is_rest_filled():
             continue
         duration = abjad.get.duration(tuplet)
         rests = abjad.makers.make_leaves(
@@ -4355,7 +4355,7 @@ def swap_trivial(argument) -> None:
     """
     tuplets = abjad.select.tuplets(argument)
     for tuplet in tuplets:
-        if tuplet.trivial():
+        if tuplet.is_trivial():
             container = abjad.Container()
             abjad.mutate.swap(tuplet, container)
 
