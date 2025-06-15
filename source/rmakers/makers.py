@@ -644,7 +644,7 @@ def _make_tuplet_rhythm_maker_music(
     for i, duration in enumerate(durations):
         tuplet_proportion = cyclic_tuplet_proportions[i]
         tuplet = abjad.makers.tuplet_from_proportion_and_pair(
-            tuplet_proportion, duration.pair, tag=tag
+            tuplet_proportion, duration.pair, canonical=True, tag=tag
         )
         tuplet.normalize_ratio()
         tuplets.append(tuplet)
@@ -4481,19 +4481,17 @@ def tuplet(
                             c'8
                         }
                         \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 4/5
+                        \tuplet 8/5
                         {
                             \time 5/16
-                            c'8
-                            r8
+                            c'4
+                            r4
                         }
                         \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 4/5
+                        \tuplet 8/5
                         {
-                            c'8.
-                            [
-                            c'16
-                            ]
+                            c'4.
+                            c'8
                         }
                     }
                 }
@@ -4533,15 +4531,13 @@ def tuplet(
                     \context Voice = "Voice"
                     {
                         \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 4/5
+                        \tuplet 8/5
                         {
                             \time 5/8
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            c'8
-                            ]
+                            c'4
+                            c'4
+                            c'4
+                            c'4
                         }
                         \tweak text #tuplet-number::calc-fraction-text
                         \tuplet 4/3
@@ -4612,15 +4608,13 @@ def tuplet(
                     \context Voice = "Voice"
                     {
                         \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 4/5
+                        \tuplet 8/5
                         {
                             \time 5/8
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            c'8
-                            ]
+                            c'4
+                            c'4
+                            c'4
+                            c'4
                         }
                         \tweak text #tuplet-number::calc-fraction-text
                         \tuplet 4/3
@@ -4950,11 +4944,11 @@ def tuplet(
                             ~
                         }
                         \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 4/5
+                        \tuplet 8/5
                         {
-                            c'16
-                            r8
-                            c'16
+                            c'8
+                            r4
+                            c'8
                         }
                     }
                 }
@@ -5125,18 +5119,14 @@ def tuplet(
                         {
                             \time 3/8
                             c'4
-                            [
                             c'4
-                            ]
                         }
                         \tweak text #tuplet-number::calc-fraction-text
                         \tuplet 8/7
                         {
                             \time 7/16
                             c'4
-                            [
                             c'4
-                            ]
                         }
                     }
                 }
@@ -5252,18 +5242,14 @@ def tuplet(
                         {
                             \time 3/8
                             c'8
-                            [
                             c'8
-                            ]
                         }
                         \tweak text #tuplet-number::calc-fraction-text
                         \tuplet 4/7
                         {
                             \time 7/16
                             c'8
-                            [
                             c'8
-                            ]
                         }
                     }
                 }
@@ -5318,18 +5304,14 @@ def tuplet(
                         {
                             \time 3/8
                             c'8
-                            [
                             c'8
-                            ]
                         }
                         \tweak text #tuplet-number::calc-fraction-text
                         \tuplet 4/7
                         {
                             \time 7/16
                             c'8
-                            [
                             c'8
-                            ]
                         }
                     }
                 }
@@ -5388,12 +5370,10 @@ def tuplet(
                             c'4.
                         }
                         \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 2/3
+                        \tuplet 4/3
                         {
-                            c'8
-                            [
-                            c'8
-                            ]
+                            c'4
+                            c'4
                         }
                     }
                 }
@@ -5457,9 +5437,7 @@ def tuplet(
                         \tuplet 1/1
                         {
                             c'8.
-                            [
                             c'8.
-                            ]
                         }
                     }
                 }
@@ -5523,9 +5501,7 @@ def tuplet(
                         \tuplet 2/3
                         {
                             c'8
-                            [
                             c'8
-                            ]
                         }
                     }
                 }
@@ -6112,19 +6088,17 @@ def tuplet(
                             c'8
                         }
                         \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 4/5
+                        \tuplet 8/5
                         {
                             \time 5/16
-                            c'8
-                            r8
+                            c'4
+                            r4
                         }
                         \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 4/5
+                        \tuplet 8/5
                         {
-                            c'8.
-                            [
-                            c'16
-                            ]
+                            c'4.
+                            c'8
                         }
                     }
                 }
