@@ -625,10 +625,11 @@ def _make_talea_tuplets(
 
 def _make_talea_rhythm_maker_tuplets(durations, leaf_lists, *, tag):
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    assert len(durations) == len(leaf_lists)
     tuplets = []
-    for duration, leaf_list in zip(durations, leaf_lists):
-        tuplet = abjad.Tuplet.from_duration(duration, leaf_list, tag=tag)
+    for duration, leaf_list in zip(durations, leaf_lists, strict=True):
+        multiplier = duration / abjad.get.duration(leaf_list)
+        ratio = abjad.Ratio(multiplier.denominator, multiplier.numerator)
+        tuplet = abjad.Tuplet(ratio, leaf_list, tag=tag)
         tuplets.append(tuplet)
     return tuplets
 
@@ -2013,7 +2014,9 @@ def even_division(
             note_count = unprolated_note_count + extra_count
             note_durations = note_count * [note_duration]
         notes = abjad.makers.make_notes(pitches, note_durations, tag=tag)
-        tuplet = abjad.Tuplet.from_duration(tuplet_duration, notes, tag=tag)
+        multiplier = tuplet_duration / abjad.get.duration(notes)
+        ratio = abjad.Ratio(multiplier.denominator, multiplier.numerator)
+        tuplet = abjad.Tuplet(ratio, notes, tag=tag)
         if unprolated_note_count is not None:
             multiplier_numerator = tuplet.ratio.denominator
             multiplier_denominator = tuplet.ratio.numerator
