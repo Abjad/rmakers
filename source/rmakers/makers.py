@@ -643,9 +643,9 @@ def _make_tuplet_rhythm_maker_music(
     cyclic_tuplet_proportions = abjad.CyclicTuple(tuplet_proportions)
     for i, duration in enumerate(durations):
         tuplet_proportion = cyclic_tuplet_proportions[i]
-        tuplet = abjad.makers.tuplet_from_proportion_and_pair(
+        tuplet = abjad.makers.tuplet_from_duration_and_proportion(
+            duration,
             tuplet_proportion,
-            duration.pair,
             tag=tag,
         )
         tuplet.normalize_ratio()
