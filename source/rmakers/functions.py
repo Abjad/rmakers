@@ -2628,103 +2628,6 @@ def force_rest(argument, *, tag: abjad.Tag | None = None) -> None:
             abjad.detach(abjad.RepeatTie, next_leaf)
 
 
-def hide_skip_filled(argument) -> None:
-    """
-    Hides skip-filled tuplets in ``argument``.
-    """
-    tuplets = abjad.select.tuplets(argument)
-    for tuplet in tuplets:
-        if all(isinstance(_, abjad.Skip) for _ in tuplet):
-            tuplet.hide = True
-
-
-def hide_trivial(argument) -> None:
-    r"""
-    Hides trivial tuplets in ``argument``.
-
-    ..  container:: example
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [abjad.Duration(_) for _ in time_signatures]
-        ...     tuplets = rmakers.even_division(durations, [8])
-        ...     abjad.makers.tweak_tuplet_number_text(tuplets)
-        ...     lilypond_file = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam(voice)
-        ...     tuplets = abjad.select.tuplets(tuplets)[-2:]
-        ...     rmakers.hide_trivial(tuplets)
-        ...     return lilypond_file
-
-        >>> pairs = [(3, 8), (3, 8), (3, 8), (3, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/3
-                        {
-                            \time 3/8
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/3
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tweak stencil ##f
-                        \tuplet 3/3
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tweak stencil ##f
-                        \tuplet 3/3
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                    }
-                }
-            }
-
-    """
-    tuplets = abjad.select.tuplets(argument)
-    for tuplet in tuplets:
-        if tuplet.is_trivial():
-            tuplet.hide = True
-
-
 def invisible_music(argument, *, tag: abjad.Tag | None = None) -> None:
     """
     Makes ``argument`` invisible.
@@ -5245,6 +5148,101 @@ def trivialize(argument) -> None:
     """
     for tuplet in abjad.select.tuplets(argument):
         tuplet.trivialize()
+
+
+def tweak_skip_filled_tuplets_stencil_false(argument) -> None:
+    """
+    Tweaks skip-filled tuplets' stencil false.
+    """
+    for tuplet in abjad.select.tuplets(argument):
+        if all(isinstance(_, abjad.Skip) for _ in tuplet):
+            abjad.tweak(tuplet, r"\tweak stencil ##f")
+
+
+def tweak_trivial_tuplets_stencil_false(argument) -> None:
+    r"""
+    Tweaks trivial tuplets in ``argument`` with ``stencil ##f``.
+
+    ..  container:: example
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     durations = [abjad.Duration(_) for _ in time_signatures]
+        ...     tuplets = rmakers.even_division(durations, [8])
+        ...     abjad.makers.tweak_tuplet_number_text(tuplets)
+        ...     lilypond_file = rmakers.example(tuplets, time_signatures)
+        ...     voice = lilypond_file["Voice"]
+        ...     rmakers.beam(voice)
+        ...     tuplets = abjad.select.tuplets(tuplets)[-2:]
+        ...     rmakers.tweak_trivial_tuplets_stencil_false(tuplets)
+        ...     return lilypond_file
+
+        >>> pairs = [(3, 8), (3, 8), (3, 8), (3, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/3
+                        {
+                            \time 3/8
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/3
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tweak stencil ##f
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/3
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tweak stencil ##f
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/3
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                    }
+                }
+            }
+
+    """
+    for tuplet in abjad.select.tuplets(argument):
+        if tuplet.is_trivial():
+            abjad.tweak(tuplet, r"\tweak stencil ##f")
 
 
 def unbeam(argument, *, smart: bool = False, tag: abjad.Tag | None = None) -> None:
