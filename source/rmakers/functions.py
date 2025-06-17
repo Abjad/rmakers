@@ -2694,7 +2694,9 @@ def hide_trivial(argument) -> None:
                             c'8
                             ]
                         }
-                        \scaleDurations #'(3 . 3)
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tweak stencil ##f
+                        \tuplet 3/3
                         {
                             c'8
                             [
@@ -2702,7 +2704,9 @@ def hide_trivial(argument) -> None:
                             c'8
                             ]
                         }
-                        \scaleDurations #'(3 . 3)
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tweak stencil ##f
+                        \tuplet 3/3
                         {
                             c'8
                             [
