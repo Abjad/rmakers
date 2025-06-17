@@ -1689,7 +1689,7 @@ def force_augmentation(argument) -> None:
         ...     rmakers.beam(voice)
         ...     if force_augmentation is True:
         ...         rmakers.force_augmentation(voice)
-        ...     tweak_string = abjad.Tuplet.tuplet_number_calc_fraction_text_tweak_string
+        ...     tweak_string = r"\tweak text #tuplet-number::calc-fraction-text"
         ...     for tuplet in abjad.select.tuplets(voice):
         ...         abjad.tweak(tuplet, tweak_string)
         ...     score = lilypond_file["Score"]
@@ -1842,7 +1842,7 @@ def force_diminution(argument) -> None:
         ...     rmakers.swap_trivial(voice)
         ...     if force_diminution is True:
         ...         rmakers.force_diminution(voice)
-        ...     tweak_string = abjad.Tuplet.tuplet_number_calc_fraction_text_tweak_string
+        ...     tweak_string = r"\tweak text #tuplet-number::calc-fraction-text"
         ...     for tuplet in abjad.select.tuplets(voice):
         ...         abjad.tweak(tuplet, tweak_string)
         ...     score = lilypond_file["Score"]
