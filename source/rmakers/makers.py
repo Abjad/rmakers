@@ -256,7 +256,7 @@ def _make_accelerando(
     if durations == "too small":
         pitches = abjad.makers.make_pitches([0])
         notes = abjad.makers.make_notes(pitches, [duration], tag=tag)
-        tuplet = abjad.Tuplet((1, 1), notes, tag=tag)
+        tuplet = abjad.Tuplet("1:1", notes, tag=tag)
         return tuplet
     durations = _round_durations(durations, 2**10)
     notes = []
@@ -267,7 +267,7 @@ def _make_accelerando(
         note = abjad.Note(0, written_duration, multiplier=pair, tag=tag)
         notes.append(note)
     _fix_rounding_error(notes, duration, interpolation)
-    tuplet = abjad.Tuplet((1, 1), notes, tag=tag)
+    tuplet = abjad.Tuplet("1:1", notes, tag=tag)
     return tuplet
 
 
@@ -590,7 +590,7 @@ def _make_talea_tuplets(
         )
         leaf_lists.append(leaf_list)
     if not scaled.counts.extra_counts:
-        tuplets = [abjad.Tuplet((1, 1), _) for _ in leaf_lists]
+        tuplets = [abjad.Tuplet("1:1", _) for _ in leaf_lists]
     else:
         durations_ = [abjad.Duration(_) for _ in scaled.pairs]
         tuplets = _make_talea_rhythm_maker_tuplets(durations_, leaf_lists, tag=tag)
