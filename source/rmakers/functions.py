@@ -3845,7 +3845,7 @@ def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
 
             >>> staff = lilypond_file["Score"]
             >>> for tuplet in abjad.select.tuplets(staff):
-            ...     abjad.get.sustained(tuplet)
+            ...     abjad.get.is_sustained(tuplet)
             ...
             True
             True
@@ -4110,7 +4110,7 @@ def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     for tuplet in abjad.select.tuplets(argument):
-        if not abjad.get.sustained(tuplet):
+        if not abjad.get.is_sustained(tuplet):
             continue
         duration = abjad.get.duration(tuplet)
         leaves = abjad.select.leaves(tuplet)
