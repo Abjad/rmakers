@@ -3397,7 +3397,7 @@ def rewrite_meter(
         meter.rewrite(
             list_,
             boundary_depth=boundary_depth,
-            rewrite_tuplets=False,
+            do_not_rewrite_tuplets=True,
         )
     lists = abjad.select.group_by_measure(voice[:])
     for meter, list_ in zip(preferred_meters, lists):
