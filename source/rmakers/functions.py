@@ -6030,10 +6030,12 @@ def unbeam(argument, *, smart: bool = False, tag: abjad.Tag | None = None) -> No
         if unmatched_start_beam is True:
             leaf = leaves[0]
             leaf = abjad.get.leaf(leaf, -1)
+            assert leaf is not None
             abjad.attach(abjad.StopBeam(), leaf, tag=tag)
         if unmatched_stop_beam is True:
             leaf = leaves[-1]
             leaf = abjad.get.leaf(leaf, 1)
+            assert leaf is not None
             abjad.attach(abjad.StartBeam(), leaf, tag=tag)
 
 
