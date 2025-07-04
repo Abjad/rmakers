@@ -387,7 +387,7 @@ Examples that show how to work with rmakers in a statal way.
     ...         previous_state=previous_state,
     ...         state=state,
     ...     )
-    ...     abjad.makers.tweak_tuplet_number_text(tuplets)
+    ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
     ...     container = abjad.Container(tuplets)
     ...     rmakers.beam(container)
     ...     rmakers.extract_trivial(container)

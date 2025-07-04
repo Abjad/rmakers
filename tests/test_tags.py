@@ -207,7 +207,7 @@ def test_tags_02():
         container = abjad.Container(tuplets)
         rmakers.force_augmentation(container)
         rmakers.beam(container, tag=tag)
-        abjad.makers.tweak_tuplet_number_text(container)
+        rmakers.tweak_tuplet_number_text_calc_fraction_text(container)
         components = abjad.mutate.eject_contents(container)
         lilypond_file = rmakers.example(components, time_signatures)
         return lilypond_file
@@ -305,7 +305,7 @@ def test_tags_03():
         tuplets = rmakers.talea(
             durations, [1, 2, 3, 4], 16, extra_counts=[0, 1], tag=tag
         )
-        abjad.makers.tweak_tuplet_number_text(tuplets)
+        rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         lilypond_file = rmakers.example(tuplets, time_signatures)
         voice = lilypond_file["Voice"]
         rmakers.beam(voice, tag=tag)
