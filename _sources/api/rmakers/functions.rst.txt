@@ -1,0 +1,147 @@
+.. _rmakers--functions:
+
+functions
+=========
+
+.. automodule:: rmakers.functions
+
+.. currentmodule:: rmakers.functions
+
+.. container:: svg-container
+
+   .. inheritance-diagram:: rmakers
+      :lineage: rmakers.functions
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: section-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~after_grace_container
+   ~attach_time_signatures
+   ~beam
+   ~beam_groups
+   ~before_grace_container
+   ~duration_bracket
+   ~durations
+   ~example
+   ~extract_rest_filled
+   ~extract_trivial
+   ~feather_beam
+   ~force_augmentation
+   ~force_diminution
+   ~force_note
+   ~force_repeat_tie
+   ~force_rest
+   ~interpolate
+   ~invisible_music
+   ~nongrace_leaves_in_each_tuplet
+   ~on_beat_grace_container
+   ~reduce_multiplier
+   ~repeat_tie
+   ~rewrite_dots
+   ~rewrite_meter
+   ~rewrite_rest_filled
+   ~rewrite_sustained
+   ~split_measures
+   ~swap_length_1
+   ~swap_skip_filled
+   ~swap_trivial
+   ~tie
+   ~time_signatures
+   ~tremolo_container
+   ~trivialize
+   ~tweak_skip_filled_tuplets_stencil_false
+   ~tweak_trivial_tuplets_stencil_false
+   ~tweak_tuplet_number_text_calc_fraction_text
+   ~unbeam
+   ~untie
+   ~wrap_in_time_signature_staff
+   ~written_duration
+
+.. autofunction:: after_grace_container
+
+.. autofunction:: attach_time_signatures
+
+.. autofunction:: beam
+
+.. autofunction:: beam_groups
+
+.. autofunction:: before_grace_container
+
+.. autofunction:: duration_bracket
+
+.. autofunction:: durations
+
+.. autofunction:: example
+
+.. autofunction:: extract_rest_filled
+
+.. autofunction:: extract_trivial
+
+.. autofunction:: feather_beam
+
+.. autofunction:: force_augmentation
+
+.. autofunction:: force_diminution
+
+.. autofunction:: force_note
+
+.. autofunction:: force_repeat_tie
+
+.. autofunction:: force_rest
+
+.. autofunction:: interpolate
+
+.. autofunction:: invisible_music
+
+.. autofunction:: nongrace_leaves_in_each_tuplet
+
+.. autofunction:: on_beat_grace_container
+
+.. autofunction:: reduce_multiplier
+
+.. autofunction:: repeat_tie
+
+.. autofunction:: rewrite_dots
+
+.. autofunction:: rewrite_meter
+
+.. autofunction:: rewrite_rest_filled
+
+.. autofunction:: rewrite_sustained
+
+.. autofunction:: split_measures
+
+.. autofunction:: swap_length_1
+
+.. autofunction:: swap_skip_filled
+
+.. autofunction:: swap_trivial
+
+.. autofunction:: tie
+
+.. autofunction:: time_signatures
+
+.. autofunction:: tremolo_container
+
+.. autofunction:: trivialize
+
+.. autofunction:: tweak_skip_filled_tuplets_stencil_false
+
+.. autofunction:: tweak_trivial_tuplets_stencil_false
+
+.. autofunction:: tweak_tuplet_number_text_calc_fraction_text
+
+.. autofunction:: unbeam
+
+.. autofunction:: untie
+
+.. autofunction:: wrap_in_time_signature_staff
+
+.. autofunction:: written_duration
