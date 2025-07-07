@@ -14,7 +14,7 @@ class Incise:
     Incise specifier.
     """
 
-    body_ratio: tuple[int, ...] = (1,)
+    body_proportion: tuple[int, ...] = (1,)
     fill_with_rests: bool = False
     outer_tuplets_only: bool = False
     prefix_counts: typing.Sequence[int] = ()
@@ -44,7 +44,7 @@ class Incise:
             )
         if self.prefix_talea or self.suffix_talea:
             assert self.talea_denominator is not None
-        assert isinstance(self.body_ratio, tuple), repr(self.body_ratio)
+        assert isinstance(self.body_proportion, tuple), repr(self.body_proportion)
         assert isinstance(self.fill_with_rests, bool), repr(self.fill_with_rests)
         assert isinstance(self.outer_tuplets_only, bool), repr(self.outer_tuplets_only)
 

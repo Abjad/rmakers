@@ -338,9 +338,9 @@ def _make_middle_durations(middle_duration, incise):
     if not (incise.fill_with_rests):
         if not incise.outer_tuplets_only:
             if 0 < middle_duration:
-                if incise.body_ratio is not None:
-                    shards = abjad.math.divide_integer_by_ratio(
-                        middle_duration.numerator, incise.body_ratio
+                if incise.body_proportion is not None:
+                    shards = abjad.math.divide_integer_by_proportion(
+                        middle_duration.numerator, incise.body_proportion
                     )
                     durations_ = [abjad.Duration(_) for _ in shards]
                     durations.extend(durations_)
@@ -2052,7 +2052,7 @@ def even_division(
 def incised(
     durations: typing.Sequence[abjad.Duration],
     *,
-    body_ratio: tuple[int, ...] = (1,),
+    body_proportion: tuple[int, ...] = (1,),
     extra_counts: typing.Sequence[int] = (),
     fill_with_rests: bool = False,
     outer_tuplets_only: bool = False,
@@ -2366,7 +2366,7 @@ def incised(
                 }
             }
 
-    Set ``body_ratio=(1, 1)`` to divide the middle part of each tuplet ``1:1``:
+    Set ``body_proportion=(1, 1)`` to divide the middle part of each tuplet ``1:1``:
 
     ..  container:: example
 
@@ -2375,7 +2375,7 @@ def incised(
         ...     durations = [abjad.Duration(_) for _ in time_signatures]
         ...     tuplets = rmakers.incised(
         ...         durations,
-        ...         body_ratio=(1, 1),
+        ...         body_proportion=(1, 1),
         ...         talea_denominator=16,
         ...     )
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -2440,7 +2440,7 @@ def incised(
                 }
             }
 
-    Set ``body_ratio=(1, 1, 1)`` to divide the middle part of each tuplet ``1:1:1``:
+    Set ``body_proportion=(1, 1, 1)`` to divide the middle part of each tuplet ``1:1:1``:
 
     ..  container:: example
 
@@ -2451,7 +2451,7 @@ def incised(
         ...     durations = [abjad.Duration(_) for _ in time_signatures]
         ...     tuplets = rmakers.incised(
         ...         durations,
-        ...         body_ratio=(1, 1, 1),
+        ...         body_proportion=(1, 1, 1),
         ...         talea_denominator=16,
         ...     )
         ...     abjad.makers.tweak_tuplet_bracket_edge_height(tuplets)
@@ -2583,7 +2583,7 @@ def incised(
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     durations = [abjad.Duration(_) for _ in durations]
     incise = _classes.Incise(
-        body_ratio=body_ratio,
+        body_proportion=body_proportion,
         fill_with_rests=fill_with_rests,
         outer_tuplets_only=outer_tuplets_only,
         prefix_talea=prefix_talea,
