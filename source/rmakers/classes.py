@@ -17,24 +17,27 @@ class Incise:
     body_proportion: tuple[int, ...] = (1,)
     fill_with_rests: bool = False
     outer_tuplets_only: bool = False
-    prefix_counts: typing.Sequence[int] = ()
-    prefix_talea: typing.Sequence[int] = ()
-    suffix_counts: typing.Sequence[int] = ()
-    suffix_talea: typing.Sequence[int] = ()
+    prefix_counts: list[int] = dataclasses.field(default_factory=list)
+    prefix_talea: list[int] = dataclasses.field(default_factory=list)
+    suffix_counts: list[int] = dataclasses.field(default_factory=list)
+    suffix_talea: list[int] = dataclasses.field(default_factory=list)
     talea_denominator: int | None = None
 
     __documentation_section__ = "Specifiers"
 
     def __post_init__(self):
-        assert isinstance(self.prefix_talea, typing.Sequence), repr(self.prefix_talea)
+        assert isinstance(self.body_proportion, tuple), repr(self.body_proportion)
+        assert isinstance(self.fill_with_rests, bool), repr(self.fill_with_rests)
+        assert isinstance(self.outer_tuplets_only, bool), repr(self.outer_tuplets_only)
+        assert isinstance(self.prefix_talea, list), repr(self.prefix_talea)
         assert self._is_integer_tuple(self.prefix_talea)
-        assert isinstance(self.prefix_counts, typing.Sequence), repr(self.prefix_counts)
+        assert isinstance(self.prefix_counts, list), repr(self.prefix_counts)
         assert self._is_length_tuple(self.prefix_counts)
         if self.prefix_talea:
             assert self.prefix_counts
-        assert isinstance(self.suffix_talea, typing.Sequence), repr(self.suffix_talea)
+        assert isinstance(self.suffix_talea, list), repr(self.suffix_talea)
         assert self._is_integer_tuple(self.suffix_talea)
-        assert isinstance(self.suffix_counts, typing.Sequence), repr(self.suffix_counts)
+        assert isinstance(self.suffix_counts, list), repr(self.suffix_counts)
         assert self._is_length_tuple(self.suffix_counts)
         if self.suffix_talea:
             assert self.suffix_counts
@@ -44,9 +47,6 @@ class Incise:
             )
         if self.prefix_talea or self.suffix_talea:
             assert self.talea_denominator is not None
-        assert isinstance(self.body_proportion, tuple), repr(self.body_proportion)
-        assert isinstance(self.fill_with_rests, bool), repr(self.fill_with_rests)
-        assert isinstance(self.outer_tuplets_only, bool), repr(self.outer_tuplets_only)
 
     @staticmethod
     def _is_integer_tuple(argument):
@@ -659,21 +659,21 @@ class Talea:
 
     """
 
-    counts: typing.Sequence[int | str]
+    counts: list[int | str]
     denominator: int
-    end_counts: typing.Sequence[int] = ()
-    preamble: typing.Sequence[int] = ()
+    end_counts: list[int] = dataclasses.field(default_factory=list)
+    preamble: list[int] = dataclasses.field(default_factory=list)
 
     __documentation_section__ = "Specifiers"
 
     def __post_init__(self):
-        assert isinstance(self.counts, typing.Sequence), repr(self.counts)
+        assert isinstance(self.counts, list), repr(self.counts)
         for count in self.counts:
             assert isinstance(count, int) or count in "+-", repr(count)
         assert abjad.math.is_nonnegative_integer_power_of_two(self.denominator)
-        assert isinstance(self.end_counts, typing.Sequence), repr(self.end_counts)
+        assert isinstance(self.end_counts, list), repr(self.end_counts)
         assert all(isinstance(_, int) for _ in self.end_counts)
-        assert isinstance(self.preamble, typing.Sequence), repr(self.preamble)
+        assert isinstance(self.preamble, list), repr(self.preamble)
         assert all(isinstance(_, int) for _ in self.preamble)
 
     def __contains__(self, argument: int) -> bool:
@@ -892,31 +892,31 @@ class Talea:
             ... )
 
             >>> talea.advance(0)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=(), preamble=[1, 1, 1, 1])
+            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1, 1, 1, 1])
 
             >>> talea.advance(1)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=(), preamble=[1, 1, 1])
+            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1, 1, 1])
 
             >>> talea.advance(2)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=(), preamble=[1, 1])
+            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1, 1])
 
             >>> talea.advance(3)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=(), preamble=[1])
+            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1])
 
             >>> talea.advance(4)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=(), preamble=())
+            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[])
 
             >>> talea.advance(5)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=(), preamble=[1, 1, 3, 2, 4, 1, 1])
+            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1, 1, 3, 2, 4, 1, 1])
 
             >>> talea.advance(6)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=(), preamble=[1, 3, 2, 4, 1, 1])
+            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1, 3, 2, 4, 1, 1])
 
             >>> talea.advance(7)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=(), preamble=[3, 2, 4, 1, 1])
+            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[3, 2, 4, 1, 1])
 
             >>> talea.advance(8)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=(), preamble=[2, 2, 4, 1, 1])
+            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[2, 2, 4, 1, 1])
 
         ..  container:: example
 
@@ -924,13 +924,13 @@ class Talea:
 
             >>> talea = rmakers.Talea([1, 2, 3, 4], 16)
             >>> talea
-            Talea(counts=[1, 2, 3, 4], denominator=16, end_counts=(), preamble=())
+            Talea(counts=[1, 2, 3, 4], denominator=16, end_counts=[], preamble=[])
 
             >>> talea.advance(10)
-            Talea(counts=[1, 2, 3, 4], denominator=16, end_counts=(), preamble=())
+            Talea(counts=[1, 2, 3, 4], denominator=16, end_counts=[], preamble=[])
 
             >>> talea.advance(20)
-            Talea(counts=[1, 2, 3, 4], denominator=16, end_counts=(), preamble=())
+            Talea(counts=[1, 2, 3, 4], denominator=16, end_counts=[], preamble=[])
 
         """
         assert isinstance(weight, int), repr(weight)
@@ -964,7 +964,7 @@ class Talea:
             preamble_ = remaining
         return dataclasses.replace(
             self,
-            counts=counts,
+            counts=list(counts),
             denominator=self.denominator,
-            preamble=preamble_,
+            preamble=list(preamble_),
         )

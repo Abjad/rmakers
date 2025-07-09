@@ -422,6 +422,10 @@ def after_grace_container(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    if not isinstance(argument, abjad.Component):
+        assert isinstance(argument, list), repr(argument)
+        assert all(isinstance(_, abjad.Component) for _ in argument), repr(argument)
+    assert isinstance(counts, list), repr(counts)
     assert all(isinstance(_, int) for _ in counts), repr(counts)
     if slash is True:
         assert beam is True, repr(beam)
@@ -449,7 +453,7 @@ def after_grace_container(
 
 def attach_time_signatures(
     voice: abjad.Voice,
-    time_signatures: list[abjad.TimeSignature],
+    time_signatures: typing.Sequence[abjad.TimeSignature],
 ) -> None:
     leaves = abjad.select.leaves(voice, grace=False)
     durations = [_.duration for _ in time_signatures]
@@ -984,6 +988,7 @@ def before_grace_container(
         ...     tuplets = abjad.select.tuplets(container)
         ...     notes = [abjad.select.notes(_) for _ in tuplets]
         ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
+        ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.before_grace_container(notes, [1, 2, 3])
         ...     rmakers.extract_trivial(container)
         ...     components = abjad.mutate.eject_contents(container)
@@ -1054,6 +1059,7 @@ def before_grace_container(
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     notes = [abjad.select.notes(_) for _ in tuplets]
         ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
+        ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.before_grace_container(notes, [1, 2, 3], slur=True)
         ...     rmakers.extract_trivial(container)
         ...     components = abjad.mutate.eject_contents(container)
@@ -1124,6 +1130,7 @@ def before_grace_container(
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.notes(_) for _ in tuplets]
         ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
+        ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.before_grace_container(notes, [1, 2, 3], beam=True)
         ...     rmakers.extract_trivial(voice)
         ...     return lilypond_file
@@ -1196,6 +1203,7 @@ def before_grace_container(
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.notes(_) for _ in tuplets]
         ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
+        ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.before_grace_container(notes, [1, 2, 3], beam=True, slur=True)
         ...     rmakers.extract_trivial(voice)
         ...     return lilypond_file
@@ -1268,6 +1276,7 @@ def before_grace_container(
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.notes(_) for _ in tuplets]
         ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
+        ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.before_grace_container(notes, [1, 2, 3], beam=True, slash=True)
         ...     rmakers.extract_trivial(voice)
         ...     return lilypond_file
@@ -1344,6 +1353,7 @@ def before_grace_container(
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.notes(_) for _ in tuplets]
         ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
+        ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.before_grace_container(
         ...         notes, [1, 2, 3], beam=True, slash=True, slur=True
         ...     )
@@ -1410,6 +1420,10 @@ def before_grace_container(
         (When ``slash=True`` then ``beam`` must also be true.)
 
     """
+    if not isinstance(argument, abjad.Component):
+        assert isinstance(argument, list), repr(argument)
+        assert all(isinstance(_, abjad.Component) for _ in argument), repr(argument)
+    assert isinstance(counts, list), repr(counts)
     assert all(isinstance(_, int) for _ in counts), repr(counts)
     if slash is True:
         assert beam is True, repr(beam)
@@ -1496,18 +1510,21 @@ def example(
     components: typing.Sequence[abjad.Component],
     time_signatures: typing.Sequence[abjad.TimeSignature],
     *,
-    includes: typing.Sequence[str] = (),
+    includes: typing.Sequence[str] | None = None,
 ) -> abjad.LilyPondFile:
     """
     Makes example LilyPond file.
 
     Function is a documentation helper.
     """
+    assert isinstance(components, list), repr(components)
     assert all(isinstance(_, abjad.Component) for _ in components), repr(components)
-    assert time_signatures is not None
+    assert isinstance(time_signatures, list), repr(time_signatures)
     assert all(isinstance(_, abjad.TimeSignature) for _ in time_signatures), repr(
         time_signatures
     )
+    if includes is None:
+        includes = []
     assert all(isinstance(_, str) for _ in includes), repr(includes)
     lilypond_file = abjad.illustrators.components(components, time_signatures)
     includes = [rf'\include "{_}"' for _ in includes]
@@ -2675,7 +2692,7 @@ def nongrace_leaves_in_each_tuplet(
 def on_beat_grace_container(
     voice: abjad.Voice,
     voice_name: str,
-    nongrace_leaf_lists: typing.Sequence[typing.Sequence[abjad.Leaf]],
+    nongrace_leaf_lists: list[typing.Sequence[abjad.Leaf]],
     counts: typing.Sequence[int],
     *,
     grace_leaf_duration: abjad.Duration | None = None,
@@ -2833,10 +2850,11 @@ def on_beat_grace_container(
         ...     voice = abjad.Voice(tuplets)
         ...     rmakers.extract_trivial(voice)
         ...     logical_ties = abjad.select.logical_ties(voice)
+        ...     leaf_lists = [list(_) for _ in logical_ties]
         ...     rmakers.on_beat_grace_container(
         ...         voice,
         ...         "RhythmMaker.Music",
-        ...         logical_ties,
+        ...         leaf_lists,
         ...         [6, 2],
         ...         grace_leaf_duration=(1, 28)
         ...     )
@@ -3012,6 +3030,11 @@ def on_beat_grace_container(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    assert isinstance(counts, list), repr(counts)
+    assert isinstance(nongrace_leaf_lists, list), repr(nongrace_leaf_lists)
+    for item in nongrace_leaf_lists:
+        assert isinstance(item, list), repr(item)
+        assert all(isinstance(_, abjad.Leaf) for _ in item), repr(item)
     assert isinstance(voice, abjad.Voice), repr(voice)
     assert isinstance(voice_name, str), repr(voice_name)
     assert isinstance(talea, _classes.Talea), repr(talea)
@@ -3280,7 +3303,7 @@ def rewrite_meter(
     voice: abjad.Voice,
     *,
     boundary_depth: int | None = None,
-    reference_meters: typing.Sequence[abjad.Meter] = (),
+    reference_meters: typing.Sequence[abjad.Meter] | None = None,
     tag: abjad.Tag | None = None,
 ) -> None:
     r"""
@@ -3372,6 +3395,9 @@ def rewrite_meter(
     assert isinstance(staff, abjad.Staff), repr(staff)
     time_signature_voice = staff["TimeSignatureVoice"]
     assert isinstance(time_signature_voice, abjad.Voice)
+    if reference_meters is None:
+        reference_meters = []
+    assert isinstance(reference_meters, list), repr(reference_meters)
     meters, preferred_meters = [], []
     for skip in time_signature_voice:
         time_signature = abjad.get.indicator(skip, abjad.TimeSignature)
@@ -3379,7 +3405,6 @@ def rewrite_meter(
         meter = abjad.Meter(rtc)
         meters.append(meter)
     durations = [abjad.Duration(_) for _ in meters]
-    reference_meters = reference_meters or ()
     split_measures(voice, durations=durations)
     lists = abjad.select.group_by_measure(voice[:])
     assert all(isinstance(_, list) for _ in lists), repr(lists)
@@ -4131,7 +4156,7 @@ def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
 def split_measures(
     voice: abjad.Voice,
     *,
-    durations: list[abjad.Duration] | None = None,
+    durations: typing.Sequence[abjad.Duration] | None = None,
     tag: abjad.Tag | None = None,
 ) -> None:
     r"""
@@ -6280,7 +6305,7 @@ def untie(argument) -> None:
 
 def wrap_in_time_signature_staff(
     components: typing.Sequence[abjad.Component],
-    time_signatures: list[abjad.TimeSignature],
+    time_signatures: typing.Sequence[abjad.TimeSignature],
 ) -> abjad.Voice:
     """
     Wraps ``components`` in two-voice staff.
@@ -6289,6 +6314,7 @@ def wrap_in_time_signature_staff(
 
     See ``rmakers.rewrite_meter()`` for examples of this function.
     """
+    assert isinstance(components, list), repr(components)
     assert all(isinstance(_, abjad.Component) for _ in components), repr(components)
     assert all(isinstance(_, abjad.TimeSignature) for _ in time_signatures), repr(
         time_signatures

@@ -604,11 +604,17 @@ def _make_talea_tuplets(
     for tuplet in abjad.iterate.components(tuplets, abjad.Tuplet):
         tuplet.normalize_ratio()
     assert isinstance(self_state, dict)
+    # advanced_talea = _classes.Talea(
+    #     counts=prepared.talea,
+    #     denominator=talea.denominator,
+    #     end_counts=prepared.end_counts,
+    #     preamble=prepared.preamble,
+    # )
     advanced_talea = _classes.Talea(
-        counts=prepared.talea,
+        counts=list(prepared.talea),
         denominator=talea.denominator,
-        end_counts=prepared.end_counts,
-        preamble=prepared.preamble,
+        end_counts=list(prepared.end_counts),
+        preamble=list(prepared.preamble),
     )
     if "+" in prepared.talea or "-" in prepared.talea:
         pass
@@ -1111,9 +1117,11 @@ def accelerando(
             }
 
     """
+    assert isinstance(durations, list), repr(durations)
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    # TODO: eventually assert that every interpolation is a list of duration objects
     interpolations_ = []
     for interpolation in interpolations:
         interpolation_durations = [abjad.Duration(_) for _ in interpolation]
@@ -1148,12 +1156,10 @@ def accelerando(
 
 
 def even_division(
-    # TODO: list[abjad.Duration]
     durations: typing.Sequence[abjad.Duration],
-    # TODO: list[int]
     denominators: typing.Sequence[int],
     *,
-    extra_counts: typing.Sequence[int] = (0,),
+    extra_counts: typing.Sequence[int] | None = None,
     previous_state: dict | None = None,
     spelling: _classes.Spelling = _classes.Spelling(),
     state: dict | None = None,
@@ -1970,10 +1976,15 @@ def even_division(
             rhythms.
 
     """
+    assert isinstance(durations, list), repr(durations)
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    assert isinstance(denominators, list), repr(denominators)
     assert all(isinstance(_, int) for _ in denominators), repr(denominators)
+    if extra_counts is None:
+        extra_counts = [0]
+    assert isinstance(extra_counts, list), repr(extra_counts)
     assert all(isinstance(_, int) for _ in extra_counts), repr(extra_counts)
     previous_state = previous_state or {}
     if state is None:
@@ -2053,22 +2064,22 @@ def incised(
     durations: typing.Sequence[abjad.Duration],
     *,
     body_proportion: tuple[int, ...] = (1,),
-    extra_counts: typing.Sequence[int] = (),
+    extra_counts: typing.Sequence[int] | None = None,
     fill_with_rests: bool = False,
     outer_tuplets_only: bool = False,
-    prefix_counts: typing.Sequence[int] = (),
-    prefix_talea: typing.Sequence[int] = (),
+    prefix_counts: typing.Sequence[int] | None = None,
+    prefix_talea: typing.Sequence[int] | None = None,
     spelling: _classes.Spelling = _classes.Spelling(),
-    suffix_counts: typing.Sequence[int] = (),
-    suffix_talea: typing.Sequence[int] = (),
+    suffix_counts: typing.Sequence[int] | None = None,
+    suffix_talea: typing.Sequence[int] | None = None,
     tag: abjad.Tag | None = None,
     talea_denominator: int | None = None,
 ) -> list[abjad.Tuplet]:
     r"""
     Makes one incised tuplet for each duration in  ``durations``.
 
-    Set ``prefix_talea=[-1]`` with ``prefix_counts=[1]`` to incise a rest at the start
-    of each tuplet:
+    Set ``prefix_talea=[-1]`` with ``prefix_counts=[1]`` to incise a rest at
+    the start of each tuplet:
 
     ..  container:: example
 
@@ -2580,8 +2591,20 @@ def incised(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    assert isinstance(durations, list), repr(durations)
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    durations = [abjad.Duration(_) for _ in durations]
+    if prefix_talea is None:
+        prefix_talea = []
+    assert isinstance(prefix_talea, list), repr(prefix_talea)
+    if prefix_counts is None:
+        prefix_counts = []
+    assert isinstance(prefix_counts, list), repr(prefix_counts)
+    if suffix_talea is None:
+        suffix_talea = []
+    assert isinstance(suffix_talea, list), repr(suffix_talea)
+    if suffix_counts is None:
+        suffix_counts = []
+    assert isinstance(suffix_counts, list), repr(suffix_counts)
     incise = _classes.Incise(
         body_proportion=body_proportion,
         fill_with_rests=fill_with_rests,
@@ -2955,6 +2978,7 @@ def multiplied_duration(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    assert isinstance(durations, list), repr(durations)
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     durations = [abjad.Duration(_) for _ in durations]
     assert isinstance(duration, abjad.Duration), repr(duration)
@@ -3775,6 +3799,7 @@ def note(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    assert isinstance(durations, list), repr(durations)
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     durations = [abjad.Duration(_) for _ in durations]
     lists = []
@@ -3795,13 +3820,13 @@ def note(
 
 def talea(
     durations: typing.Sequence[abjad.Duration],
-    counts: typing.Sequence[int],
+    counts: typing.Sequence[int | str],
     denominator: int,
     *,
     advance: int = 0,
-    end_counts: typing.Sequence[int] = (),
-    extra_counts: typing.Sequence[int] = (),
-    preamble: typing.Sequence[int] = (),
+    end_counts: typing.Sequence[int] | None = None,
+    extra_counts: typing.Sequence[int] | None = None,
+    preamble: typing.Sequence[int] | None = None,
     previous_state: dict | None = None,
     read_talea_once_only: bool = False,
     spelling: _classes.Spelling = _classes.Spelling(),
@@ -4319,8 +4344,18 @@ def talea(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    assert isinstance(durations, list), repr(durations)
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    durations = [abjad.Duration(_) for _ in durations]
+    assert isinstance(counts, list), repr(counts)
+    if end_counts is None:
+        end_counts = []
+    assert isinstance(end_counts, list), repr(end_counts)
+    if extra_counts is None:
+        extra_counts = []
+    assert isinstance(extra_counts, list), repr(extra_counts)
+    if preamble is None:
+        preamble = []
+    assert isinstance(preamble, list), repr(preamble)
     talea = _classes.Talea(
         counts=counts,
         denominator=denominator,
@@ -6188,7 +6223,9 @@ def tuplet(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    assert isinstance(durations, list), repr(durations)
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert isinstance(tuplet_proportions, list), repr(tuplet_proportions)
     tuplets = _make_tuplet_rhythm_maker_music(
         durations,
         tuplet_proportions,
