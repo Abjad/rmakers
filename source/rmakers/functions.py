@@ -456,7 +456,7 @@ def attach_time_signatures(
     time_signatures: typing.Sequence[abjad.TimeSignature],
 ) -> None:
     leaves = abjad.select.leaves(voice, grace=False)
-    durations = [_.duration for _ in time_signatures]
+    durations = [_.get_duration() for _ in time_signatures]
     parts = abjad.select.partition_by_durations(leaves, durations)
     assert len(parts) == len(time_signatures)
     previous_time_signature = None
@@ -3410,7 +3410,7 @@ def rewrite_meter(
     assert all(isinstance(_, list) for _ in lists), repr(lists)
     for meter, list_ in zip(meters, lists):
         for reference_meter in reference_meters:
-            if reference_meter.pair == meter.pair:
+            if reference_meter.pair() == meter.pair():
                 meter = reference_meter
                 break
         preferred_meters.append(meter)
@@ -3428,7 +3428,7 @@ def rewrite_meter(
     for meter, list_ in zip(preferred_meters, lists):
         leaves = abjad.select.leaves(list_, grace=False)
         beat_durations = []
-        beat_offsets = meter.depthwise_offset_inventory[1]
+        beat_offsets = meter.depthwise_offset_inventory()[1]
         for start, stop in abjad.sequence.nwise(beat_offsets):
             beat_duration = stop - start
             beat_durations.append(beat_duration)

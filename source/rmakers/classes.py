@@ -606,17 +606,17 @@ class Talea:
 
         Equal to weight of counts:
 
-        >>> rmakers.Talea([1, 2, 3, 4], 16).period
+        >>> rmakers.Talea([1, 2, 3, 4], 16).period()
         10
 
         Rests make no difference:
 
-        >>> rmakers.Talea([1, 2, -3, 4], 16).period
+        >>> rmakers.Talea([1, 2, -3, 4], 16).period()
         10
 
         Denominator makes no difference:
 
-        >>> rmakers.Talea([1, 2, -3, 4], 32).period
+        >>> rmakers.Talea([1, 2, -3, 4], 32).period()
         10
 
         Preamble makes no difference:
@@ -627,7 +627,7 @@ class Talea:
         ...     preamble=[1, 1, 1],
         ... )
 
-        >>> talea.period
+        >>> talea.period()
         10
 
     ..  container:: example
@@ -734,7 +734,7 @@ class Talea:
             counts = []
         cumulative = abjad.math.cumulative_sums(counts)[:-1]
         argument -= preamble_weight
-        argument %= self.period
+        argument %= self.period()
         return argument in cumulative
 
     def __getitem__(self, argument) -> tuple[int, int] | list[tuple[int, int]]:
@@ -843,42 +843,6 @@ class Talea:
         """
         return len(self.counts or [])
 
-    @property
-    def period(self) -> int:
-        """
-        Gets period of talea.
-
-        ..  container:: example
-
-            Equal to weight of counts:
-
-            >>> rmakers.Talea([1, 2, 3, 4], 16).period
-            10
-
-            Rests make no difference:
-
-            >>> rmakers.Talea([1, 2, -3, 4], 16).period
-            10
-
-            Denominator makes no difference:
-
-            >>> rmakers.Talea([1, 2, -3, 4], 32).period
-            10
-
-            Preamble makes no difference:
-
-            >>> talea = rmakers.Talea(
-            ...     [1, 2, -3, 4],
-            ...     32,
-            ...     preamble=[1, 1, 1],
-            ... )
-
-            >>> talea.period
-            10
-
-        """
-        return abjad.sequence.weight(self.counts)
-
     def advance(self, weight: int) -> "Talea":
         """
         Advances talea by ``weight``.
@@ -968,3 +932,38 @@ class Talea:
             denominator=self.denominator,
             preamble=list(preamble_),
         )
+
+    def period(self) -> int:
+        """
+        Gets period of talea.
+
+        ..  container:: example
+
+            Equal to weight of counts:
+
+            >>> rmakers.Talea([1, 2, 3, 4], 16).period()
+            10
+
+            Rests make no difference:
+
+            >>> rmakers.Talea([1, 2, -3, 4], 16).period()
+            10
+
+            Denominator makes no difference:
+
+            >>> rmakers.Talea([1, 2, -3, 4], 32).period()
+            10
+
+            Preamble makes no difference:
+
+            >>> talea = rmakers.Talea(
+            ...     [1, 2, -3, 4],
+            ...     32,
+            ...     preamble=[1, 1, 1],
+            ... )
+
+            >>> talea.period()
+            10
+
+        """
+        return abjad.sequence.weight(self.counts)
