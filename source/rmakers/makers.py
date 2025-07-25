@@ -91,7 +91,7 @@ def _fix_rounding_error(leaves, total_duration, interpolation):
         needed_duration = total_duration - abjad.get.duration(leaves[:-1])
         multiplier = needed_duration / interpolation.written_duration
         pair = abjad.duration.pair(multiplier)
-        leaves[-1].multiplier = pair
+        leaves[-1].set_multiplier(pair)
 
 
 def _function_name(frame):

@@ -2120,8 +2120,8 @@ def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
         if isinstance(leaf, abjad.Note):
             continue
         note = abjad.Note("C4", leaf.written_duration, tag=tag)
-        if leaf.multiplier is not None:
-            note.multiplier = leaf.multiplier
+        if leaf.get_multiplier() is not None:
+            note.set_multiplier(leaf.get_multiplier())
         abjad.mutate.replace(leaf, [note])
 
 
@@ -2632,8 +2632,8 @@ def force_rest(argument, *, tag: abjad.Tag | None = None) -> None:
     leaves = abjad.select.leaves(argument)
     for leaf in leaves:
         rest = abjad.Rest(leaf.written_duration, tag=tag)
-        if leaf.multiplier is not None:
-            rest.multiplier = leaf.multiplier
+        if leaf.get_multiplier() is not None:
+            rest.set_multiplier(leaf.get_multiplier())
         previous_leaf = abjad.get.leaf(leaf, -1)
         next_leaf = abjad.get.leaf(leaf, 1)
         abjad.mutate.replace(leaf, [rest])
@@ -6340,4 +6340,4 @@ def written_duration(argument, duration: abjad.Duration) -> None:
         leaf.written_duration = duration_
         multiplier = old_duration / duration_
         pair = abjad.duration.pair(multiplier)
-        leaf.multiplier = pair
+        leaf.set_multiplier(pair)
