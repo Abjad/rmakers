@@ -20,7 +20,7 @@ def _apply_ties_to_split_notes(
     talea,
 ):
     leaves = abjad.select.leaves(tuplets)
-    written_durations = [leaf.written_duration for leaf in leaves]
+    written_durations = [leaf.get_written_duration() for leaf in leaves]
     written_durations = list(written_durations)
     total_duration = abjad.sequence.weight(written_durations)
     preamble_weights = []

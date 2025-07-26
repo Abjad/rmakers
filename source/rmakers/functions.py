@@ -2119,7 +2119,7 @@ def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
     for leaf in leaves:
         if isinstance(leaf, abjad.Note):
             continue
-        note = abjad.Note("C4", leaf.written_duration, tag=tag)
+        note = abjad.Note("C4", leaf.get_written_duration(), tag=tag)
         if leaf.get_multiplier() is not None:
             note.set_multiplier(leaf.get_multiplier())
         abjad.mutate.replace(leaf, [note])
@@ -2631,7 +2631,7 @@ def force_rest(argument, *, tag: abjad.Tag | None = None) -> None:
     tag = tag.append(_function_name(inspect.currentframe()))
     leaves = abjad.select.leaves(argument)
     for leaf in leaves:
-        rest = abjad.Rest(leaf.written_duration, tag=tag)
+        rest = abjad.Rest(leaf.get_written_duration(), tag=tag)
         if leaf.get_multiplier() is not None:
             rest.set_multiplier(leaf.get_multiplier())
         previous_leaf = abjad.get.leaf(leaf, -1)
@@ -4861,7 +4861,7 @@ def tremolo_container(argument, count: int, *, tag: abjad.Tag | None = None) -> 
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     for leaf in abjad.select.leaves(argument, pitched=True):
-        container_duration = leaf.written_duration
+        container_duration = leaf.get_written_duration()
         note_duration = container_duration / (2 * count)
         left_note = abjad.Note("c'", note_duration)
         right_note = abjad.Note("c'", note_duration)
@@ -6334,10 +6334,10 @@ def written_duration(argument, duration: abjad.Duration) -> None:
     duration_ = abjad.Duration(duration)
     leaves = abjad.select.leaves(argument)
     for leaf in leaves:
-        old_duration = leaf.written_duration
+        old_duration = leaf.get_written_duration()
         if duration_ == old_duration:
             continue
-        leaf.written_duration = duration_
+        leaf.set_written_duration(duration_)
         multiplier = old_duration / duration_
         pair = abjad.duration.pair(multiplier)
         leaf.set_multiplier(pair)
