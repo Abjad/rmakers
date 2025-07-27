@@ -256,7 +256,7 @@ def _make_time_signature_staff(time_signatures):
 
 def _validate_tuplets(argument):
     for tuplet in abjad.iterate.components(argument, abjad.Tuplet):
-        assert tuplet.ratio.is_normalized(), repr(tuplet)
+        assert tuplet.get_ratio().is_normalized(), repr(tuplet)
         assert len(tuplet), repr(tuplet)
 
 
@@ -1530,7 +1530,7 @@ def example(
     includes = [rf'\include "{_}"' for _ in includes]
     lilypond_file.items[0:0] = includes
     staff = lilypond_file["Staff"]
-    staff.lilypond_type = "RhythmicStaff"
+    staff.set_lilypond_type("RhythmicStaff")
     abjad.override(staff).Clef.stencil = False
     return lilypond_file
 
@@ -1839,7 +1839,7 @@ def force_augmentation(argument) -> None:
 
     """
     for tuplet in abjad.select.tuplets(argument):
-        if not tuplet.ratio.is_augmented():
+        if not tuplet.get_ratio().is_augmented():
             tuplet.toggle_prolation()
 
 
@@ -2006,7 +2006,7 @@ def force_diminution(argument) -> None:
 
     """
     for tuplet in abjad.select.tuplets(argument):
-        if not tuplet.ratio.is_diminished():
+        if not tuplet.get_ratio().is_diminished():
             tuplet.toggle_prolation()
 
 
@@ -3286,7 +3286,7 @@ def reduce_multiplier(argument) -> None:
             tuplet.multiplier().denominator,
             tuplet.multiplier().numerator,
         )
-        tuplet.ratio = ratio
+        tuplet.set_ratio(ratio)
 
 
 def rewrite_dots(argument, *, tag: abjad.Tag | None = None) -> None:
@@ -3793,7 +3793,7 @@ def rewrite_rest_filled(
             tag=tag,
         )
         abjad.mutate.replace(tuplet[:], rests)
-        tuplet.ratio = abjad.Ratio(1, 1)
+        tuplet.set_ratio(abjad.Ratio(1, 1))
 
 
 def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
@@ -4150,7 +4150,7 @@ def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
         if not last_leaf_has_tie:
             abjad.detach(abjad.Tie, tuplet[-1])
         abjad.mutate._set_leaf_duration(tuplet[0], duration, tag=tag)
-        tuplet.ratio = abjad.Ratio(1, 1)
+        tuplet.set_ratio(abjad.Ratio(1, 1))
 
 
 def split_measures(
@@ -5286,8 +5286,8 @@ def tweak_tuplet_number_text_calc_fraction_text(argument) -> None:
         if "text" in vars(abjad.override(tuplet).TupletNumber):
             continue
         if (
-            tuplet.ratio.is_augmented()
-            or not tuplet.ratio.is_dyadic()
+            tuplet.get_ratio().is_augmented()
+            or not tuplet.get_ratio().is_dyadic()
             or tuplet.multiplier() == 1
         ):
             abjad.tweak(tuplet, r"\tweak text #tuplet-number::calc-fraction-text")
