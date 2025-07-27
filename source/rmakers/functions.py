@@ -3045,7 +3045,7 @@ def on_beat_grace_container(
         nongrace_polyphony_command
     )
     if voice_name:
-        voice.name = voice_name
+        voice.set_name(voice_name)
     cyclic_counts = abjad.CyclicTuple(counts)
     start = 0
     for i, nongrace_leaves in enumerate(nongrace_leaf_lists):
