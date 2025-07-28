@@ -38,7 +38,7 @@ html_theme_options = {
     "navigation_depth": 1,
     "sticky_navigation": False,
     "style_external_links": True,
-    "style_nav_header_background": "#AA8844",
+    "style_nav_header_background": "#FFAA55",
 }
 
 intersphinx_mapping = {
