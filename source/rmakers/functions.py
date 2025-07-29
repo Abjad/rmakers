@@ -456,7 +456,7 @@ def attach_time_signatures(
     time_signatures: typing.Sequence[abjad.TimeSignature],
 ) -> None:
     leaves = abjad.select.leaves(voice, grace=False)
-    durations = [_.get_duration() for _ in time_signatures]
+    durations = [_.duration() for _ in time_signatures]
     parts = abjad.select.partition_by_durations(leaves, durations)
     assert len(parts) == len(time_signatures)
     previous_time_signature = None
