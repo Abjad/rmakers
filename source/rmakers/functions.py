@@ -3391,7 +3391,7 @@ def rewrite_meter(
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     assert isinstance(voice, abjad.Container), repr(voice)
-    staff = abjad.get.parentage(voice).get_parent()
+    staff = abjad.get.parentage(voice).parent()
     assert isinstance(staff, abjad.Staff), repr(staff)
     time_signature_voice = staff["TimeSignatureVoice"]
     assert isinstance(time_signature_voice, abjad.Voice)
@@ -4171,7 +4171,7 @@ def split_measures(
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     if not durations:
-        staff = abjad.get.parentage(voice).get_parent()
+        staff = abjad.get.parentage(voice).parent()
         assert isinstance(staff, abjad.Staff)
         voice_ = staff["TimeSignatureVoice"]
         assert isinstance(voice_, abjad.Voice)
