@@ -1481,7 +1481,7 @@ def duration_bracket(argument) -> None:
         components = abjad.makers.make_leaves([pitch_list], [duration_])
         if all(isinstance(_, abjad.Note) for _ in components):
             durations = [abjad.get.duration(_) for _ in components]
-            strings = [_.get_lilypond_duration_string() for _ in durations]
+            strings = [_.lilypond_duration_string() for _ in durations]
             strings = [rf"\rhythm {{ {_} }}" for _ in strings]
             string = " + ".join(strings)
             if "+" in string:
