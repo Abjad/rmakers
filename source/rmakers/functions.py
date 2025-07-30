@@ -256,7 +256,7 @@ def _make_time_signature_staff(time_signatures):
 
 def _validate_tuplets(argument):
     for tuplet in abjad.iterate.components(argument, abjad.Tuplet):
-        assert tuplet.get_ratio().is_normalized(), repr(tuplet)
+        assert tuplet.ratio().is_normalized(), repr(tuplet)
         assert len(tuplet), repr(tuplet)
 
 
@@ -1839,7 +1839,7 @@ def force_augmentation(argument) -> None:
 
     """
     for tuplet in abjad.select.tuplets(argument):
-        if not tuplet.get_ratio().is_augmented():
+        if not tuplet.ratio().is_augmented():
             tuplet.toggle_prolation()
 
 
@@ -2006,7 +2006,7 @@ def force_diminution(argument) -> None:
 
     """
     for tuplet in abjad.select.tuplets(argument):
-        if not tuplet.get_ratio().is_diminished():
+        if not tuplet.ratio().is_diminished():
             tuplet.toggle_prolation()
 
 
@@ -2119,9 +2119,9 @@ def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
     for leaf in leaves:
         if isinstance(leaf, abjad.Note):
             continue
-        note = abjad.Note("C4", leaf.get_written_duration(), tag=tag)
-        if leaf.get_multiplier() is not None:
-            note.set_multiplier(leaf.get_multiplier())
+        note = abjad.Note("C4", leaf.written_duration(), tag=tag)
+        if leaf.multiplier() is not None:
+            note.set_multiplier(leaf.multiplier())
         abjad.mutate.replace(leaf, [note])
 
 
@@ -2631,9 +2631,9 @@ def force_rest(argument, *, tag: abjad.Tag | None = None) -> None:
     tag = tag.append(_function_name(inspect.currentframe()))
     leaves = abjad.select.leaves(argument)
     for leaf in leaves:
-        rest = abjad.Rest(leaf.get_written_duration(), tag=tag)
-        if leaf.get_multiplier() is not None:
-            rest.set_multiplier(leaf.get_multiplier())
+        rest = abjad.Rest(leaf.written_duration(), tag=tag)
+        if leaf.multiplier() is not None:
+            rest.set_multiplier(leaf.multiplier())
         previous_leaf = abjad.get.leaf(leaf, -1)
         next_leaf = abjad.get.leaf(leaf, 1)
         abjad.mutate.replace(leaf, [rest])
@@ -4861,7 +4861,7 @@ def tremolo_container(argument, count: int, *, tag: abjad.Tag | None = None) -> 
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     for leaf in abjad.select.leaves(argument, pitched=True):
-        container_duration = leaf.get_written_duration()
+        container_duration = leaf.written_duration()
         note_duration = container_duration / (2 * count)
         left_note = abjad.Note("c'", note_duration)
         right_note = abjad.Note("c'", note_duration)
@@ -5286,8 +5286,8 @@ def tweak_tuplet_number_text_calc_fraction_text(argument) -> None:
         if "text" in vars(abjad.override(tuplet).TupletNumber):
             continue
         if (
-            tuplet.get_ratio().is_augmented()
-            or not tuplet.get_ratio().is_dyadic()
+            tuplet.ratio().is_augmented()
+            or not tuplet.ratio().is_dyadic()
             or tuplet.multiplier() == 1
         ):
             abjad.tweak(tuplet, r"\tweak text #tuplet-number::calc-fraction-text")
@@ -6334,7 +6334,7 @@ def written_duration(argument, duration: abjad.Duration) -> None:
     duration_ = abjad.Duration(duration)
     leaves = abjad.select.leaves(argument)
     for leaf in leaves:
-        old_duration = leaf.get_written_duration()
+        old_duration = leaf.written_duration()
         if duration_ == old_duration:
             continue
         leaf.set_written_duration(duration_)

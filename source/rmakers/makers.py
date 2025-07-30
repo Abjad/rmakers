@@ -20,7 +20,7 @@ def _apply_ties_to_split_notes(
     talea,
 ):
     leaves = abjad.select.leaves(tuplets)
-    written_durations = [leaf.get_written_duration() for leaf in leaves]
+    written_durations = [leaf.written_duration() for leaf in leaves]
     written_durations = list(written_durations)
     total_duration = abjad.sequence.weight(written_durations)
     preamble_weights = []
@@ -2029,8 +2029,8 @@ def even_division(
         ratio = abjad.Ratio(multiplier.denominator, multiplier.numerator)
         tuplet = abjad.Tuplet(ratio, notes, tag=tag)
         if unprolated_note_count is not None:
-            multiplier_numerator = tuplet.get_ratio().denominator
-            multiplier_denominator = tuplet.get_ratio().numerator
+            multiplier_numerator = tuplet.ratio().denominator
+            multiplier_denominator = tuplet.ratio().numerator
             if multiplier_denominator < note_count:
                 scalar = note_count / multiplier_denominator
                 assert scalar == int(scalar)
@@ -2039,7 +2039,7 @@ def even_division(
                 multiplier_numerator *= scalar
                 ratio_ = abjad.Ratio(multiplier_denominator, multiplier_numerator)
                 tuplet.set_ratio(ratio_)
-                assert tuplet.get_ratio().numerator == note_count
+                assert tuplet.ratio().numerator == note_count
         tuplets.append(tuplet)
     assert all(isinstance(_, abjad.Tuplet) for _ in tuplets), repr(tuplets)
     voice = abjad.Voice(tuplets)
