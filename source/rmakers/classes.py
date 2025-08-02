@@ -139,7 +139,7 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [abjad.Duration(_) for _ in pairs]
+        ...     durations = [_.duration() for _ in time_signatures]
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [5],
@@ -196,7 +196,7 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [abjad.Duration(_) for _ in time_signatures]
+        ...     durations = [_.duration() for _ in time_signatures]
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [5],
@@ -254,7 +254,7 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [abjad.Duration(_) for _ in time_signatures]
+        ...     durations = [_.duration() for _ in time_signatures]
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [1, 1, 1, 1, 4, -4],
@@ -319,7 +319,7 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [abjad.Duration(_) for _ in time_signatures]
+        ...     durations = [_.duration() for _ in time_signatures]
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [1, 1, 1, 1, 4, -4],
@@ -382,7 +382,7 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [abjad.Duration(_) for _ in time_signatures]
+        ...     durations = [_.duration() for _ in time_signatures]
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [5],
@@ -444,7 +444,7 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [abjad.Duration(_) for _ in time_signatures]
+        ...     durations = [_.duration() for _ in time_signatures]
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [5],
@@ -506,7 +506,7 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [abjad.Duration(_) for _ in time_signatures]
+        ...     durations = [_.duration() for _ in time_signatures]
         ...     tuplets = rmakers.talea(
         ...         durations, [1, 1, 1, 1, 4, 4], 16,
         ...         spelling=rmakers.Spelling(

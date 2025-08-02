@@ -11,7 +11,7 @@ Examples that show how to work with rmakers in a statal way.
 
         >>> def make_statal_accelerandi(pairs, previous_state=None):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [abjad.Duration(_) for _ in time_signatures]
+        ...     durations = [_.duration() for _ in time_signatures]
         ...     if previous_state is None:
         ...         previous_state = {}
         ...     state = {}
@@ -251,7 +251,7 @@ Examples that show how to work with rmakers in a statal way.
 
     >>> def make_lilypond_file(pairs, *, previous_state=None):
     ...     time_signatures = rmakers.time_signatures(pairs)
-    ...     durations = [abjad.Duration(_) for _ in time_signatures]
+    ...     durations = [_.duration() for _ in time_signatures]
     ...     state = {}
     ...     tuplets = rmakers.even_division(
     ...         durations, [16, 8, 4], extra_counts=[0, 1],
@@ -380,7 +380,7 @@ Examples that show how to work with rmakers in a statal way.
 
     >>> def make_lilypond_file(pairs, *, previous_state=None):
     ...     time_signatures = rmakers.time_signatures(pairs)
-    ...     durations = [abjad.Duration(_) for _ in time_signatures]
+    ...     durations = [_.duration() for _ in time_signatures]
     ...     state = {}
     ...     tuplets = rmakers.talea(
     ...         durations, [4], 16, extra_counts=[0, 1, 2],
