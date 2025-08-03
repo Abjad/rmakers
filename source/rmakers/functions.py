@@ -439,7 +439,7 @@ def after_grace_container(
             continue
         stop = start + count
         pitch_list = [abjad.NamedPitch("c'")]
-        durations = abjad.makers.make_durations(list(talea[start:stop]))
+        durations = abjad.duration.durations(list(talea[start:stop]))
         notes = abjad.makers.make_leaves([pitch_list], durations, tag=tag)
         container = abjad.AfterGraceContainer(notes, tag=tag)
         abjad.attach(container, leaf)
@@ -1437,7 +1437,7 @@ def before_grace_container(
             continue
         stop = start + count
         pitch_list = [abjad.NamedPitch("c'")]
-        durations = abjad.makers.make_durations(list(talea[start:stop]))
+        durations = abjad.duration.durations(list(talea[start:stop]))
         notes = abjad.makers.make_leaves([pitch_list], durations)
         if len(notes) == 1:
             if slash is False and slur is False:
@@ -1490,20 +1490,6 @@ def duration_bracket(argument) -> None:
             string = abjad.illustrators.components_to_score_markup_string(components)
         string = rf"\markup \scale #'(0.75 . 0.75) {string}"
         abjad.override(tuplet).TupletNumber.text = string
-
-
-def durations(items: list) -> list[abjad.Duration]:
-    """
-    Change list of arbitrary ``items`` to list of durations.
-
-    ..  container:: example
-
-        >>> rmakers.durations([(1, 8), (1, 2), (1, 16)])
-        [Duration(1, 8), Duration(1, 2), Duration(1, 16)]
-
-    """
-    durations = abjad.duration.durations(items)
-    return durations
 
 
 def example(
@@ -3057,7 +3043,7 @@ def on_beat_grace_container(
             continue
         stop = start + count
         pitch_list = [abjad.NamedPitch("c'")]
-        durations = abjad.makers.make_durations(list(talea[start:stop]))
+        durations = abjad.duration.durations(list(talea[start:stop]))
         grace_leaves = abjad.makers.make_leaves([pitch_list], durations)
         abjad.on_beat_grace_container(
             grace_leaves,
