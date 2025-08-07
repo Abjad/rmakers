@@ -6316,13 +6316,12 @@ def written_duration(argument, duration: abjad.Duration) -> None:
     Sets written duration of leaves in ``argument``.
     """
     assert isinstance(duration, abjad.Duration), repr(duration)
-    duration_ = abjad.Duration(duration)
     leaves = abjad.select.leaves(argument)
     for leaf in leaves:
         old_duration = leaf.written_duration()
-        if duration_ == old_duration:
+        if duration == old_duration:
             continue
-        leaf.set_written_duration(duration_)
-        multiplier = old_duration / duration_
-        pair = abjad.duration.pair(multiplier)
+        leaf.set_written_duration(duration)
+        fraction = old_duration / duration
+        pair = (fraction.numerator, fraction.denominator)
         leaf.set_multiplier(pair)

@@ -89,8 +89,8 @@ def _fix_rounding_error(leaves, total_duration, interpolation):
     duration = abjad.get.duration(leaves)
     if not duration == total_duration:
         needed_duration = total_duration - abjad.get.duration(leaves[:-1])
-        multiplier = needed_duration / interpolation.written_duration
-        pair = abjad.duration.pair(multiplier)
+        fraction = needed_duration / interpolation.written_duration
+        pair = (fraction.numerator, fraction.denominator)
         leaves[-1].set_multiplier(pair)
 
 
@@ -262,8 +262,8 @@ def _make_accelerando(
     notes = []
     for i, duration_ in enumerate(durations):
         written_duration = interpolation.written_duration
-        multiplier = duration_ / written_duration
-        pair = abjad.duration.pair(multiplier)
+        fraction = duration_ / written_duration
+        pair = (fraction.numerator, fraction.denominator)
         note = abjad.Note(0, written_duration, multiplier=pair, tag=tag)
         notes.append(note)
     _fix_rounding_error(notes, duration, interpolation)
@@ -2993,7 +2993,7 @@ def multiplied_duration(
         pair = duration_.numerator, duration_.denominator
         fraction = abjad.Fraction(*pair) / duration
         denominator = abjad.math.least_common_multiple(pair[1], fraction.denominator)
-        pair = abjad.duration.with_denominator(fraction, denominator)
+        pair = abjad.duration.pair_with_denominator(fraction, denominator)
         if prototype is abjad.Note:
             leaf = prototype("c'", duration, multiplier=pair, tag=tag)
         else:
