@@ -196,22 +196,22 @@ def _interpolate_exponential(y1, y2, mu, exponent=1) -> float:
         >>> for mu in (0, 0.25, 0.5, 0.75, 1):
         ...     rmakers.functions._interpolate_exponential(100, 200, mu, exponent=1)
         ...
-        100
+        100.0
         125.0
         150.0
         175.0
-        200
+        200.0
 
         Exponents greater than 1 generate ritardandi:
 
         >>> for mu in (0, 0.25, 0.5, 0.75, 1):
         ...     rmakers.functions._interpolate_exponential(100, 200, mu, exponent=2)
         ...
-        100
+        100.0
         106.25
         125.0
         156.25
-        200
+        200.0
 
         Exponents less than 1 generate accelerandi:
 
@@ -225,7 +225,7 @@ def _interpolate_exponential(y1, y2, mu, exponent=1) -> float:
         200.0
 
     """
-    result = y1 * (1 - mu**exponent) + y2 * mu**exponent
+    result = float(y1) * (1 - mu**exponent) + float(y2) * mu**exponent
     return result
 
 
