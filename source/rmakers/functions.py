@@ -208,19 +208,19 @@ def _make_beamable_groups(components, durations):
         message += f"   {durations}"
         raise Exception(message)
     component_to_timespan = []
-    start_offset = abjad.Offset(0)
+    start_offset = abjad.mvo(0)
     for component in components:
         duration = abjad.get.duration(component)
         stop_offset = start_offset + duration
-        timespan = abjad.Timespan(start_offset, stop_offset)
+        timespan = abjad.Timespan.fvo(start_offset, stop_offset)
         pair = (component, timespan)
         component_to_timespan.append(pair)
         start_offset = stop_offset
     group_to_target_duration = []
-    start_offset = abjad.Offset(0)
+    start_offset = abjad.mvo(0)
     for target_duration in durations:
         stop_offset = start_offset + target_duration
-        group_timespan = abjad.Timespan(start_offset, stop_offset)
+        group_timespan = abjad.Timespan.fvo(start_offset, stop_offset)
         start_offset = stop_offset
         group = []
         for component, component_timespan in component_to_timespan:
