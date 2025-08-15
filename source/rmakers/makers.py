@@ -260,11 +260,17 @@ def _make_accelerando(
         return tuplet
     durations = _round_durations(durations, 2**10)
     notes = []
+    pitch = abjad.NamedPitch(0)
     for i, duration_ in enumerate(durations):
         written_duration = interpolation.written_duration
         fraction = duration_ / written_duration
         pair = (fraction.numerator, fraction.denominator)
-        note = abjad.Note(0, written_duration, multiplier=pair, tag=tag)
+        note = abjad.Note.from_pitch_and_duration(
+            pitch,
+            written_duration,
+            multiplier=pair,
+            tag=tag,
+        )
         notes.append(note)
     _fix_rounding_error(notes, duration, interpolation)
     tuplet = abjad.Tuplet("1:1", notes, tag=tag)
@@ -2989,13 +2995,19 @@ def multiplied_duration(
     assert isinstance(duration, abjad.Duration), repr(duration)
     leaf: abjad.Leaf
     leaves = []
+    pitch = abjad.NamedPitch("c'")
     for duration_ in durations:
         pair = duration_.numerator, duration_.denominator
         fraction = abjad.Fraction(*pair) / duration
         denominator = abjad.math.least_common_multiple(pair[1], fraction.denominator)
         pair = abjad.duration.pair_with_denominator(fraction, denominator)
         if prototype is abjad.Note:
-            leaf = prototype("c'", duration, multiplier=pair, tag=tag)
+            leaf = abjad.Note.from_pitch_and_duration(
+                pitch,
+                duration,
+                multiplier=pair,
+                tag=tag,
+            )
         else:
             leaf = prototype(duration, multiplier=pair, tag=tag)
         leaves.append(leaf)

@@ -2102,10 +2102,12 @@ def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     leaves = abjad.select.leaves(argument)
+    pitch = abjad.NamedPitch("C4")
     for leaf in leaves:
         if isinstance(leaf, abjad.Note):
             continue
-        note = abjad.Note("C4", leaf.written_duration(), tag=tag)
+        duration = leaf.written_duration()
+        note = abjad.Note.from_pitch_and_duration(pitch, duration, tag=tag)
         if leaf.multiplier() is not None:
             note.set_multiplier(leaf.multiplier())
         abjad.mutate.replace(leaf, [note])
@@ -4845,11 +4847,13 @@ def tremolo_container(argument, count: int, *, tag: abjad.Tag | None = None) -> 
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    pitch = abjad.NamedPitch("c'")
     for leaf in abjad.select.leaves(argument, pitched=True):
         container_duration = leaf.written_duration()
         note_duration = container_duration / (2 * count)
-        left_note = abjad.Note("c'", note_duration)
-        right_note = abjad.Note("c'", note_duration)
+        assert isinstance(note_duration, abjad.Duration)
+        left_note = abjad.Note.from_pitch_and_duration(pitch, note_duration)
+        right_note = abjad.Note.from_pitch_and_duration(pitch, note_duration)
         container = abjad.TremoloContainer(count, [left_note, right_note], tag=tag)
         abjad.mutate.replace(leaf, container)
 
