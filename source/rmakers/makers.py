@@ -3008,8 +3008,17 @@ def multiplied_duration(
                 multiplier=pair,
                 tag=tag,
             )
+        elif prototype is abjad.Rest:
+            leaf = abjad.Rest.from_duration(duration, multiplier=pair, tag=tag)
+        elif prototype is abjad.MultimeasureRest:
+            leaf = abjad.MultimeasureRest.from_duration(
+                duration, multiplier=pair, tag=tag
+            )
         else:
-            leaf = prototype(duration, multiplier=pair, tag=tag)
+            try:
+                leaf = prototype(duration, multiplier=pair, tag=tag)
+            except AssertionError:
+                raise Exception(repr(prototype))
         leaves.append(leaf)
     assert all(isinstance(_, abjad.Leaf) for _ in leaves), repr(leaves)
     return leaves

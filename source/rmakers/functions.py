@@ -248,7 +248,7 @@ def _make_time_signature_staff(time_signatures):
     staff.append(abjad.Voice(name="RhythmMaker.Music"))
     for time_signature in time_signatures:
         duration = time_signature.pair
-        skip = abjad.Skip(1, multiplier=duration)
+        skip = abjad.Skip("s1", multiplier=duration)
         time_signature_voice.append(skip)
         abjad.attach(time_signature, skip, context="Staff")
     return score
@@ -2619,7 +2619,7 @@ def force_rest(argument, *, tag: abjad.Tag | None = None) -> None:
     tag = tag.append(_function_name(inspect.currentframe()))
     leaves = abjad.select.leaves(argument)
     for leaf in leaves:
-        rest = abjad.Rest(leaf.written_duration(), tag=tag)
+        rest = abjad.Rest.from_duration(leaf.written_duration(), tag=tag)
         if leaf.multiplier() is not None:
             rest.set_multiplier(leaf.multiplier())
         previous_leaf = abjad.get.leaf(leaf, -1)
