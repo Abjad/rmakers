@@ -2680,7 +2680,6 @@ def multiplied_duration(
     prototype: type = abjad.Note,
     *,
     duration: abjad.Duration = abjad.Duration(1, 1),
-    spelling: _classes.Spelling = _classes.Spelling(),
     tag: abjad.Tag | None = None,
 ) -> list[abjad.Leaf]:
     r"""
@@ -3012,15 +3011,14 @@ def multiplied_duration(
             leaf = abjad.Rest.from_duration(duration, multiplier=pair, tag=tag)
         elif prototype is abjad.MultimeasureRest:
             leaf = abjad.MultimeasureRest.from_duration(
-                duration, multiplier=pair, tag=tag
+                duration,
+                multiplier=pair,
+                tag=tag,
             )
         else:
-            try:
-                leaf = prototype(duration, multiplier=pair, tag=tag)
-            except AssertionError:
-                raise Exception(repr(prototype))
+            assert prototype is abjad.Skip
+            leaf = abjad.Skip.from_duration(duration, multiplier=pair, tag=tag)
         leaves.append(leaf)
-    assert all(isinstance(_, abjad.Leaf) for _ in leaves), repr(leaves)
     return leaves
 
 
