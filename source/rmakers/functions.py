@@ -2107,7 +2107,7 @@ def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
         if isinstance(leaf, abjad.Note):
             continue
         duration = leaf.written_duration()
-        note = abjad.Note.from_pitch_and_duration(pitch, duration, tag=tag)
+        note = abjad.Note.from_duration_and_pitch(duration, pitch, tag=tag)
         if leaf.multiplier() is not None:
             note.set_multiplier(leaf.multiplier())
         abjad.mutate.replace(leaf, [note])
@@ -4852,8 +4852,8 @@ def tremolo_container(argument, count: int, *, tag: abjad.Tag | None = None) -> 
         container_duration = leaf.written_duration()
         note_duration = container_duration / (2 * count)
         assert isinstance(note_duration, abjad.Duration)
-        left_note = abjad.Note.from_pitch_and_duration(pitch, note_duration)
-        right_note = abjad.Note.from_pitch_and_duration(pitch, note_duration)
+        left_note = abjad.Note.from_duration_and_pitch(note_duration, pitch)
+        right_note = abjad.Note.from_duration_and_pitch(note_duration, pitch)
         container = abjad.TremoloContainer(count, [left_note, right_note], tag=tag)
         abjad.mutate.replace(leaf, container)
 

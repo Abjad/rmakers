@@ -265,9 +265,9 @@ def _make_accelerando(
         written_duration = interpolation.written_duration
         fraction = duration_ / written_duration
         pair = (fraction.numerator, fraction.denominator)
-        note = abjad.Note.from_pitch_and_duration(
-            pitch,
+        note = abjad.Note.from_duration_and_pitch(
             written_duration,
+            pitch,
             multiplier=pair,
             tag=tag,
         )
@@ -3001,9 +3001,9 @@ def multiplied_duration(
         denominator = abjad.math.least_common_multiple(pair[1], fraction.denominator)
         pair = abjad.duration.pair_with_denominator(fraction, denominator)
         if prototype is abjad.Note:
-            leaf = abjad.Note.from_pitch_and_duration(
-                pitch,
+            leaf = abjad.Note.from_duration_and_pitch(
                 duration,
+                pitch,
                 multiplier=pair,
                 tag=tag,
             )
