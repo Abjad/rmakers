@@ -1,0 +1,45 @@
+.. _rmakers--makers:
+
+makers
+======
+
+.. automodule:: rmakers.makers
+
+.. currentmodule:: rmakers.makers
+
+.. container:: svg-container
+
+   .. inheritance-diagram:: rmakers
+      :lineage: rmakers.makers
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: section-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~accelerando
+   ~even_division
+   ~incised
+   ~multiplied_duration
+   ~note
+   ~talea
+   ~tuplet
+
+.. autofunction:: accelerando
+
+.. autofunction:: even_division
+
+.. autofunction:: incised
+
+.. autofunction:: multiplied_duration
+
+.. autofunction:: note
+
+.. autofunction:: talea
+
+.. autofunction:: tuplet

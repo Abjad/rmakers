@@ -1,0 +1,148 @@
+rmakers API
+===========
+
+.. toctree::
+   :hidden:
+
+   rmakers/index
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers <rmakers>`
+   :class: section-header
+
+Rhythm-makers.
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers.classes <rmakers--classes>`
+   :class: section-header
+
+The rmakers classes.
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Specifiers
+   :class: subsection-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~rmakers.classes.Incise
+   ~rmakers.classes.Interpolation
+   ~rmakers.classes.Spelling
+   ~rmakers.classes.Talea
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers.functions <rmakers--functions>`
+   :class: section-header
+
+The rmakers functions.
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: subsection-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~rmakers.functions.after_grace_container
+   ~rmakers.functions.attach_time_signatures
+   ~rmakers.functions.beam
+   ~rmakers.functions.beam_groups
+   ~rmakers.functions.before_grace_container
+   ~rmakers.functions.duration_bracket
+   ~rmakers.functions.example
+   ~rmakers.functions.extract_rest_filled
+   ~rmakers.functions.extract_trivial
+   ~rmakers.functions.feather_beam
+   ~rmakers.functions.force_augmentation
+   ~rmakers.functions.force_diminution
+   ~rmakers.functions.force_note
+   ~rmakers.functions.force_repeat_tie
+   ~rmakers.functions.force_rest
+   ~rmakers.functions.interpolate
+   ~rmakers.functions.invisible_music
+   ~rmakers.functions.nongrace_leaves_in_each_tuplet
+   ~rmakers.functions.on_beat_grace_container
+   ~rmakers.functions.reduce_multiplier
+   ~rmakers.functions.repeat_tie
+   ~rmakers.functions.rewrite_dots
+   ~rmakers.functions.rewrite_meter
+   ~rmakers.functions.rewrite_rest_filled
+   ~rmakers.functions.rewrite_sustained
+   ~rmakers.functions.split_measures
+   ~rmakers.functions.swap_length_1
+   ~rmakers.functions.swap_skip_filled
+   ~rmakers.functions.swap_trivial
+   ~rmakers.functions.tie
+   ~rmakers.functions.time_signatures
+   ~rmakers.functions.tremolo_container
+   ~rmakers.functions.trivialize
+   ~rmakers.functions.tweak_skip_filled_tuplets_stencil_false
+   ~rmakers.functions.tweak_trivial_tuplets_stencil_false
+   ~rmakers.functions.tweak_tuplet_number_text_calc_fraction_text
+   ~rmakers.functions.unbeam
+   ~rmakers.functions.untie
+   ~rmakers.functions.wrap_in_time_signature_staff
+   ~rmakers.functions.written_duration
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers.makers <rmakers--makers>`
+   :class: section-header
+
+Makers.
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: subsection-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~rmakers.makers.accelerando
+   ~rmakers.makers.even_division
+   ~rmakers.makers.incised
+   ~rmakers.makers.multiplied_duration
+   ~rmakers.makers.note
+   ~rmakers.makers.talea
+   ~rmakers.makers.tuplet
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers.state <rmakers--state>`
+   :class: section-header
+
+Examples that show how to work with rmakers in a statal way.
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: subsection-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~rmakers.state.sphinx
