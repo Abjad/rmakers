@@ -1605,7 +1605,7 @@ def even_division(
             >>> abjad.override(staff).TextScript.staff_padding = 7
             >>> leaves = abjad.select.leaves(staff)
             >>> groups = abjad.select.group_by_measure(leaves)
-            >>> for group, label in zip(groups, labels):
+            >>> for group, label in zip(groups, labels, strict=True):
             ...     markup = abjad.Markup(label)
             ...     abjad.attach(markup, group[0], direction=abjad.UP)
             ...
@@ -1857,7 +1857,7 @@ def even_division(
             >>> abjad.override(staff).TextScript.staff_padding = 8
             >>> leaves = abjad.select.leaves(staff)
             >>> groups = abjad.select.group_by_measure(leaves)
-            >>> for group, label in zip(groups, labels):
+            >>> for group, label in zip(groups, labels, strict=True):
             ...     markup = abjad.Markup(label)
             ...     abjad.attach(markup, group[0], direction=abjad.UP)
             ...

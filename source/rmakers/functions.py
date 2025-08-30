@@ -460,7 +460,7 @@ def attach_time_signatures(
     parts = abjad.select.partition_by_durations(leaves, durations)
     assert len(parts) == len(time_signatures)
     previous_time_signature = None
-    for time_signature, part in zip(time_signatures, parts):
+    for time_signature, part in zip(time_signatures, parts, strict=True):
         assert isinstance(time_signature, abjad.TimeSignature)
         if time_signature != previous_time_signature:
             leaf = abjad.select.leaf(part, 0)
@@ -3396,7 +3396,7 @@ def rewrite_meter(
     split_measures(voice, durations=durations)
     lists = abjad.select.group_by_measure(voice[:])
     assert all(isinstance(_, list) for _ in lists), repr(lists)
-    for meter, list_ in zip(meters, lists):
+    for meter, list_ in zip(meters, lists, strict=True):
         for reference_meter in reference_meters:
             if reference_meter.pair() == meter.pair():
                 meter = reference_meter
@@ -3413,7 +3413,7 @@ def rewrite_meter(
             do_not_rewrite_tuplets=True,
         )
     lists = abjad.select.group_by_measure(voice[:])
-    for meter, list_ in zip(preferred_meters, lists):
+    for meter, list_ in zip(preferred_meters, lists, strict=True):
         leaves = abjad.select.leaves(list_, grace=False)
         beat_durations = []
         beat_offsets = meter.depthwise_offset_inventory()[1]
