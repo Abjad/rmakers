@@ -85,6 +85,30 @@ def _apply_ties_to_split_notes(
                 abjad.detach(abjad.Tie, previous_leaf)
 
 
+def _durations_to_lcm_pairs(durations: list[abjad.Duration]) -> list[tuple[int, int]]:
+    """
+    Changes ``durations`` to pairs sharing least common denominator.
+
+    ..  container:: example
+
+        >>> items = [abjad.Duration(2, 4), 3, (5, 16)]
+        >>> durations = abjad.duration.durations(items)
+        >>> result = rmakers.makers._durations_to_lcm_pairs(durations)
+        >>> for x in result:
+        ...     x
+        ...
+        (8, 16)
+        (48, 16)
+        (5, 16)
+
+    """
+    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    denominators = [_.denominator for _ in durations]
+    lcd = abjad.math.least_common_multiple(*denominators)
+    pairs = [abjad.duration.pair_with_denominator(_, lcd) for _ in durations]
+    return pairs
+
+
 def _fix_rounding_error(leaves, total_duration, interpolation):
     duration = abjad.get.duration(leaves)
     if not duration == total_duration:
@@ -716,7 +740,7 @@ def _scale_rhythm_maker_input(
     durations_ = durations[:]
     dummy_duration = abjad.Duration(1, talea_denominator)
     durations_.append(dummy_duration)
-    scaled_pairs = abjad.Duration.durations_to_nonreduced_fractions(durations_)
+    scaled_pairs = _durations_to_lcm_pairs(durations_)
     dummy_pair = scaled_pairs.pop()
     lcd = dummy_pair[1]
     multiplier = lcd / talea_denominator
