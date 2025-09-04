@@ -109,13 +109,22 @@ def _durations_to_lcm_pairs(durations: list[abjad.Duration]) -> list[tuple[int, 
     return pairs
 
 
-def _fix_rounding_error(leaves, total_duration, interpolation):
-    duration = abjad.get.duration(leaves)
+def _fix_rounding_error(
+    notes: typing.Sequence[abjad.Note],
+    total_duration: abjad.ValueDuration,
+    interpolation: _classes.Interpolation,
+) -> None:
+    assert all(isinstance(_, abjad.Note) for _ in notes), repr(notes)
+    assert isinstance(total_duration, abjad.ValueDuration), repr(total_duration)
+    assert isinstance(interpolation, _classes.Interpolation), repr(interpolation)
+    old_duration = abjad.get.duration(notes)
+    duration = old_duration.as_value_duration()
     if not duration == total_duration:
-        needed_duration = total_duration - abjad.get.duration(leaves[:-1])
+        nonlast_leaf_duration = abjad.get.duration(notes[:-1]).as_value_duration()
+        needed_duration = total_duration - nonlast_leaf_duration
         fraction = needed_duration / interpolation.written_duration
         pair = (fraction.numerator, fraction.denominator)
-        leaves[-1].set_multiplier(pair)
+        notes[-1].set_multiplier(pair)
 
 
 def _function_name(frame):
@@ -139,13 +148,19 @@ def _get_interpolations(interpolations, previous_state):
     return specifiers_
 
 
-def _interpolate_cosine(y1, y2, mu) -> float:
+def _interpolate_cosine(y1: float, y2: float, mu: float) -> float:
+    assert isinstance(y1, float), repr(y1)
+    assert isinstance(y2, float), repr(y2)
+    assert isinstance(mu, float), repr(mu)
     mu2 = (1 - math.cos(mu * math.pi)) / 2
     return y1 * (1 - mu2) + y2 * mu2
 
 
 def _interpolate_divide(
-    total_duration, start_duration, stop_duration, exponent="cosine"
+    total_duration: abjad.ValueDuration,
+    start_duration: abjad.ValueDuration,
+    stop_duration: abjad.ValueDuration,
+    exponent: str | float = "cosine",
 ) -> str | list[float]:
     """
     Divides ``total_duration`` into durations computed from interpolating between
@@ -154,9 +169,9 @@ def _interpolate_divide(
     ..  container:: example
 
         >>> rmakers.functions._interpolate_divide(
-        ...     total_duration=10,
-        ...     start_duration=1,
-        ...     stop_duration=1,
+        ...     total_duration=abjad.ValueDuration(10, 1),
+        ...     start_duration=abjad.ValueDuration(1, 1),
+        ...     stop_duration=abjad.ValueDuration(1, 1),
         ...     exponent=1,
         ... )
         [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
@@ -164,9 +179,9 @@ def _interpolate_divide(
         10.0
 
         >>> rmakers.functions._interpolate_divide(
-        ...     total_duration=10,
-        ...     start_duration=5,
-        ...     stop_duration=1,
+        ...     total_duration=abjad.ValueDuration(10, 1),
+        ...     start_duration=abjad.ValueDuration(5, 1),
+        ...     stop_duration=abjad.ValueDuration(1, 1),
         ... )
         [4.798..., 2.879..., 1.326..., 0.995...]
         >>> sum(_)
@@ -179,34 +194,39 @@ def _interpolate_divide(
 
     Scales resulting durations so that their sum equals ``total_duration`` exactly.
     """
-    if total_duration <= 0:
-        message = "Total duration must be positive."
-        raise ValueError(message)
-    if start_duration <= 0 or stop_duration <= 0:
-        message = "Both 'start_duration' and 'stop_duration'"
-        message += " must be positive."
-        raise ValueError(message)
+    assert isinstance(total_duration, abjad.ValueDuration), repr(total_duration)
+    assert isinstance(start_duration, abjad.ValueDuration), repr(start_duration)
+    assert isinstance(stop_duration, abjad.ValueDuration), repr(stop_duration)
+    assert isinstance(exponent, str | float), repr(exponent)
+    zero = abjad.ValueDuration(0, 1)
+    if total_duration <= zero:
+        raise ValueError("Total duration must be positive.")
+    if start_duration <= zero or stop_duration <= zero:
+        raise Exception("Both 'start_duration' and 'stop_duration' must be positive.")
     if total_duration < (stop_duration + start_duration):
         return "too small"
-    durations = []
-    total_duration = float(total_duration)
+    float_durations = []
     partial_sum = 0.0
-    while partial_sum < total_duration:
+    while partial_sum < float(total_duration):
         if exponent == "cosine":
-            duration = _interpolate_cosine(
-                start_duration, stop_duration, partial_sum / total_duration
+            float_duration = _interpolate_cosine(
+                float(start_duration),
+                float(stop_duration),
+                partial_sum / float(total_duration),
             )
         else:
-            duration = _interpolate_exponential(
+            float_duration = _interpolate_exponential(
                 start_duration,
                 stop_duration,
-                partial_sum / total_duration,
+                partial_sum / float(total_duration),
                 exponent,
             )
-        durations.append(duration)
-        partial_sum += duration
-    durations = [_ * total_duration / sum(durations) for _ in durations]
-    return durations
+        float_durations.append(float_duration)
+        partial_sum += float_duration
+    float_durations = [
+        _ * float(total_duration) / sum(float_durations) for _ in float_durations
+    ]
+    return float_durations
 
 
 def _interpolate_exponential(y1, y2, mu, exponent=1) -> float:
@@ -254,7 +274,11 @@ def _interpolate_exponential(y1, y2, mu, exponent=1) -> float:
 
 
 def _make_accelerando(
-    duration, interpolations, index, *, tag: abjad.Tag = abjad.Tag()
+    duration: abjad.ValueDuration,
+    interpolations: typing.Sequence[_classes.Interpolation],
+    index: int,
+    *,
+    tag: abjad.Tag = abjad.Tag(),
 ) -> abjad.Tuplet:
     """
     Makes notes with LilyPond multipliers equal to ``duration``.
@@ -268,21 +292,22 @@ def _make_accelerando(
 
     Sets note written durations according to interpolation specifier.
     """
-    assert isinstance(duration, abjad.Duration)
+    assert isinstance(duration, abjad.ValueDuration)
     assert all(isinstance(_, _classes.Interpolation) for _ in interpolations)
     assert isinstance(index, int)
     interpolation = interpolations[index]
-    durations = _interpolate_divide(
+    float_durations = _interpolate_divide(
         total_duration=duration,
         start_duration=interpolation.start_duration,
         stop_duration=interpolation.stop_duration,
     )
-    if durations == "too small":
+    if float_durations == "too small":
         pitches = abjad.makers.make_pitches([0])
-        notes = abjad.makers.make_notes(pitches, [duration], tag=tag)
-        tuplet = abjad.Tuplet("1:1", notes, tag=tag)
+        components = abjad.makers.make_notes(pitches, [duration.as_duration()], tag=tag)
+        tuplet = abjad.Tuplet("1:1", components, tag=tag)
         return tuplet
-    durations = _round_durations(durations, 2**10)
+    assert not isinstance(float_durations, str)
+    durations = _round_durations(float_durations, 2**10)
     notes = []
     pitch = abjad.NamedPitch(0)
     for i, duration_ in enumerate(durations):
@@ -290,12 +315,13 @@ def _make_accelerando(
         fraction = duration_ / written_duration
         pair = (fraction.numerator, fraction.denominator)
         note = abjad.Note.from_duration_and_pitch(
-            written_duration,
+            written_duration.as_duration(),
             pitch,
             multiplier=pair,
             tag=tag,
         )
         notes.append(note)
+    assert all(isinstance(_, abjad.Note) for _ in notes), repr(notes)
     _fix_rounding_error(notes, duration, interpolation)
     tuplet = abjad.Tuplet("1:1", notes, tag=tag)
     return tuplet
@@ -720,13 +746,18 @@ def _prepare_talea_rhythm_maker_input(self_extra_counts, previous_state, talea):
     )
 
 
-def _round_durations(durations, denominator):
-    durations_ = []
-    for duration in durations:
-        numerator = int(round(duration * denominator))
-        duration_ = abjad.Duration(numerator, denominator)
-        durations_.append(duration_)
-    return durations_
+def _round_durations(
+    float_durations: typing.Sequence[float],
+    denominator: int,
+) -> list[abjad.ValueDuration]:
+    assert all(isinstance(_, float) for _ in float_durations), repr(float_durations)
+    assert isinstance(denominator, int), repr(denominator)
+    durations = []
+    for float_duration in float_durations:
+        numerator = int(round(float_duration * denominator))
+        duration = abjad.ValueDuration(numerator, denominator)
+        durations.append(duration)
+    return durations
 
 
 def _scale_rhythm_maker_input(
@@ -778,8 +809,8 @@ def _split_talea_extended_to_weights(preamble, read_talea_once_only, talea, weig
 
 
 def accelerando(
-    durations: typing.Sequence[abjad.Duration],
-    *interpolations: typing.Sequence[abjad.Duration],
+    durations: typing.Sequence[abjad.ValueDuration],
+    *interpolations: typing.Sequence[abjad.ValueDuration],
     previous_state: dict | None = None,
     spelling: _classes.Spelling = _classes.Spelling(),
     state: dict | None = None,
@@ -792,7 +823,7 @@ def accelerando(
 
         >>> def make_lilypond_file(pairs, interpolations):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.accelerando(durations, *interpolations)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -1153,13 +1184,13 @@ def accelerando(
 
     """
     assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     # TODO: eventually assert that every interpolation is a list of duration objects
     interpolations_ = []
     for interpolation in interpolations:
-        interpolation_durations = abjad.duration.durations(list(interpolation))
+        interpolation_durations = abjad.duration.value_durations(list(interpolation))
         interpolation_ = _classes.Interpolation(*interpolation_durations)
         interpolations_.append(interpolation_)
     previous_state = previous_state or {}

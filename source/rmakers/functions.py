@@ -22,53 +22,6 @@ def _interpolate_cosine(y1, y2, mu) -> float:
     return y1 * (1 - mu2) + y2 * mu2
 
 
-def _interpolate_divide_multiple(
-    total_durations, reference_durations, exponent="cosine"
-) -> list[float]:
-    """
-    Interpolates ``reference_durations`` such that the sum of the resulting
-    interpolated values equals the given ``total_durations``.
-
-    ..  container:: example
-
-        >>> durations = rmakers.functions._interpolate_divide_multiple(
-        ...     total_durations=[100, 50],
-        ...     reference_durations=[20, 10, 20],
-        ... )
-        >>> for duration in durations:
-        ...     duration
-        19.448...
-        18.520...
-        16.227...
-        13.715...
-        11.748...
-        10.487...
-        9.8515...
-        9.5130...
-        10.421...
-        13.073...
-        16.991...
-
-    Precondition: ``len(totals_durations) == len(reference_durations)-1``.
-
-    Set ``exponent`` to ``cosine`` for cosine interpolation. Set ``exponent`` to a
-    number for exponential interpolation.
-    """
-    assert len(total_durations) == len(reference_durations) - 1
-    durations = []
-    for i in range(len(total_durations)):
-        durations_ = _interpolate_divide(
-            total_durations[i],
-            reference_durations[i],
-            reference_durations[i + 1],
-            exponent,
-        )
-        for duration_ in durations_:
-            assert isinstance(duration_, float)
-            durations.append(duration_)
-    return durations
-
-
 def _interpolate_exponential(y1, y2, mu, exponent=1) -> float:
     """
     Interpolates between ``y1`` and ``y2`` at position ``mu``.
@@ -114,7 +67,10 @@ def _interpolate_exponential(y1, y2, mu, exponent=1) -> float:
 
 
 def _interpolate_divide(
-    total_duration, start_duration, stop_duration, exponent="cosine"
+    total_duration: abjad.ValueDuration,
+    start_duration: abjad.ValueDuration,
+    stop_duration: abjad.ValueDuration,
+    exponent="cosine",
 ) -> str | list[float]:
     """
     Divides ``total_duration`` into durations computed from interpolating between
@@ -123,9 +79,9 @@ def _interpolate_divide(
     ..  container:: example
 
         >>> rmakers.functions._interpolate_divide(
-        ...     total_duration=10,
-        ...     start_duration=1,
-        ...     stop_duration=1,
+        ...     total_duration=abjad.ValueDuration(10, 1),
+        ...     start_duration=abjad.ValueDuration(1, 1),
+        ...     stop_duration=abjad.ValueDuration(1, 1),
         ...     exponent=1,
         ... )
         [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
@@ -133,9 +89,9 @@ def _interpolate_divide(
         10.0
 
         >>> rmakers.functions._interpolate_divide(
-        ...     total_duration=10,
-        ...     start_duration=5,
-        ...     stop_duration=1,
+        ...     total_duration=abjad.ValueDuration(10, 1),
+        ...     start_duration=abjad.ValueDuration(5, 1),
+        ...     stop_duration=abjad.ValueDuration(1, 1),
         ... )
         [4.798..., 2.879..., 1.326..., 0.995...]
         >>> sum(_)
@@ -148,34 +104,35 @@ def _interpolate_divide(
 
     Scales resulting durations so that their sum equals ``total_duration`` exactly.
     """
-    if total_duration <= 0:
-        message = "Total duration must be positive."
-        raise ValueError(message)
-    if start_duration <= 0 or stop_duration <= 0:
-        message = "Both 'start_duration' and 'stop_duration'"
-        message += " must be positive."
-        raise ValueError(message)
+    zero = abjad.ValueDuration(0, 1)
+    if total_duration <= zero:
+        raise ValueError("Total duration must be positive.")
+    if start_duration <= zero or stop_duration <= zero:
+        raise ValueError("Both 'start_duration' and 'stop_duration' must be positive.")
     if total_duration < (stop_duration + start_duration):
         return "too small"
-    durations = []
-    total_duration = float(total_duration)
+    float_durations = []
     partial_sum = 0.0
-    while partial_sum < total_duration:
+    while partial_sum < float(total_duration):
         if exponent == "cosine":
-            duration = _interpolate_cosine(
-                start_duration, stop_duration, partial_sum / total_duration
+            float_duration = _interpolate_cosine(
+                float(start_duration),
+                float(stop_duration),
+                partial_sum / float(total_duration),
             )
         else:
-            duration = _interpolate_exponential(
-                start_duration,
-                stop_duration,
-                partial_sum / total_duration,
+            float_duration = _interpolate_exponential(
+                float(start_duration),
+                float(stop_duration),
+                partial_sum / float(total_duration),
                 exponent,
             )
-        durations.append(duration)
-        partial_sum += duration
-    durations = [_ * total_duration / sum(durations) for _ in durations]
-    return durations
+        float_durations.append(float_duration)
+        partial_sum += float_duration
+    float_durations = [
+        _ * float(total_duration) / sum(float_durations) for _ in float_durations
+    ]
+    return float_durations
 
 
 def _is_accelerando(argument):
@@ -2658,9 +2615,9 @@ def interpolate(
     Makes interpolation.
     """
     return _classes.Interpolation(
-        start_duration,
-        stop_duration,
-        written_duration,
+        start_duration.as_value_duration(),
+        stop_duration.as_value_duration(),
+        written_duration.as_value_duration(),
     )
 
 

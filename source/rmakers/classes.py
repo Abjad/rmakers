@@ -77,18 +77,20 @@ class Interpolation:
     Interpolation specifier.
     """
 
-    start_duration: abjad.Duration = abjad.Duration(1, 8)
-    stop_duration: abjad.Duration = abjad.Duration(1, 16)
-    written_duration: abjad.Duration = abjad.Duration(1, 16)
+    start_duration: abjad.ValueDuration = abjad.ValueDuration(1, 8)
+    stop_duration: abjad.ValueDuration = abjad.ValueDuration(1, 16)
+    written_duration: abjad.ValueDuration = abjad.ValueDuration(1, 16)
 
     __documentation_section__ = "Specifiers"
 
     def __post_init__(self) -> None:
-        assert isinstance(self.start_duration, abjad.Duration), repr(
+        assert isinstance(self.start_duration, abjad.ValueDuration), repr(
             self.start_duration
         )
-        assert isinstance(self.stop_duration, abjad.Duration), repr(self.stop_duration)
-        assert isinstance(self.written_duration, abjad.Duration), repr(
+        assert isinstance(self.stop_duration, abjad.ValueDuration), repr(
+            self.stop_duration
+        )
+        assert isinstance(self.written_duration, abjad.ValueDuration), repr(
             self.written_duration
         )
 
@@ -101,24 +103,24 @@ class Interpolation:
         ..  container:: example
 
             >>> specifier = rmakers.Interpolation(
-            ...     start_duration=abjad.Duration(1, 4),
-            ...     stop_duration=abjad.Duration(1, 16),
-            ...     written_duration=abjad.Duration(1, 16),
+            ...     start_duration=abjad.ValueDuration(1, 4),
+            ...     stop_duration=abjad.ValueDuration(1, 16),
+            ...     written_duration=abjad.ValueDuration(1, 16),
             ... )
             >>> specifier.reverse()
-            Interpolation(start_duration=Duration(1, 16), stop_duration=Duration(1, 4), written_duration=Duration(1, 16))
+            Interpolation(start_duration=ValueDuration(numerator=1, denominator=16), stop_duration=ValueDuration(numerator=1, denominator=4), written_duration=ValueDuration(numerator=1, denominator=16))
 
         ..  container:: example
 
             Changes ritardando specifier to accelerando specifier:
 
             >>> specifier = rmakers.Interpolation(
-            ...     start_duration=abjad.Duration(1, 16),
-            ...     stop_duration=abjad.Duration(1, 4),
-            ...     written_duration=abjad.Duration(1, 16),
+            ...     start_duration=abjad.ValueDuration(1, 16),
+            ...     stop_duration=abjad.ValueDuration(1, 4),
+            ...     written_duration=abjad.ValueDuration(1, 16),
             ... )
             >>> specifier.reverse()
-            Interpolation(start_duration=Duration(1, 4), stop_duration=Duration(1, 16), written_duration=Duration(1, 16))
+            Interpolation(start_duration=ValueDuration(numerator=1, denominator=4), stop_duration=ValueDuration(numerator=1, denominator=16), written_duration=ValueDuration(numerator=1, denominator=16))
 
         """
         return type(self)(

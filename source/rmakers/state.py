@@ -11,7 +11,7 @@ Examples that show how to work with rmakers in a statal way.
 
         >>> def make_statal_accelerandi(pairs, previous_state=None):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     if previous_state is None:
         ...         previous_state = {}
         ...     state = {}
