@@ -141,7 +141,7 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [5],
@@ -198,7 +198,7 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [5],
@@ -256,13 +256,13 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [1, 1, 1, 1, 4, -4],
         ...         16,
         ...         spelling=rmakers.Spelling(
-        ...             forbidden_note_duration=abjad.Duration(1, 4)
+        ...             forbidden_note_duration=abjad.ValueDuration(1, 4)
         ...         ),
         ...     )
         ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
@@ -321,13 +321,13 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [1, 1, 1, 1, 4, -4],
         ...         16,
         ...         spelling=rmakers.Spelling(
-        ...             forbidden_rest_duration=abjad.Duration(1, 4)
+        ...             forbidden_rest_duration=abjad.ValueDuration(1, 4)
         ...         ),
         ...     )
         ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
@@ -384,7 +384,7 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [5],
@@ -446,7 +446,7 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [5],
@@ -508,11 +508,11 @@ class Spelling:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations, [1, 1, 1, 1, 4, 4], 16,
         ...         spelling=rmakers.Spelling(
-        ...             forbidden_note_duration=abjad.Duration(1, 4)
+        ...             forbidden_note_duration=abjad.ValueDuration(1, 4)
         ...         ),
         ...     )
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -573,19 +573,19 @@ class Spelling:
 
     """
 
-    forbidden_note_duration: abjad.Duration | None = None
-    forbidden_rest_duration: abjad.Duration | None = None
+    forbidden_note_duration: abjad.ValueDuration | None = None
+    forbidden_rest_duration: abjad.ValueDuration | None = None
     increase_monotonic: bool = False
 
     __documentation_section__ = "Specifiers"
 
     def __post_init__(self):
         if self.forbidden_note_duration is not None:
-            assert isinstance(self.forbidden_note_duration, abjad.Duration), repr(
+            assert isinstance(self.forbidden_note_duration, abjad.ValueDuration), repr(
                 self.forbidden_note_duration
             )
         if self.forbidden_rest_duration is not None:
-            assert isinstance(self.forbidden_rest_duration, abjad.Duration), repr(
+            assert isinstance(self.forbidden_rest_duration, abjad.ValueDuration), repr(
                 self.forbidden_rest_duration
             )
         assert isinstance(self.increase_monotonic, bool), repr(self.increase_monotonic)
@@ -654,10 +654,10 @@ class Talea:
         >>> for i, duration in enumerate(talea):
         ...     duration
         ...
-        Duration(1, 16)
-        Duration(1, 1)
-        Duration(-1, 4)
-        Duration(1, 1)
+        ValueDuration(numerator=1, denominator=16)
+        ValueDuration(numerator=1, denominator=1)
+        ValueDuration(numerator=-1, denominator=4)
+        ValueDuration(numerator=1, denominator=1)
 
     """
 
@@ -796,7 +796,7 @@ class Talea:
             return result
         raise ValueError(argument)
 
-    def __iter__(self) -> typing.Iterator[abjad.Duration]:
+    def __iter__(self) -> typing.Iterator[abjad.ValueDuration]:
         """
         Iterates talea.
 
@@ -811,25 +811,25 @@ class Talea:
             >>> for duration in talea:
             ...     duration
             ...
-            Duration(1, 16)
-            Duration(1, 16)
-            Duration(1, 16)
-            Duration(1, 16)
-            Duration(1, 8)
-            Duration(1, 16)
-            Duration(3, 16)
-            Duration(1, 8)
-            Duration(1, 4)
-            Duration(1, 16)
-            Duration(1, 16)
+            ValueDuration(numerator=1, denominator=16)
+            ValueDuration(numerator=1, denominator=16)
+            ValueDuration(numerator=1, denominator=16)
+            ValueDuration(numerator=1, denominator=16)
+            ValueDuration(numerator=1, denominator=8)
+            ValueDuration(numerator=1, denominator=16)
+            ValueDuration(numerator=3, denominator=16)
+            ValueDuration(numerator=1, denominator=8)
+            ValueDuration(numerator=1, denominator=4)
+            ValueDuration(numerator=1, denominator=16)
+            ValueDuration(numerator=1, denominator=16)
 
         """
         for count in self.preamble or []:
-            duration = abjad.Duration(count, self.denominator)
+            duration = abjad.ValueDuration(count, self.denominator)
             yield duration
         for item in self.counts or []:
             assert isinstance(item, int)
-            duration = abjad.Duration(item, self.denominator)
+            duration = abjad.ValueDuration(item, self.denominator)
             yield duration
 
     def __len__(self) -> int:

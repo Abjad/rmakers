@@ -28,10 +28,10 @@ def _apply_ties_to_split_notes(
         preamble_weights = []
         for numerator in unscaled_preamble:
             pair = (numerator, talea.denominator)
-            duration = abjad.Duration(*pair)
+            duration = abjad.ValueDuration(*pair)
             weight = abs(duration)
             preamble_weights.append(weight)
-    preamble_duration = sum(preamble_weights)
+    preamble_duration = sum(preamble_weights, start=abjad.ValueDuration(0))
     if total_duration <= preamble_duration:
         preamble_parts = abjad.sequence.partition_by_weights(
             written_durations,
@@ -53,7 +53,7 @@ def _apply_ties_to_split_notes(
         talea_weights = []
         for numerator in unscaled_talea:
             pair = (numerator, talea.denominator)
-            weight = abs(abjad.Duration(*pair))
+            weight = abs(abjad.ValueDuration(*pair))
             talea_weights.append(weight)
         preamble_length = len(abjad.sequence.flatten(preamble_parts))
         talea_written_durations = written_durations[preamble_length:]
@@ -85,14 +85,16 @@ def _apply_ties_to_split_notes(
                 abjad.detach(abjad.Tie, previous_leaf)
 
 
-def _durations_to_lcm_pairs(durations: list[abjad.Duration]) -> list[tuple[int, int]]:
+def _durations_to_lcm_pairs(
+    durations: list[abjad.ValueDuration],
+) -> list[tuple[int, int]]:
     """
     Changes ``durations`` to pairs sharing least common denominator.
 
     ..  container:: example
 
-        >>> items = [abjad.Duration(2, 4), 3, (5, 16)]
-        >>> durations = abjad.duration.durations(items)
+        >>> items = [abjad.ValueDuration(2, 4), 3, (5, 16)]
+        >>> durations = abjad.duration.value_durations(items)
         >>> result = rmakers.makers._durations_to_lcm_pairs(durations)
         >>> for x in result:
         ...     x
@@ -102,10 +104,11 @@ def _durations_to_lcm_pairs(durations: list[abjad.Duration]) -> list[tuple[int, 
         (5, 16)
 
     """
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     denominators = [_.denominator for _ in durations]
     lcd = abjad.math.least_common_multiple(*denominators)
-    pairs = [abjad.duration.pair_with_denominator(_, lcd) for _ in durations]
+    fractions = [_.as_fraction() for _ in durations]
+    pairs = [abjad.duration.pair_with_denominator(_, lcd) for _ in fractions]
     return pairs
 
 
@@ -118,9 +121,10 @@ def _fix_rounding_error(
     assert isinstance(total_duration, abjad.ValueDuration), repr(total_duration)
     assert isinstance(interpolation, _classes.Interpolation), repr(interpolation)
     old_duration = abjad.get.duration(notes)
-    duration = old_duration.as_value_duration()
+    # duration = old_duration.as_value_duration()
+    duration = old_duration
     if not duration == total_duration:
-        nonlast_leaf_duration = abjad.get.duration(notes[:-1]).as_value_duration()
+        nonlast_leaf_duration = abjad.get.duration(notes[:-1])
         needed_duration = total_duration - nonlast_leaf_duration
         fraction = needed_duration / interpolation.written_duration
         pair = (fraction.numerator, fraction.denominator)
@@ -198,7 +202,7 @@ def _interpolate_divide(
     assert isinstance(start_duration, abjad.ValueDuration), repr(start_duration)
     assert isinstance(stop_duration, abjad.ValueDuration), repr(stop_duration)
     assert isinstance(exponent, str | float), repr(exponent)
-    zero = abjad.ValueDuration(0, 1)
+    zero = abjad.ValueDuration(0)
     if total_duration <= zero:
         raise ValueError("Total duration must be positive.")
     if start_duration <= zero or stop_duration <= zero:
@@ -303,7 +307,7 @@ def _make_accelerando(
     )
     if float_durations == "too small":
         pitches = abjad.makers.make_pitches([0])
-        components = abjad.makers.make_notes(pitches, [duration.as_duration()], tag=tag)
+        components = abjad.makers.make_notes(pitches, [duration], tag=tag)
         tuplet = abjad.Tuplet("1:1", components, tag=tag)
         return tuplet
     assert not isinstance(float_durations, str)
@@ -315,7 +319,8 @@ def _make_accelerando(
         fraction = duration_ / written_duration
         pair = (fraction.numerator, fraction.denominator)
         note = abjad.Note.from_duration_and_pitch(
-            written_duration.as_duration(),
+            # written_duration.as_duration(),
+            written_duration,
             pitch,
             multiplier=pair,
             tag=tag,
@@ -354,22 +359,22 @@ def _make_incised_duration_lists(
         duration_list = _make_duration_list(numerator, prefix, suffix, incise)
         duration_lists.append(duration_list)
     for duration_list in duration_lists:
-        assert all(isinstance(_, abjad.Duration) for _ in duration_list)
+        assert all(isinstance(_, abjad.ValueDuration) for _ in duration_list)
     return duration_lists
 
 
 def _make_leaf_and_tuplet_list(
-    durations,
+    durations: list[abjad.ValueDuration],
     increase_monotonic=None,
     forbidden_note_duration=None,
     forbidden_rest_duration=None,
     tag=None,
 ) -> list[abjad.Leaf | abjad.Tuplet]:
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     assert all(_ != 0 for _ in durations), repr(durations)
     leaves_and_tuplets: list[abjad.Leaf | abjad.Tuplet] = []
     for duration in durations:
-        if 0 < duration:
+        if abjad.ValueDuration(0) < duration:
             pitch_list = [abjad.NamedPitch("c'")]
         else:
             pitch_list = []
@@ -387,33 +392,38 @@ def _make_leaf_and_tuplet_list(
 
 
 def _make_middle_durations(middle_duration, incise):
-    assert isinstance(middle_duration, abjad.Duration), repr(middle_duration)
+    assert isinstance(middle_duration, abjad.ValueDuration), repr(middle_duration)
     assert middle_duration.denominator == 1, repr(middle_duration)
     assert isinstance(incise, _classes.Incise), repr(incise)
     durations = []
     if not (incise.fill_with_rests):
         if not incise.outer_tuplets_only:
-            if 0 < middle_duration:
+            if abjad.ValueDuration(0) < middle_duration:
                 if incise.body_proportion is not None:
                     shards = abjad.math.divide_integer_by_proportion(
                         middle_duration.numerator, incise.body_proportion
                     )
-                    durations_ = [abjad.Duration(_) for _ in shards]
+                    assert all(isinstance(_, abjad.Fraction) for _ in shards), repr(
+                        shards
+                    )
+                    durations_ = [
+                        abjad.ValueDuration(*_.as_integer_ratio()) for _ in shards
+                    ]
                     durations.extend(durations_)
                 else:
                     durations.append(middle_duration)
         else:
-            if 0 < middle_duration:
+            if abjad.ValueDuration(0) < middle_duration:
                 durations.append(middle_duration)
     else:
         if not incise.outer_tuplets_only:
-            if 0 < middle_duration:
+            if abjad.ValueDuration(0) < middle_duration:
                 durations.append(-abs(middle_duration))
         else:
-            if 0 < middle_duration:
+            if abjad.ValueDuration(0) < middle_duration:
                 durations.append(-abs(middle_duration))
     assert isinstance(durations, list)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     return durations
 
 
@@ -477,27 +487,27 @@ def _make_numerator_lists(
 
 
 def _make_duration_list(numerator, prefix, suffix, incise, *, is_note_filled=True):
-    numerator = abjad.Duration(numerator)
-    prefix = [abjad.Duration(_) for _ in prefix]
-    suffix = [abjad.Duration(_) for _ in suffix]
-    prefix_weight = abjad.math.weight(prefix)
-    suffix_weight = abjad.math.weight(suffix)
+    numerator = abjad.ValueDuration(numerator)
+    prefix = [abjad.ValueDuration(_) for _ in prefix]
+    suffix = [abjad.ValueDuration(_) for _ in suffix]
+    prefix_weight = abjad.math.weight(prefix, start=abjad.ValueDuration(0))
+    suffix_weight = abjad.math.weight(suffix, start=abjad.ValueDuration(0))
     middle_duration = numerator - prefix_weight - suffix_weight
-    assert isinstance(middle_duration, abjad.Duration), repr(middle_duration)
+    assert isinstance(middle_duration, abjad.ValueDuration), repr(middle_duration)
     if numerator < prefix_weight:
         weights = [numerator]
         prefix = abjad.sequence.split(prefix, weights, cyclic=False, overhang=False)[0]
     middle_durations = _make_middle_durations(middle_duration, incise)
     suffix_space = numerator - prefix_weight
-    if suffix_space <= 0:
+    if suffix_space <= abjad.ValueDuration(0):
         suffix = []
     elif suffix_space < suffix_weight:
         weights = [suffix_space]
         suffix = abjad.sequence.split(suffix, weights, cyclic=False, overhang=False)[0]
-    assert all(isinstance(_, abjad.Duration) for _ in prefix), repr(prefix)
-    assert all(isinstance(_, abjad.Duration) for _ in suffix), repr(suffix)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in prefix), repr(prefix)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in suffix), repr(suffix)
     duration_list = prefix + middle_durations + suffix
-    assert all(isinstance(_, abjad.Duration) for _ in duration_list), repr(
+    assert all(isinstance(_, abjad.ValueDuration) for _ in duration_list), repr(
         duration_list
     )
     return duration_list
@@ -604,7 +614,7 @@ def _make_state_dictionary(
 
 
 def _make_talea_tuplets(
-    durations: list[abjad.Duration],
+    durations: list[abjad.ValueDuration],
     self_extra_counts: list[int],
     previous_state,
     self_read_talea_once_only,
@@ -613,7 +623,7 @@ def _make_talea_tuplets(
     talea,
     tag,
 ):
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     prepared = _prepare_talea_rhythm_maker_input(
         self_extra_counts, previous_state, talea
     )
@@ -633,7 +643,7 @@ def _make_talea_tuplets(
         unscaled_talea = prepared.talea
     talea_weight_consumed = sum(abjad.sequence.weight(_) for _ in numerator_lists)
     duration_lists = [
-        [abjad.Duration(_, scaled.lcd) for _ in n] for n in numerator_lists
+        [abjad.ValueDuration(_, scaled.lcd) for _ in n] for n in numerator_lists
     ]
     leaf_lists = []
     for duration_list in duration_lists:
@@ -648,7 +658,7 @@ def _make_talea_tuplets(
     if not scaled.counts.extra_counts:
         tuplets = [abjad.Tuplet("1:1", _) for _ in leaf_lists]
     else:
-        durations_ = abjad.duration.durations(scaled.pairs)
+        durations_ = abjad.duration.value_durations(scaled.pairs)
         tuplets = _make_talea_rhythm_maker_tuplets(durations_, leaf_lists, tag=tag)
     _apply_ties_to_split_notes(
         tuplets,
@@ -686,7 +696,7 @@ def _make_talea_tuplets(
 
 
 def _make_talea_rhythm_maker_tuplets(durations, leaf_lists, *, tag):
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     tuplets = []
     for duration, leaf_list in zip(durations, leaf_lists, strict=True):
         multiplier = duration / abjad.get.duration(leaf_list)
@@ -761,15 +771,15 @@ def _round_durations(
 
 
 def _scale_rhythm_maker_input(
-    durations: list[abjad.Duration],
+    durations: list[abjad.ValueDuration],
     talea_denominator: int | None,
     counts,
 ):
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     assert isinstance(talea_denominator, int), repr(talea_denominator)
     talea_denominator = talea_denominator or 1
     durations_ = durations[:]
-    dummy_duration = abjad.Duration(1, talea_denominator)
+    dummy_duration = abjad.ValueDuration(1, talea_denominator)
     durations_.append(dummy_duration)
     scaled_pairs = _durations_to_lcm_pairs(durations_)
     dummy_pair = scaled_pairs.pop()
@@ -789,10 +799,13 @@ def _scale_rhythm_maker_input(
 
 
 def _split_talea_extended_to_weights(preamble, read_talea_once_only, talea, weights):
+    assert all(isinstance(_, int) for _ in preamble), repr(preamble)
+    assert all(isinstance(_, int) for _ in talea), repr(talea)
+    assert all(isinstance(_, int) for _ in weights), repr(weights)
     assert abjad.math.all_are_positive_integers(weights)
-    preamble_weight = abjad.math.weight(preamble)
-    talea_weight = abjad.math.weight(talea)
-    weight = abjad.math.weight(weights)
+    preamble_weight = abjad.math.weight(preamble, start=0)
+    talea_weight = abjad.math.weight(talea, start=0)
+    weight = abjad.math.weight(weights, start=0)
     if read_talea_once_only and preamble_weight + talea_weight < weight:
         message = f"{preamble!s} + {talea!s} is too short"
         message += f" to read {weights} once."
@@ -1222,7 +1235,7 @@ def accelerando(
 
 
 def even_division(
-    durations: typing.Sequence[abjad.Duration],
+    durations: typing.Sequence[abjad.ValueDuration],
     denominators: typing.Sequence[int],
     *,
     extra_counts: typing.Sequence[int] | None = None,
@@ -1240,7 +1253,7 @@ def even_division(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[0, 0, 1])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -1306,7 +1319,7 @@ def even_division(
 
             >>> def make_lilypond_file(pairs):
             ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [_.duration() for _ in time_signatures]
+            ...     durations = abjad.duration.value_durations(time_signatures)
             ...     tuplets = rmakers.even_division(durations, [16, 8])
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
@@ -1370,7 +1383,7 @@ def even_division(
 
             >>> def make_lilypond_file(pairs):
             ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [_.duration() for _ in time_signatures]
+            ...     durations = abjad.duration.value_durations(time_signatures)
             ...     tuplets = rmakers.even_division(durations, [8])
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
@@ -1427,7 +1440,7 @@ def even_division(
 
             >>> def make_lilypond_file(pairs):
             ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [_.duration() for _ in time_signatures]
+            ...     durations = abjad.duration.value_durations(time_signatures)
             ...     tuplets = rmakers.even_division(durations, [4])
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
@@ -1475,7 +1488,7 @@ def even_division(
 
             >>> def make_lilypond_file(pairs):
             ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [_.duration() for _ in time_signatures]
+            ...     durations = abjad.duration.value_durations(time_signatures)
             ...     tuplets = rmakers.even_division(durations, [2])
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
@@ -1525,7 +1538,7 @@ def even_division(
 
             >>> def make_lilypond_file(pairs):
             ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [_.duration() for _ in time_signatures]
+            ...     durations = abjad.duration.value_durations(time_signatures)
             ...     tuplets = rmakers.even_division(
             ...         durations, [16], extra_counts=[0, 1, 2]
             ...     )
@@ -1643,7 +1656,7 @@ def even_division(
 
             >>> def make_lilypond_file(pairs, extra_counts):
             ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [_.duration() for _ in time_signatures]
+            ...     durations = abjad.duration.value_durations(time_signatures)
             ...     tuplets = rmakers.even_division(
             ...         durations, [16], extra_counts=extra_counts
             ...     )
@@ -1895,7 +1908,7 @@ def even_division(
 
             >>> def make_lilypond_file(pairs, extra_counts):
             ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [_.duration() for _ in time_signatures]
+            ...     durations = abjad.duration.value_durations(time_signatures)
             ...     tuplets = rmakers.even_division(
             ...         durations, [16], extra_counts=extra_counts
             ...     )
@@ -2043,7 +2056,7 @@ def even_division(
 
     """
     assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     assert isinstance(denominators, list), repr(denominators)
@@ -2071,7 +2084,7 @@ def even_division(
             raise Exception(f"nondyadic durations not implemented: {tuplet_duration}")
         denominator_ = cyclic_denominators[i]
         extra_count = cyclic_extra_counts[i]
-        note_duration = abjad.Duration(1, denominator_)
+        note_duration = abjad.ValueDuration(1, denominator_)
         assert abjad.math.is_positive_integer_power_of_two(note_duration.denominator)
         unprolated_note_count = None
         pitches = abjad.makers.make_pitches([0])
@@ -2128,7 +2141,7 @@ def even_division(
 
 
 def incised(
-    durations: typing.Sequence[abjad.Duration],
+    durations: typing.Sequence[abjad.ValueDuration],
     *,
     body_proportion: tuple[int, ...] = (1,),
     extra_counts: typing.Sequence[int] | None = None,
@@ -2152,7 +2165,7 @@ def incised(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.incised(
         ...         durations,
         ...         prefix_talea=[-1],
@@ -2204,7 +2217,7 @@ def incised(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.incised(
         ...         durations,
         ...         prefix_talea=[-1],
@@ -2260,7 +2273,7 @@ def incised(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.incised(
         ...         durations,
         ...         prefix_talea=[1],
@@ -2312,7 +2325,7 @@ def incised(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.incised(
         ...         durations,
         ...         prefix_talea=[1],
@@ -2375,7 +2388,7 @@ def incised(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.incised(
         ...         durations,
         ...         extra_counts=[1],
@@ -2450,7 +2463,7 @@ def incised(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.incised(
         ...         durations,
         ...         body_proportion=(1, 1),
@@ -2526,7 +2539,7 @@ def incised(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.incised(
         ...         durations,
         ...         body_proportion=(1, 1, 1),
@@ -2659,7 +2672,7 @@ def incised(
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     if prefix_talea is None:
         prefix_talea = []
     assert isinstance(prefix_talea, list), repr(prefix_talea)
@@ -2712,8 +2725,10 @@ def incised(
         )
     leaf_and_tuplet_lists = []
     for duration_list in duration_lists:
-        duration_list = [_ for _ in duration_list if _ != abjad.Duration(0)]
-        duration_list = [abjad.Duration(_, scaled.lcd) for _ in duration_list]
+        duration_list = [_ for _ in duration_list if _ != abjad.ValueDuration(0)]
+        # duration_list = [abjad.ValueDuration(_, scaled.lcd) for _ in duration_list]
+        fractions = [abjad.Fraction(_.as_fraction(), scaled.lcd) for _ in duration_list]
+        duration_list = [abjad.ValueDuration(*_.as_integer_ratio()) for _ in fractions]
         leaf_and_tuplet_list_ = _make_leaf_and_tuplet_list(
             duration_list,
             forbidden_note_duration=spelling.forbidden_note_duration,
@@ -2722,7 +2737,7 @@ def incised(
             tag=tag,
         )
         leaf_and_tuplet_lists.append(leaf_and_tuplet_list_)
-    durations = abjad.duration.durations(scaled.pairs)
+    durations = abjad.duration.value_durations(scaled.pairs)
     tuplets = _make_talea_rhythm_maker_tuplets(
         durations, leaf_and_tuplet_lists, tag=tag
     )
@@ -2731,10 +2746,10 @@ def incised(
 
 
 def multiplied_duration(
-    durations: typing.Sequence[abjad.Duration],
+    durations: typing.Sequence[abjad.ValueDuration],
     prototype: type = abjad.Note,
     *,
-    duration: abjad.Duration = abjad.Duration(1, 1),
+    duration: abjad.ValueDuration = abjad.ValueDuration(1, 1),
     tag: abjad.Tag | None = None,
 ) -> list[abjad.Leaf]:
     r"""
@@ -2743,7 +2758,7 @@ def multiplied_duration(
     ..  container:: example
 
         >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = [_.duration() for _ in time_signatures]
+        >>> durations = abjad.duration.value_durations(time_signatures)
         >>> components = rmakers.multiplied_duration(durations)
         >>> lilypond_file = rmakers.example(components, time_signatures)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
@@ -2781,7 +2796,7 @@ def multiplied_duration(
         Makes multiplied-duration whole notes when ``duration`` is unset:
 
         >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = [_.duration() for _ in time_signatures]
+        >>> durations = abjad.duration.value_durations(time_signatures)
         >>> components = rmakers.multiplied_duration(durations)
         >>> lilypond_file = rmakers.example(components, time_signatures)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
@@ -2814,11 +2829,11 @@ def multiplied_duration(
                 }
             }
 
-        Makes multiplied-duration half notes when ``duration=abjad.Duration(1, 2)``:
+        Makes multiplied-duration half notes when ``duration=abjad.ValueDuration(1, 2)``:
 
         >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = [_.duration() for _ in time_signatures]
-        >>> duration = abjad.Duration(1, 2)
+        >>> durations = abjad.duration.value_durations(time_signatures)
+        >>> duration = abjad.ValueDuration(1, 2)
         >>> components = rmakers.multiplied_duration(durations, duration=duration)
         >>> lilypond_file = rmakers.example(components, time_signatures)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
@@ -2851,11 +2866,11 @@ def multiplied_duration(
                 }
             }
 
-        Makes multiplied-duration quarter notes when ``duration=abjad.Duration(1, 4)``:
+        Makes multiplied-duration quarter notes when ``duration=abjad.ValueDuration(1, 4)``:
 
         >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = [_.duration() for _ in time_signatures]
-        >>> duration = abjad.Duration(1, 4)
+        >>> durations = abjad.duration.value_durations(time_signatures)
+        >>> duration = abjad.ValueDuration(1, 4)
         >>> components = rmakers.multiplied_duration(durations, duration=duration)
         >>> lilypond_file = rmakers.example(components, time_signatures)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
@@ -2893,7 +2908,7 @@ def multiplied_duration(
         Makes multiplied-duration notes when ``prototype`` is unset:
 
         >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = [_.duration() for _ in time_signatures]
+        >>> durations = abjad.duration.value_durations(time_signatures)
         >>> components = rmakers.multiplied_duration(durations)
         >>> lilypond_file = rmakers.example(components, time_signatures)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
@@ -2931,7 +2946,7 @@ def multiplied_duration(
         Makes multiplied-duration rests when ``prototype=abjad.Rest``:
 
         >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = [_.duration() for _ in time_signatures]
+        >>> durations = abjad.duration.value_durations(time_signatures)
         >>> components = rmakers.multiplied_duration(durations, abjad.Rest)
         >>> lilypond_file = rmakers.example(components, time_signatures)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
@@ -2970,7 +2985,7 @@ def multiplied_duration(
         ``prototype=abjad.MultimeasureRest``:
 
         >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = [_.duration() for _ in time_signatures]
+        >>> durations = abjad.duration.value_durations(time_signatures)
         >>> components = rmakers.multiplied_duration(durations, abjad.MultimeasureRest)
         >>> lilypond_file = rmakers.example(components, time_signatures)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
@@ -3008,7 +3023,7 @@ def multiplied_duration(
         Makes multiplied-duration skips when ``prototype=abjad.Skip``:
 
         >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = [_.duration() for _ in time_signatures]
+        >>> durations = abjad.duration.value_durations(time_signatures)
         >>> components = rmakers.multiplied_duration(durations, abjad.Skip)
         >>> lilypond_file = rmakers.example(components, time_signatures)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
@@ -3045,14 +3060,14 @@ def multiplied_duration(
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    assert isinstance(duration, abjad.Duration), repr(duration)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
+    assert isinstance(duration, abjad.ValueDuration), repr(duration)
     leaf: abjad.Leaf
     leaves = []
     pitch = abjad.NamedPitch("c'")
     for duration_ in durations:
         pair = duration_.numerator, duration_.denominator
-        fraction = abjad.Fraction(*pair) / duration
+        fraction = abjad.Fraction(*pair) / duration.as_fraction()
         denominator = abjad.math.least_common_multiple(pair[1], fraction.denominator)
         pair = abjad.duration.pair_with_denominator(fraction, denominator)
         if prototype is abjad.Note:
@@ -3078,7 +3093,7 @@ def multiplied_duration(
 
 
 def note(
-    durations: typing.Sequence[abjad.Duration],
+    durations: typing.Sequence[abjad.ValueDuration],
     *,
     spelling: _classes.Spelling = _classes.Spelling(),
     tag: abjad.Tag | None = None,
@@ -3092,7 +3107,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3140,7 +3155,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3188,7 +3203,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3238,7 +3253,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     lilypond_file = rmakers.example(components, time_signatures)
@@ -3287,7 +3302,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     lilypond_file = rmakers.example(components, time_signatures)
@@ -3342,7 +3357,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3386,7 +3401,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3431,7 +3446,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3482,7 +3497,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3533,7 +3548,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3578,7 +3593,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     abjad.makers.tweak_tuplet_bracket_edge_height(nested_music)
         ...     components = abjad.sequence.flatten(nested_music)
@@ -3632,7 +3647,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3690,7 +3705,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3739,7 +3754,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3788,7 +3803,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     container = abjad.Container(components)
@@ -3837,7 +3852,7 @@ def note(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     nested_music = rmakers.note(durations)
         ...     components = abjad.sequence.flatten(nested_music)
         ...     voice = rmakers.wrap_in_time_signature_staff(components, time_signatures)
@@ -3881,7 +3896,7 @@ def note(
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     lists = []
     for duration in durations:
         list_ = abjad.makers.make_leaves(
@@ -3899,7 +3914,7 @@ def note(
 
 
 def talea(
-    durations: typing.Sequence[abjad.Duration],
+    durations: typing.Sequence[abjad.ValueDuration],
     counts: typing.Sequence[int | str],
     denominator: int,
     *,
@@ -3914,7 +3929,8 @@ def talea(
     tag: abjad.Tag | None = None,
 ) -> list[abjad.Tuplet]:
     r"""
-    Reads ``counts`` cyclically and makes one tuplet for each duration in ``durations``.
+    Reads ``counts`` cyclically and makes one tuplet for each duration in
+    ``durations``.
 
     Repeats talea of 1/16, 2/16, 3/16, 4/16:
 
@@ -3922,7 +3938,7 @@ def talea(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -3983,7 +3999,7 @@ def talea(
 
         >>> def make_lilypond_file(pairs, extra_counts):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations,
         ...         [1, 2, 3, 4],
@@ -4210,7 +4226,7 @@ def talea(
 
             >>> def make_lilypond_file(pairs):
             ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [_.duration() for _ in time_signatures]
+            ...     durations = abjad.duration.value_durations(time_signatures)
             ...     tuplets = rmakers.talea(
             ...         durations, [8, -4, 8], 32, preamble=[1, 1, 1, 1]
             ...     )
@@ -4271,7 +4287,7 @@ def talea(
 
             >>> def make_lilypond_file(pairs):
             ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [_.duration() for _ in time_signatures]
+            ...     durations = abjad.duration.value_durations(time_signatures)
             ...     tuplets = rmakers.talea(
             ...         durations, [8, -4, 8], 32, preamble=[32, 32, 32, 32]
             ...     )
@@ -4325,7 +4341,7 @@ def talea(
 
             >>> def make_lilypond_file(pairs):
             ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [_.duration() for _ in time_signatures]
+            ...     durations = abjad.duration.value_durations(time_signatures)
             ...     tuplets = rmakers.talea(
             ...         durations, [8, -4, 8], 32, end_counts=[1, 1, 1, 1]
             ...     )
@@ -4382,7 +4398,7 @@ def talea(
 
             >>> def make_lilypond_file(pairs):
             ...     time_signatures = rmakers.time_signatures(pairs)
-            ...     durations = [_.duration() for _ in time_signatures]
+            ...     durations = abjad.duration.value_durations(time_signatures)
             ...     tuplets = rmakers.talea(durations, [6], 16, end_counts=[1])
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
@@ -4425,7 +4441,7 @@ def talea(
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     assert isinstance(counts, list), repr(counts)
     if end_counts is None:
         end_counts = []
@@ -4474,7 +4490,7 @@ def talea(
 
 
 def tuplet(
-    durations: typing.Sequence[abjad.Duration],
+    durations: typing.Sequence[abjad.ValueDuration],
     tuplet_proportions: typing.Sequence[tuple[int, ...]],
     *,
     tag: abjad.Tag | None = None,
@@ -4488,7 +4504,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(3, 2)])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -4555,7 +4571,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(1, -1), (3, 1)])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -4619,7 +4635,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(1, 1, 1, 1)])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -4696,7 +4712,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(1, 1, 1, 1)])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -4773,7 +4789,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(1, 1, 2, 1, 1), (3, 1, 1)])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -4878,7 +4894,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(2, 3), (1, -2, 1)])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -4938,7 +4954,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(2, 3), (1, -2, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5003,7 +5019,7 @@ def tuplet(
 
         >>> def make_lilypond_file(durations):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(2, 3), (1, -2, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5076,7 +5092,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(2, 1)])
         ...     container = abjad.Container(tuplets)
         ...     rmakers.force_diminution(container)
@@ -5131,7 +5147,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(2, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5193,7 +5209,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(1, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5254,7 +5270,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(1, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5316,7 +5332,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(1, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5377,7 +5393,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(1, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5439,7 +5455,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(3, -2), (1,), (-2, 3), (1, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5503,7 +5519,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(3, -2), (1,), (-2, 3), (1, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5566,7 +5582,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(3, -2), (1,), (-2, 3), (1, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5629,7 +5645,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(2, 3), (1, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5705,7 +5721,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(2, 3), (1, 1)])
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
@@ -5776,7 +5792,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(2, 3), (1, 1)])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -5847,7 +5863,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(4, 1)])
         ...     container = abjad.Container(tuplets)
         ...     tuplets = abjad.select.tuplets(container)
@@ -5910,7 +5926,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(1, 4)])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -5973,7 +5989,7 @@ def tuplet(
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = [_.duration() for _ in time_signatures]
+        ...     durations = abjad.duration.value_durations(time_signatures)
         ...     tag = abjad.Tag("TUPLET_RHYTHM_MAKER")
         ...     tuplets = rmakers.tuplet(durations, [(3, 2)], tag=tag)
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
@@ -6304,7 +6320,7 @@ def tuplet(
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
     assert isinstance(tuplet_proportions, list), repr(tuplet_proportions)
     tuplets = _make_tuplet_rhythm_maker_music(
         durations,
