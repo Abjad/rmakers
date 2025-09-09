@@ -67,9 +67,9 @@ def _interpolate_exponential(y1, y2, mu, exponent=1) -> float:
 
 
 def _interpolate_divide(
-    total_duration: abjad.ValueDuration,
-    start_duration: abjad.ValueDuration,
-    stop_duration: abjad.ValueDuration,
+    total_duration: abjad.Duration,
+    start_duration: abjad.Duration,
+    stop_duration: abjad.Duration,
     exponent="cosine",
 ) -> str | list[float]:
     """
@@ -79,9 +79,9 @@ def _interpolate_divide(
     ..  container:: example
 
         >>> rmakers.functions._interpolate_divide(
-        ...     total_duration=abjad.ValueDuration(10, 1),
-        ...     start_duration=abjad.ValueDuration(1, 1),
-        ...     stop_duration=abjad.ValueDuration(1, 1),
+        ...     total_duration=abjad.Duration(10, 1),
+        ...     start_duration=abjad.Duration(1, 1),
+        ...     stop_duration=abjad.Duration(1, 1),
         ...     exponent=1,
         ... )
         [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
@@ -89,9 +89,9 @@ def _interpolate_divide(
         10.0
 
         >>> rmakers.functions._interpolate_divide(
-        ...     total_duration=abjad.ValueDuration(10, 1),
-        ...     start_duration=abjad.ValueDuration(5, 1),
-        ...     stop_duration=abjad.ValueDuration(1, 1),
+        ...     total_duration=abjad.Duration(10, 1),
+        ...     start_duration=abjad.Duration(5, 1),
+        ...     stop_duration=abjad.Duration(1, 1),
         ... )
         [4.798..., 2.879..., 1.326..., 0.995...]
         >>> sum(_)
@@ -104,7 +104,7 @@ def _interpolate_divide(
 
     Scales resulting durations so that their sum equals ``total_duration`` exactly.
     """
-    zero = abjad.ValueDuration(0, 1)
+    zero = abjad.Duration(0, 1)
     if total_duration <= zero:
         raise ValueError("Total duration must be positive.")
     if start_duration <= zero or stop_duration <= zero:
@@ -156,7 +156,7 @@ def _is_ritardando(argument):
 
 
 def _make_beamable_groups(components, durations):
-    assert all(isinstance(_, abjad.ValueDuration) for _ in durations)
+    assert all(isinstance(_, abjad.Duration) for _ in durations)
     music_duration = abjad.get.duration(components)
     if music_duration != sum(durations):
         message = f"music duration {music_duration} does not equal"
@@ -2074,7 +2074,7 @@ def force_repeat_tie(
     argument,
     *,
     tag: abjad.Tag | None = None,
-    threshold: bool | abjad.ValueDuration | typing.Callable = True,
+    threshold: bool | abjad.Duration | typing.Callable = True,
 ) -> None:
     r"""
     Replaces ties in ``argument`` with repeat-ties.
@@ -2227,15 +2227,15 @@ def force_repeat_tie(
     elif threshold in (None, False):
 
         def inequality(item):
-            return item < abjad.ValueDuration(0)
+            return item < abjad.Duration(0)
 
     elif threshold is True:
 
         def inequality(item):
-            return item >= abjad.ValueDuration(0)
+            return item >= abjad.Duration(0)
 
     else:
-        assert isinstance(threshold, abjad.ValueDuration)
+        assert isinstance(threshold, abjad.Duration)
 
         def inequality(item):
             return item >= threshold
@@ -2607,9 +2607,9 @@ def invisible_music(argument, *, tag: abjad.Tag | None = None) -> None:
 
 
 def interpolate(
-    start_duration: abjad.ValueDuration,
-    stop_duration: abjad.ValueDuration,
-    written_duration: abjad.ValueDuration,
+    start_duration: abjad.Duration,
+    stop_duration: abjad.Duration,
+    written_duration: abjad.Duration,
 ) -> _classes.Interpolation:
     """
     Makes interpolation.
@@ -2641,7 +2641,7 @@ def on_beat_grace_container(
     nongrace_leaf_lists: list[typing.Sequence[abjad.Leaf]],
     counts: typing.Sequence[int],
     *,
-    grace_leaf_duration: abjad.ValueDuration | None = None,
+    grace_leaf_duration: abjad.Duration | None = None,
     grace_polyphony_command: abjad.VoiceNumber = abjad.VoiceNumber(1),
     nongrace_polyphony_command: abjad.VoiceNumber = abjad.VoiceNumber(2),
     tag: abjad.Tag | None = None,
@@ -2668,7 +2668,7 @@ def on_beat_grace_container(
         ...         "RhythmMaker.Music",
         ...         groups,
         ...         [2, 4],
-        ...         grace_leaf_duration=abjad.ValueDuration(1, 28)
+        ...         grace_leaf_duration=abjad.Duration(1, 28)
         ...     )
         ...     components = abjad.mutate.eject_contents(voice)
         ...     music_voice = abjad.Voice(components, name="RhythmMaker.Music")
@@ -2802,7 +2802,7 @@ def on_beat_grace_container(
         ...         "RhythmMaker.Music",
         ...         leaf_lists,
         ...         [6, 2],
-        ...         grace_leaf_duration=abjad.ValueDuration(1, 28)
+        ...         grace_leaf_duration=abjad.Duration(1, 28)
         ...     )
         ...     components = abjad.mutate.eject_contents(voice)
         ...     music_voice = abjad.Voice(components, name="RhythmMaker.Music")
@@ -4101,7 +4101,7 @@ def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
 def split_measures(
     voice: abjad.Voice,
     *,
-    durations: list[abjad.ValueDuration] | None = None,
+    durations: list[abjad.Duration] | None = None,
     tag: abjad.Tag | None = None,
 ) -> None:
     r"""
@@ -4121,7 +4121,7 @@ def split_measures(
         voice_ = staff["TimeSignatureVoice"]
         assert isinstance(voice_, abjad.Voice)
         durations = [abjad.get.duration(_) for _ in voice_]
-    assert all(isinstance(_, abjad.ValueDuration) for _ in durations), repr(durations)
+    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     total_duration = sum(durations)
     music_duration = abjad.get.duration(voice)
     if total_duration != music_duration:
@@ -4809,7 +4809,7 @@ def tremolo_container(argument, count: int, *, tag: abjad.Tag | None = None) -> 
     for leaf in abjad.select.leaves(argument, pitched=True):
         container_duration = leaf.written_duration()
         note_duration = container_duration / (2 * count)
-        assert isinstance(note_duration, abjad.ValueDuration)
+        assert isinstance(note_duration, abjad.Duration)
         left_note = abjad.Note.from_duration_and_pitch(note_duration, pitch)
         right_note = abjad.Note.from_duration_and_pitch(note_duration, pitch)
         container = abjad.TremoloContainer(count, [left_note, right_note], tag=tag)
@@ -6273,11 +6273,11 @@ def wrap_in_time_signature_staff(
     return music_voice
 
 
-def written_duration(argument, duration: abjad.ValueDuration) -> None:
+def written_duration(argument, duration: abjad.Duration) -> None:
     """
     Sets written duration of leaves in ``argument``.
     """
-    assert isinstance(duration, abjad.ValueDuration), repr(duration)
+    assert isinstance(duration, abjad.Duration), repr(duration)
     leaves = abjad.select.leaves(argument)
     for leaf in leaves:
         old_duration = leaf.written_duration()

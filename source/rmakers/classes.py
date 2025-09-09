@@ -77,20 +77,18 @@ class Interpolation:
     Interpolation specifier.
     """
 
-    start_duration: abjad.ValueDuration = abjad.ValueDuration(1, 8)
-    stop_duration: abjad.ValueDuration = abjad.ValueDuration(1, 16)
-    written_duration: abjad.ValueDuration = abjad.ValueDuration(1, 16)
+    start_duration: abjad.Duration = abjad.Duration(1, 8)
+    stop_duration: abjad.Duration = abjad.Duration(1, 16)
+    written_duration: abjad.Duration = abjad.Duration(1, 16)
 
     __documentation_section__ = "Specifiers"
 
     def __post_init__(self) -> None:
-        assert isinstance(self.start_duration, abjad.ValueDuration), repr(
+        assert isinstance(self.start_duration, abjad.Duration), repr(
             self.start_duration
         )
-        assert isinstance(self.stop_duration, abjad.ValueDuration), repr(
-            self.stop_duration
-        )
-        assert isinstance(self.written_duration, abjad.ValueDuration), repr(
+        assert isinstance(self.stop_duration, abjad.Duration), repr(self.stop_duration)
+        assert isinstance(self.written_duration, abjad.Duration), repr(
             self.written_duration
         )
 
@@ -103,24 +101,24 @@ class Interpolation:
         ..  container:: example
 
             >>> specifier = rmakers.Interpolation(
-            ...     start_duration=abjad.ValueDuration(1, 4),
-            ...     stop_duration=abjad.ValueDuration(1, 16),
-            ...     written_duration=abjad.ValueDuration(1, 16),
+            ...     start_duration=abjad.Duration(1, 4),
+            ...     stop_duration=abjad.Duration(1, 16),
+            ...     written_duration=abjad.Duration(1, 16),
             ... )
             >>> specifier.reverse()
-            Interpolation(start_duration=ValueDuration(numerator=1, denominator=16), stop_duration=ValueDuration(numerator=1, denominator=4), written_duration=ValueDuration(numerator=1, denominator=16))
+            Interpolation(start_duration=Duration(numerator=1, denominator=16), stop_duration=Duration(numerator=1, denominator=4), written_duration=Duration(numerator=1, denominator=16))
 
         ..  container:: example
 
             Changes ritardando specifier to accelerando specifier:
 
             >>> specifier = rmakers.Interpolation(
-            ...     start_duration=abjad.ValueDuration(1, 16),
-            ...     stop_duration=abjad.ValueDuration(1, 4),
-            ...     written_duration=abjad.ValueDuration(1, 16),
+            ...     start_duration=abjad.Duration(1, 16),
+            ...     stop_duration=abjad.Duration(1, 4),
+            ...     written_duration=abjad.Duration(1, 16),
             ... )
             >>> specifier.reverse()
-            Interpolation(start_duration=ValueDuration(numerator=1, denominator=4), stop_duration=ValueDuration(numerator=1, denominator=16), written_duration=ValueDuration(numerator=1, denominator=16))
+            Interpolation(start_duration=Duration(numerator=1, denominator=4), stop_duration=Duration(numerator=1, denominator=16), written_duration=Duration(numerator=1, denominator=16))
 
         """
         return type(self)(
@@ -262,7 +260,7 @@ class Spelling:
         ...         [1, 1, 1, 1, 4, -4],
         ...         16,
         ...         spelling=rmakers.Spelling(
-        ...             forbidden_note_duration=abjad.ValueDuration(1, 4)
+        ...             forbidden_note_duration=abjad.Duration(1, 4)
         ...         ),
         ...     )
         ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
@@ -327,7 +325,7 @@ class Spelling:
         ...         [1, 1, 1, 1, 4, -4],
         ...         16,
         ...         spelling=rmakers.Spelling(
-        ...             forbidden_rest_duration=abjad.ValueDuration(1, 4)
+        ...             forbidden_rest_duration=abjad.Duration(1, 4)
         ...         ),
         ...     )
         ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
@@ -512,7 +510,7 @@ class Spelling:
         ...     tuplets = rmakers.talea(
         ...         durations, [1, 1, 1, 1, 4, 4], 16,
         ...         spelling=rmakers.Spelling(
-        ...             forbidden_note_duration=abjad.ValueDuration(1, 4)
+        ...             forbidden_note_duration=abjad.Duration(1, 4)
         ...         ),
         ...     )
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
@@ -573,19 +571,19 @@ class Spelling:
 
     """
 
-    forbidden_note_duration: abjad.ValueDuration | None = None
-    forbidden_rest_duration: abjad.ValueDuration | None = None
+    forbidden_note_duration: abjad.Duration | None = None
+    forbidden_rest_duration: abjad.Duration | None = None
     increase_monotonic: bool = False
 
     __documentation_section__ = "Specifiers"
 
     def __post_init__(self):
         if self.forbidden_note_duration is not None:
-            assert isinstance(self.forbidden_note_duration, abjad.ValueDuration), repr(
+            assert isinstance(self.forbidden_note_duration, abjad.Duration), repr(
                 self.forbidden_note_duration
             )
         if self.forbidden_rest_duration is not None:
-            assert isinstance(self.forbidden_rest_duration, abjad.ValueDuration), repr(
+            assert isinstance(self.forbidden_rest_duration, abjad.Duration), repr(
                 self.forbidden_rest_duration
             )
         assert isinstance(self.increase_monotonic, bool), repr(self.increase_monotonic)
@@ -654,10 +652,10 @@ class Talea:
         >>> for i, duration in enumerate(talea):
         ...     duration
         ...
-        ValueDuration(numerator=1, denominator=16)
-        ValueDuration(numerator=1, denominator=1)
-        ValueDuration(numerator=-1, denominator=4)
-        ValueDuration(numerator=1, denominator=1)
+        Duration(numerator=1, denominator=16)
+        Duration(numerator=1, denominator=1)
+        Duration(numerator=-1, denominator=4)
+        Duration(numerator=1, denominator=1)
 
     """
 
@@ -796,7 +794,7 @@ class Talea:
             return result
         raise ValueError(argument)
 
-    def __iter__(self) -> typing.Iterator[abjad.ValueDuration]:
+    def __iter__(self) -> typing.Iterator[abjad.Duration]:
         """
         Iterates talea.
 
@@ -811,25 +809,25 @@ class Talea:
             >>> for duration in talea:
             ...     duration
             ...
-            ValueDuration(numerator=1, denominator=16)
-            ValueDuration(numerator=1, denominator=16)
-            ValueDuration(numerator=1, denominator=16)
-            ValueDuration(numerator=1, denominator=16)
-            ValueDuration(numerator=1, denominator=8)
-            ValueDuration(numerator=1, denominator=16)
-            ValueDuration(numerator=3, denominator=16)
-            ValueDuration(numerator=1, denominator=8)
-            ValueDuration(numerator=1, denominator=4)
-            ValueDuration(numerator=1, denominator=16)
-            ValueDuration(numerator=1, denominator=16)
+            Duration(numerator=1, denominator=16)
+            Duration(numerator=1, denominator=16)
+            Duration(numerator=1, denominator=16)
+            Duration(numerator=1, denominator=16)
+            Duration(numerator=1, denominator=8)
+            Duration(numerator=1, denominator=16)
+            Duration(numerator=3, denominator=16)
+            Duration(numerator=1, denominator=8)
+            Duration(numerator=1, denominator=4)
+            Duration(numerator=1, denominator=16)
+            Duration(numerator=1, denominator=16)
 
         """
         for count in self.preamble or []:
-            duration = abjad.ValueDuration(count, self.denominator)
+            duration = abjad.Duration(count, self.denominator)
             yield duration
         for item in self.counts or []:
             assert isinstance(item, int)
-            duration = abjad.ValueDuration(item, self.denominator)
+            duration = abjad.Duration(item, self.denominator)
             yield duration
 
     def __len__(self) -> int:
