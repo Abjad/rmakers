@@ -2,6 +2,8 @@
 The rmakers classes.
 """
 
+from __future__ import annotations
+
 import dataclasses
 import typing
 
@@ -11,7 +13,7 @@ import abjad
 @dataclasses.dataclass(frozen=True, order=True, slots=True, unsafe_hash=True)
 class Incise:
     """
-    Incise specifier.
+    Incise.
     """
 
     body_proportion: tuple[int, ...] = (1,)
@@ -22,8 +24,6 @@ class Incise:
     suffix_counts: list[int] = dataclasses.field(default_factory=list)
     suffix_talea: list[int] = dataclasses.field(default_factory=list)
     talea_denominator: int | None = None
-
-    __documentation_section__ = "Specifiers"
 
     def __post_init__(self):
         assert isinstance(self.body_proportion, tuple), repr(self.body_proportion)
@@ -74,14 +74,12 @@ class Incise:
 @dataclasses.dataclass(frozen=True, order=True, slots=True, unsafe_hash=True)
 class Interpolation:
     """
-    Interpolation specifier.
+    Interpolation.
     """
 
     start_duration: abjad.Duration = abjad.Duration(1, 8)
     stop_duration: abjad.Duration = abjad.Duration(1, 16)
     written_duration: abjad.Duration = abjad.Duration(1, 16)
-
-    __documentation_section__ = "Specifiers"
 
     def __post_init__(self) -> None:
         assert isinstance(self.start_duration, abjad.Duration), repr(
@@ -92,32 +90,32 @@ class Interpolation:
             self.written_duration
         )
 
-    def reverse(self) -> "Interpolation":
+    def reverse(self) -> Interpolation:
         """
-        Swaps start duration and stop duration of interpolation specifier.
+        Swaps start duration and stop duration of interpolation.
 
-        Changes accelerando specifier to ritardando specifier:
+        Changes accelerando to ritardando:
 
         ..  container:: example
 
-            >>> specifier = rmakers.Interpolation(
+            >>> interpolation = rmakers.Interpolation(
             ...     start_duration=abjad.Duration(1, 4),
             ...     stop_duration=abjad.Duration(1, 16),
             ...     written_duration=abjad.Duration(1, 16),
             ... )
-            >>> specifier.reverse()
+            >>> interpolation.reverse()
             Interpolation(start_duration=Duration(numerator=1, denominator=16), stop_duration=Duration(numerator=1, denominator=4), written_duration=Duration(numerator=1, denominator=16))
 
         ..  container:: example
 
-            Changes ritardando specifier to accelerando specifier:
+            Changes ritardando to accelerando:
 
-            >>> specifier = rmakers.Interpolation(
+            >>> interpolation = rmakers.Interpolation(
             ...     start_duration=abjad.Duration(1, 16),
             ...     stop_duration=abjad.Duration(1, 4),
             ...     written_duration=abjad.Duration(1, 16),
             ... )
-            >>> specifier.reverse()
+            >>> interpolation.reverse()
             Interpolation(start_duration=Duration(numerator=1, denominator=4), stop_duration=Duration(numerator=1, denominator=16), written_duration=Duration(numerator=1, denominator=16))
 
         """
@@ -131,7 +129,7 @@ class Interpolation:
 @dataclasses.dataclass(frozen=True, order=True, slots=True, unsafe_hash=True)
 class Spelling:
     r"""
-    Duration spelling specifier.
+    Duration spelling.
 
     ..  container:: example
 
@@ -575,8 +573,6 @@ class Spelling:
     forbidden_rest_duration: abjad.Duration | None = None
     increase_monotonic: bool = False
 
-    __documentation_section__ = "Specifiers"
-
     def __post_init__(self):
         if self.forbidden_note_duration is not None:
             assert isinstance(self.forbidden_note_duration, abjad.Duration), repr(
@@ -592,7 +588,7 @@ class Spelling:
 @dataclasses.dataclass(frozen=True, order=True, slots=True, unsafe_hash=True)
 class Talea:
     """
-    Talea specifier.
+    Talea.
 
     ..  container:: example
 
@@ -664,8 +660,6 @@ class Talea:
     end_counts: list[int] = dataclasses.field(default_factory=list)
     preamble: list[int] = dataclasses.field(default_factory=list)
 
-    __documentation_section__ = "Specifiers"
-
     def __post_init__(self):
         assert isinstance(self.counts, list), repr(self.counts)
         for count in self.counts:
@@ -684,12 +678,7 @@ class Talea:
 
         ..  container:: example
 
-            >>> talea = rmakers.Talea(
-            ...     [10],
-            ...     16,
-            ...     preamble=[1, -1, 1],
-            ...     )
-
+            >>> talea = rmakers.Talea([10],16,preamble=[1, -1, 1])
             >>> for i in range(1, 23 + 1):
             ...     i, i in talea
             ...
@@ -800,12 +789,7 @@ class Talea:
 
         ..  container:: example
 
-            >>> talea = rmakers.Talea(
-            ...     [2, 1, 3, 2, 4, 1, 1],
-            ...     16,
-            ...     preamble=[1, 1, 1, 1],
-            ... )
-
+            >>> talea = rmakers.Talea([2, 1, 3, 2, 4, 1, 1], 16, preamble=[1, 1, 1, 1])
             >>> for duration in talea:
             ...     duration
             ...
@@ -836,65 +820,64 @@ class Talea:
 
         ..  container:: example
 
-            >>> len(rmakers.Talea([2, 1, 3, 2, 4, 1, 1], 16))
+            >>> talea = rmakers.Talea([2, 1, 3, 2, 4, 1, 1], 16)
+            >>> len(talea)
             7
 
         Defined equal to length of counts.
         """
         return len(self.counts or [])
 
-    def advance(self, weight: int) -> "Talea":
+    def advance(self, weight: int) -> Talea:
         """
         Advances talea by ``weight``.
 
         ..  container:: example
 
-            >>> talea = rmakers.Talea(
-            ...     [2, 1, 3, 2, 4, 1, 1],
-            ...     16,
-            ...     preamble=[1, 1, 1, 1],
-            ... )
+            >>> talea = rmakers.Talea([2, 1, 3, 2, 4, 1, 1], 16, preamble=[1, 1, 1, 1])
+            >>> talea.counts
+            [2, 1, 3, 2, 4, 1, 1]
 
-            >>> talea.advance(0)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1, 1, 1, 1])
+            >>> talea.advance(0).counts
+            [2, 1, 3, 2, 4, 1, 1]
 
-            >>> talea.advance(1)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1, 1, 1])
+            >>> talea.advance(1).counts
+            [2, 1, 3, 2, 4, 1, 1]
 
-            >>> talea.advance(2)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1, 1])
+            >>> talea.advance(2).counts
+            [2, 1, 3, 2, 4, 1, 1]
 
-            >>> talea.advance(3)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1])
+            >>> talea.advance(3).counts
+            [2, 1, 3, 2, 4, 1, 1]
 
-            >>> talea.advance(4)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[])
+            >>> talea.advance(4).counts
+            [2, 1, 3, 2, 4, 1, 1]
 
-            >>> talea.advance(5)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1, 1, 3, 2, 4, 1, 1])
+            >>> talea.advance(5).counts
+            [2, 1, 3, 2, 4, 1, 1]
 
-            >>> talea.advance(6)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[1, 3, 2, 4, 1, 1])
+            >>> talea.advance(6).counts
+            [2, 1, 3, 2, 4, 1, 1]
 
-            >>> talea.advance(7)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[3, 2, 4, 1, 1])
+            >>> talea.advance(7).counts
+            [2, 1, 3, 2, 4, 1, 1]
 
-            >>> talea.advance(8)
-            Talea(counts=[2, 1, 3, 2, 4, 1, 1], denominator=16, end_counts=[], preamble=[2, 2, 4, 1, 1])
+            >>> talea.advance(8).counts
+            [2, 1, 3, 2, 4, 1, 1]
 
         ..  container:: example
 
             REGRESSION. Works when talea advances by period of talea:
 
             >>> talea = rmakers.Talea([1, 2, 3, 4], 16)
-            >>> talea
-            Talea(counts=[1, 2, 3, 4], denominator=16, end_counts=[], preamble=[])
+            >>> talea.counts
+            [1, 2, 3, 4]
 
-            >>> talea.advance(10)
-            Talea(counts=[1, 2, 3, 4], denominator=16, end_counts=[], preamble=[])
+            >>> talea.advance(10).counts
+            [1, 2, 3, 4]
 
-            >>> talea.advance(20)
-            Talea(counts=[1, 2, 3, 4], denominator=16, end_counts=[], preamble=[])
+            >>> talea.advance(20).counts
+            [1, 2, 3, 4]
 
         """
         assert isinstance(weight, int), repr(weight)

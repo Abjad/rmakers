@@ -2,9 +2,9 @@
 Makers.
 """
 
+import dataclasses
 import inspect
 import math
-import types
 import typing
 
 import abjad
@@ -613,19 +613,17 @@ def _make_state_dictionary(
 
 def _make_talea_tuplets(
     durations: list[abjad.Duration],
-    self_extra_counts: list[int],
-    previous_state,
-    self_read_talea_once_only,
-    spelling,
-    self_state,
-    talea,
-    tag,
-):
+    extra_counts: list[int],
+    previous_state: dict,
+    read_talea_once_only: bool,
+    spelling: _classes.Spelling,
+    state: dict,
+    talea: _classes.Talea,
+    tag: abjad.Tag,
+) -> list[abjad.Tuplet]:
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    prepared = _prepare_talea_rhythm_maker_input(
-        self_extra_counts, previous_state, talea
-    )
-    scaled = _scale_rhythm_maker_input(durations, talea.denominator, prepared)
+    pti = _prepare_talea_rhythm_maker_input(extra_counts, previous_state, talea)
+    scaled = _scale_rhythm_maker_input(durations, talea.denominator, pti)
     assert scaled.counts.talea
     numerator_lists, expanded_talea = _make_numerator_lists(
         scaled.pairs,
@@ -633,12 +631,12 @@ def _make_talea_tuplets(
         scaled.counts.talea,
         scaled.counts.extra_counts,
         scaled.counts.end_counts,
-        self_read_talea_once_only,
+        read_talea_once_only,
     )
     if expanded_talea is not None:
         unscaled_talea = expanded_talea
     else:
-        unscaled_talea = prepared.talea
+        unscaled_talea = pti.talea
     talea_weight_consumed = sum(abjad.sequence.weight(_) for _ in numerator_lists)
     duration_lists = [
         [abjad.Duration(_, scaled.lcd) for _ in n] for n in numerator_lists
@@ -660,36 +658,36 @@ def _make_talea_tuplets(
         tuplets = _make_talea_rhythm_maker_tuplets(durations_, leaf_lists, tag=tag)
     _apply_ties_to_split_notes(
         tuplets,
-        prepared.end_counts,
-        prepared.preamble,
+        pti.end_counts,
+        pti.preamble,
         unscaled_talea,
         talea,
     )
     for tuplet in abjad.iterate.components(tuplets, abjad.Tuplet):
         tuplet.normalize_ratio()
-    assert isinstance(self_state, dict)
+    assert isinstance(state, dict)
     # advanced_talea = _classes.Talea(
-    #     counts=prepared.talea,
+    #     counts=pti.talea,
     #     denominator=talea.denominator,
-    #     end_counts=prepared.end_counts,
-    #     preamble=prepared.preamble,
+    #     end_counts=pti.end_counts,
+    #     preamble=pti.preamble,
     # )
     advanced_talea = _classes.Talea(
-        counts=list(prepared.talea),
+        counts=list(pti.talea),
         denominator=talea.denominator,
-        end_counts=list(prepared.end_counts),
-        preamble=list(prepared.preamble),
+        end_counts=list(pti.end_counts),
+        preamble=list(pti.preamble),
     )
-    if "+" in prepared.talea or "-" in prepared.talea:
+    if "+" in pti.talea or "-" in pti.talea:
         pass
     elif talea_weight_consumed not in advanced_talea:
         last_leaf = abjad.get.leaf(tuplets, -1)
         if isinstance(last_leaf, abjad.Note):
-            self_state["incomplete_last_note"] = True
+            state["incomplete_last_note"] = True
     string = "talea_weight_consumed"
     assert isinstance(previous_state, dict)
-    self_state[string] = previous_state.get(string, 0)
-    self_state[string] += talea_weight_consumed
+    state[string] = previous_state.get(string, 0)
+    state[string] += talea_weight_consumed
     return tuplets
 
 
@@ -720,13 +718,61 @@ def _make_tuplet_rhythm_maker_music(
     return tuplets
 
 
+@dataclasses.dataclass(frozen=True)
+class _PreparedIncisedCounts:
+
+    prefix_talea: abjad.CyclicTuple
+    suffix_talea: abjad.CyclicTuple
+    extra_counts: abjad.CyclicTuple
+
+    def __post_init__(self):
+        assert all(isinstance(_, int) for _ in self.prefix_talea)
+        assert all(isinstance(_, int) for _ in self.suffix_talea)
+        assert all(isinstance(_, int) for _ in self.extra_counts)
+
+    def scale(self, multiplier, scaled_pairs, lcd):
+        scaled_counts = _PreparedIncisedCounts(
+            prefix_talea=abjad.CyclicTuple([multiplier * _ for _ in self.prefix_talea]),
+            suffix_talea=abjad.CyclicTuple([multiplier * _ for _ in self.suffix_talea]),
+            extra_counts=abjad.CyclicTuple([multiplier * _ for _ in self.extra_counts]),
+        )
+        return _ScaledIncisedCounts(
+            pairs=scaled_pairs,
+            lcd=lcd,
+            counts=scaled_counts,
+        )
+
+
+@dataclasses.dataclass(frozen=True)
+class _ScaledIncisedCounts:
+    pairs: list[tuple[int, int]]
+    lcd: int
+    counts: _PreparedIncisedCounts
+
+
+@dataclasses.dataclass(frozen=True)
+class _PreparedIncisedInput:
+
+    prefix_talea: abjad.CyclicTuple
+    prefix_counts: abjad.CyclicTuple
+    suffix_talea: abjad.CyclicTuple
+    suffix_counts: abjad.CyclicTuple
+    extra_counts: abjad.CyclicTuple
+
+    def __post_init__(self):
+        assert all(isinstance(_, int) for _ in self.prefix_talea)
+        assert all(isinstance(_, int) for _ in self.prefix_counts)
+        assert all(isinstance(_, int) for _ in self.suffix_talea)
+        assert all(isinstance(_, int) for _ in self.suffix_counts)
+
+
 def _prepare_incised_input(incise, extra_counts):
     cyclic_prefix_talea = abjad.CyclicTuple(incise.prefix_talea)
     cyclic_prefix_counts = abjad.CyclicTuple(incise.prefix_counts or (0,))
     cyclic_suffix_talea = abjad.CyclicTuple(incise.suffix_talea)
     cyclic_suffix_counts = abjad.CyclicTuple(incise.suffix_counts or (0,))
     cyclic_extra_counts = abjad.CyclicTuple(extra_counts or (0,))
-    return types.SimpleNamespace(
+    return _PreparedIncisedInput(
         prefix_talea=cyclic_prefix_talea,
         prefix_counts=cyclic_prefix_counts,
         suffix_talea=cyclic_suffix_talea,
@@ -735,22 +781,61 @@ def _prepare_incised_input(incise, extra_counts):
     )
 
 
-def _prepare_talea_rhythm_maker_input(self_extra_counts, previous_state, talea):
+@dataclasses.dataclass(frozen=True, order=True, slots=True, unsafe_hash=True)
+class _PreparedTaleaInput:
+
+    end_counts: list[int]
+    extra_counts: abjad.CyclicTuple
+    preamble: list[int]
+    talea: abjad.CyclicTuple
+
+    def __post_init__(self):
+        assert all(isinstance(_, int) for _ in self.end_counts)
+        assert all(isinstance(_, int) for _ in self.extra_counts)
+        assert all(isinstance(_, int) for _ in self.preamble)
+        assert all(isinstance(_, int | str) for _ in self.talea)
+
+    def scale(self, multiplier, scaled_pairs, lcd):
+        scaled_counts = _PreparedTaleaInput(
+            end_counts=abjad.CyclicTuple([multiplier * _ for _ in self.end_counts]),
+            extra_counts=abjad.CyclicTuple([multiplier * _ for _ in self.extra_counts]),
+            preamble=abjad.CyclicTuple([multiplier * _ for _ in self.preamble]),
+            talea=abjad.CyclicTuple([multiplier * _ for _ in self.talea]),
+        )
+        return _ScaledTaleaInput(
+            pairs=scaled_pairs,
+            lcd=lcd,
+            counts=scaled_counts,
+        )
+
+
+@dataclasses.dataclass(frozen=True, order=True, slots=True, unsafe_hash=True)
+class _ScaledTaleaInput:
+    pairs: list
+    lcd: int
+    counts: _PreparedTaleaInput
+
+
+def _prepare_talea_rhythm_maker_input(
+    extra_counts: list[int],
+    previous_state: dict,
+    talea: _classes.Talea,
+) -> _PreparedTaleaInput:
+    assert isinstance(extra_counts, list), repr(extra_counts)
     talea_weight_consumed = previous_state.get("talea_weight_consumed", 0)
+    assert isinstance(talea_weight_consumed, int), repr(talea_weight_consumed)
     talea = talea.advance(talea_weight_consumed)
-    end_counts = talea.end_counts or ()
-    preamble = talea.preamble or ()
-    talea = talea.counts or ()
-    talea = abjad.CyclicTuple(talea)
-    extra_counts = list(self_extra_counts or [])
+    preamble = talea.preamble or []
+    cyclic_talea_counts = abjad.CyclicTuple(talea.counts)
     durations_consumed = previous_state.get("durations_consumed", 0)
+    assert isinstance(durations_consumed, int), repr(durations_consumed)
     extra_counts = abjad.sequence.rotate(extra_counts, -durations_consumed)
-    extra_counts = abjad.CyclicTuple(extra_counts)
-    return types.SimpleNamespace(
-        end_counts=end_counts,
-        extra_counts=extra_counts,
+    cyclic_extra_counts = abjad.CyclicTuple(extra_counts)
+    return _PreparedTaleaInput(
+        end_counts=talea.end_counts,
+        extra_counts=cyclic_extra_counts,
         preamble=preamble,
-        talea=talea,
+        talea=cyclic_talea_counts,
     )
 
 
@@ -770,7 +855,7 @@ def _round_durations(
 
 def _scale_rhythm_maker_input(
     durations: list[abjad.Duration],
-    talea_denominator: int | None,
+    talea_denominator: int,
     counts,
 ):
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
@@ -785,15 +870,13 @@ def _scale_rhythm_maker_input(
     multiplier = lcd / talea_denominator
     assert abjad.math.is_integer_equivalent(multiplier)
     multiplier = int(multiplier)
-    scaled_counts = types.SimpleNamespace()
-    for name, vector in counts.__dict__.items():
-        vector = [multiplier * _ for _ in vector]
-        cyclic_vector = abjad.CyclicTuple(vector)
-        setattr(scaled_counts, name, cyclic_vector)
-    assert len(scaled_pairs) == len(durations)
-    assert len(scaled_counts.__dict__) == len(counts.__dict__)
-    assert all(isinstance(_, tuple) for _ in scaled_pairs), repr(scaled_pairs)
-    return types.SimpleNamespace(pairs=scaled_pairs, lcd=lcd, counts=scaled_counts)
+    if isinstance(counts, _PreparedTaleaInput):
+        scaled_talea_input = counts.scale(multiplier, scaled_pairs, lcd)
+        return scaled_talea_input
+    else:
+        assert isinstance(counts, _PreparedIncisedCounts), repr(counts)
+        scaled_incised_input = counts.scale(multiplier, scaled_pairs, lcd)
+        return scaled_incised_input
 
 
 def _split_talea_extended_to_weights(preamble, read_talea_once_only, talea, weights):
@@ -2693,21 +2776,26 @@ def incised(
         suffix_counts=suffix_counts,
         talea_denominator=talea_denominator,
     )
-    prepared = _prepare_incised_input(incise, extra_counts)
-    counts = types.SimpleNamespace(
-        prefix_talea=prepared.prefix_talea,
-        suffix_talea=prepared.suffix_talea,
-        extra_counts=prepared.extra_counts,
+    prepared_incise_input = _prepare_incised_input(incise, extra_counts)
+    prepared_incise_counts = _PreparedIncisedCounts(
+        prefix_talea=prepared_incise_input.prefix_talea,
+        suffix_talea=prepared_incise_input.suffix_talea,
+        extra_counts=prepared_incise_input.extra_counts,
     )
     talea_denominator = incise.talea_denominator
-    scaled = _scale_rhythm_maker_input(durations, talea_denominator, counts)
+    assert isinstance(talea_denominator, int), repr(talea_denominator)
+    scaled = _scale_rhythm_maker_input(
+        durations,
+        talea_denominator,
+        prepared_incise_counts,
+    )
     if incise.outer_tuplets_only:
         duration_lists = _make_outer_tuplets_only_incised_duration_lists(
             scaled.pairs,
             scaled.counts.prefix_talea,
-            prepared.prefix_counts,
+            prepared_incise_input.prefix_counts,
             scaled.counts.suffix_talea,
-            prepared.suffix_counts,
+            prepared_incise_input.suffix_counts,
             scaled.counts.extra_counts,
             incise,
         )
@@ -2715,16 +2803,15 @@ def incised(
         duration_lists = _make_incised_duration_lists(
             scaled.pairs,
             scaled.counts.prefix_talea,
-            prepared.prefix_counts,
+            prepared_incise_input.prefix_counts,
             scaled.counts.suffix_talea,
-            prepared.suffix_counts,
+            prepared_incise_input.suffix_counts,
             scaled.counts.extra_counts,
             incise,
         )
     leaf_and_tuplet_lists = []
     for duration_list in duration_lists:
         duration_list = [_ for _ in duration_list if _ != abjad.Duration(0)]
-        # duration_list = [abjad.Duration(_, scaled.lcd) for _ in duration_list]
         fractions = [abjad.Fraction(_.as_fraction(), scaled.lcd) for _ in duration_list]
         duration_list = [abjad.Duration(*_.as_integer_ratio()) for _ in fractions]
         leaf_and_tuplet_list_ = _make_leaf_and_tuplet_list(
@@ -4436,20 +4523,36 @@ def talea(
                 }
 
     """
-    tag = tag or abjad.Tag()
-    tag = tag.append(_function_name(inspect.currentframe()))
     assert isinstance(durations, list), repr(durations)
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     assert isinstance(counts, list), repr(counts)
+    assert all(isinstance(_, int | str) for _ in counts), repr(counts)
+    assert isinstance(denominator, int), repr(denominator)
+    assert isinstance(advance, int), repr(advance)
     if end_counts is None:
         end_counts = []
     assert isinstance(end_counts, list), repr(end_counts)
+    assert all(isinstance(_, int) for _ in end_counts), repr(end_counts)
     if extra_counts is None:
         extra_counts = []
     assert isinstance(extra_counts, list), repr(extra_counts)
+    assert all(isinstance(_, int) for _ in extra_counts), repr(extra_counts)
     if preamble is None:
         preamble = []
     assert isinstance(preamble, list), repr(preamble)
+    assert all(isinstance(_, int) for _ in preamble), repr(preamble)
+    if previous_state is None:
+        previous_state = {}
+    assert isinstance(previous_state, dict)
+    assert isinstance(read_talea_once_only, bool), repr(read_talea_once_only)
+    assert isinstance(spelling, _classes.Spelling), repr(spelling)
+    if state is None:
+        state = {}
+    assert isinstance(state, dict), repr(state)
+    if tag is None:
+        tag = abjad.Tag()
+    assert isinstance(tag, abjad.Tag), repr(tag)
+    tag = tag.append(_function_name(inspect.currentframe()))
     talea = _classes.Talea(
         counts=counts,
         denominator=denominator,
@@ -4457,9 +4560,6 @@ def talea(
         preamble=preamble,
     )
     talea = talea.advance(advance)
-    previous_state = previous_state or {}
-    if state is None:
-        state = {}
     tuplets = _make_talea_tuplets(
         durations,
         extra_counts,
@@ -4470,6 +4570,7 @@ def talea(
         talea,
         tag,
     )
+    assert all(isinstance(_, abjad.Tuplet) for _ in tuplets), repr(tuplets)
     voice = abjad.Voice(tuplets)
     logical_ties_produced = len(abjad.select.logical_ties(voice))
     new_state = _make_state_dictionary(
@@ -4480,7 +4581,7 @@ def talea(
         previous_logical_ties_produced=previous_state.get("logical_ties_produced", 0),
         state=state,
     )
-    tuplets = abjad.mutate.eject_contents(voice)
+    abjad.mutate.eject_contents(voice)
     assert all(isinstance(_, abjad.Tuplet) for _ in tuplets), repr(tuplets)
     state.clear()
     state.update(new_state)
