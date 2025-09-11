@@ -664,7 +664,7 @@ class Talea:
         assert isinstance(self.counts, list), repr(self.counts)
         for count in self.counts:
             assert isinstance(count, int) or count in "+-", repr(count)
-        assert abjad.math.is_nonnegative_integer_power_of_two(self.denominator)
+        assert abjad.math.is_positive_integer_power_of_two(self.denominator)
         assert isinstance(self.end_counts, list), repr(self.end_counts)
         assert all(isinstance(_, int) for _ in self.end_counts)
         assert isinstance(self.preamble, list), repr(self.preamble)
