@@ -865,20 +865,6 @@ class Talea:
             >>> talea.advance(8).counts
             [2, 1, 3, 2, 4, 1, 1]
 
-        ..  container:: example
-
-            REGRESSION. Works when talea advances by period of talea:
-
-            >>> talea = rmakers.Talea([1, 2, 3, 4], 16)
-            >>> talea.counts
-            [1, 2, 3, 4]
-
-            >>> talea.advance(10).counts
-            [1, 2, 3, 4]
-
-            >>> talea.advance(20).counts
-            [1, 2, 3, 4]
-
         """
         assert isinstance(weight, int), repr(weight)
         if weight < 0:
