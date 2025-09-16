@@ -932,9 +932,9 @@ def before_grace_container(
     r"""
     Makes (and attaches) before-grace containers.
 
-    With ``beam=False``, ``slash=False``, ``slur=False`` (default):
-
     ..  container:: example
+
+        With ``beam=False``, ``slash=False``, ``slur=False`` (default):
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
@@ -1957,15 +1957,14 @@ def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
     r"""
     Replaces leaves in ``argument`` with notes.
 
-    Changes logical ties 1 and 2 to notes:
-
     ..  container:: example
+
+        Changes logical ties 1 and 2 to notes:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
+        ...     components = rmakers.note(durations)
         ...     container = abjad.Container(components)
         ...     rmakers.force_rest(components)
         ...     logical_ties = abjad.select.logical_ties(container)[1:3]
@@ -2012,8 +2011,7 @@ def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
+        ...     components = rmakers.note(durations)
         ...     container = abjad.Container(components)
         ...     leaves = abjad.select.leaves(container)
         ...     rmakers.force_rest(leaves)
@@ -2264,9 +2262,9 @@ def force_rest(argument, *, tag: abjad.Tag | None = None) -> None:
     r"""
     Replaces leaves in ``argument`` with rests.
 
-    Forces first and last logical ties to rest:
-
     ..  container:: example
+
+        Forces first and last logical ties to rest:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
@@ -3004,7 +3002,8 @@ def on_beat_grace_container(
         stop = start + count
         pitch_list = [abjad.NamedPitch("c'")]
         durations = abjad.duration.durations(list(talea[start:stop]))
-        grace_leaves = abjad.makers.make_leaves([pitch_list], durations)
+        leaves = abjad.makers.make_leaves([pitch_list], durations)
+        grace_leaves = [_ for _ in leaves if isinstance(_, abjad.Leaf)]
         abjad.on_beat_grace_container(
             grace_leaves,
             nongrace_leaves,
@@ -3019,9 +3018,9 @@ def repeat_tie(argument, *, tag: abjad.Tag | None = None) -> None:
     r"""
     Attaches repeat-ties to pitched leaves in ``argument``.
 
-    Attaches repeat-tie to first pitched leaf in each nonfirst tuplet:
-
     ..  container:: example
+
+        Attaches repeat-tie to first pitched leaf in each nonfirst tuplet:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
@@ -3394,9 +3393,9 @@ def rewrite_rest_filled(
     r"""
     Rewrites rest-filled tuplets in ``argument``.
 
-    Does not rewrite rest-filled tuplets:
-
     ..  container:: example
+
+        Does not rewrite rest-filled tuplets:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
@@ -3745,9 +3744,10 @@ def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
     r"""
     Rewrites sustained tuplets in ``argument``.
 
-    Sustained tuplets generalize a class of rhythms composers are likely to rewrite:
-
     ..  container:: example
+
+        Sustained tuplets generalize a class of rhythms composers are likely to
+        rewrite:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
@@ -4241,9 +4241,9 @@ def tie(argument, *, tag: abjad.Tag | None = None) -> None:
     r"""
     Attaches ties to pitched leaves in ``argument``.
 
-    Attaches tie to last pitched leaf in each nonlast tuplet:
-
     ..  container:: example
+
+        Attaches tie to last pitched leaf in each nonlast tuplet:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
@@ -4654,9 +4654,9 @@ def tremolo_container(argument, count: int, *, tag: abjad.Tag | None = None) -> 
     r"""
     Replaces pitched leaves in ``argument`` with tremolo containers.
 
-    Repeats figures two times each:
-
     ..  container:: example
+
+        Repeats figures two times each:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
@@ -4820,10 +4820,11 @@ def trivialize(argument) -> None:
     r"""
     Trivializes tuplets in ``argument``.
 
-    Leaves trivializable tuplets as-is when no tuplet command is given. The tuplets
-    in measures 2 and 4 can be written as trivial tuplets, but they are not:
-
     ..  container:: example
+
+        Leaves trivializable tuplets as-is when no tuplet command is given. The
+        tuplets in measures 2 and 4 can be written as trivial tuplets, but they
+        are not:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
@@ -5882,9 +5883,9 @@ def untie(argument) -> None:
     r"""
     Unties leaves in ``argument``.
 
-    Attaches ties to nonlast notes; then detaches ties from select notes:
-
     ..  container:: example
+
+        Attaches ties to nonlast notes; then detaches ties from select notes:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)

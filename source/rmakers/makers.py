@@ -1305,9 +1305,9 @@ def even_division(
     r"""
     Makes one even-division tuplet for each duration in ``durations``.
 
-    Basic example:
-
     ..  container:: example
+
+        Basic example:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
@@ -2216,10 +2216,10 @@ def incised(
     r"""
     Makes one incised tuplet for each duration in  ``durations``.
 
-    Set ``prefix_talea=[-1]`` with ``prefix_counts=[1]`` to incise a rest at
-    the start of each tuplet:
-
     ..  container:: example
+
+        Set ``prefix_talea=[-1]`` with ``prefix_counts=[1]`` to incise a rest
+        at the start of each tuplet:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
@@ -2589,9 +2589,10 @@ def incised(
                 }
             }
 
-    Set ``body_proportion=(1, 1, 1)`` to divide the middle part of each tuplet ``1:1:1``:
-
     ..  container:: example
+
+        Set ``body_proportion=(1, 1, 1)`` to divide the middle part of each
+        tuplet ``1:1:1``:
 
         TODO. Allow nested tuplets to clean up notation:
 
@@ -2813,20 +2814,30 @@ def incised(
 
 def multiplied_duration(
     durations: typing.Sequence[abjad.Duration],
-    prototype: type = abjad.Note,
+    written_duration: abjad.Duration = abjad.Duration(1, 1),
     *,
-    duration: abjad.Duration = abjad.Duration(1, 1),
     tag: abjad.Tag | None = None,
-) -> list[abjad.Leaf]:
+) -> list[abjad.Note]:
     r"""
-    Makes one leaf with multiplier for each duration in ``durations``.
+    Makes one note with ``written_duration`` and duration multiplier for each
+    duration in ``durations``.
 
     ..  container:: example
 
-        >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = abjad.duration.durations(time_signatures)
-        >>> components = rmakers.multiplied_duration(durations)
-        >>> lilypond_file = rmakers.example(components, time_signatures)
+        >>> def make_lilypond_file(durations, written_duration):
+        ...     components = rmakers.multiplied_duration(durations, written_duration)
+        ...     integer_ratios = [_.as_integer_ratio() for _ in durations]
+        ...     time_signatures = rmakers.time_signatures(integer_ratios)
+        ...     lilypond_file = rmakers.example(components, time_signatures)
+        ...     return lilypond_file
+
+    ..  container:: example
+
+        Makes whole notes with duration multipliers:
+
+        >>> durations = abjad.duration.durations([(1, 4), (3, 16), (5, 8), (1, 3)])
+        >>> written_duration = abjad.Duration(1)
+        >>> lilypond_file = make_lilypond_file(durations, written_duration)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
         ..  docs::
@@ -2857,51 +2868,10 @@ def multiplied_duration(
                 }
             }
 
-    ..  container:: example
+        Makes half notes with duration multipliers:
 
-        Makes multiplied-duration whole notes when ``duration`` is unset:
-
-        >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = abjad.duration.durations(time_signatures)
-        >>> components = rmakers.multiplied_duration(durations)
-        >>> lilypond_file = rmakers.example(components, time_signatures)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 1/4
-                        c'1 * 1/4
-                        \time 3/16
-                        c'1 * 3/16
-                        \time 5/8
-                        c'1 * 5/8
-                        #(ly:expect-warning "strange time signature found")
-                        \time 1/3
-                        c'1 * 1/3
-                    }
-                }
-            }
-
-        Makes multiplied-duration half notes when ``duration=abjad.Duration(1, 2)``:
-
-        >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = abjad.duration.durations(time_signatures)
-        >>> duration = abjad.Duration(1, 2)
-        >>> components = rmakers.multiplied_duration(durations, duration=duration)
-        >>> lilypond_file = rmakers.example(components, time_signatures)
+        >>> written_duration = abjad.Duration(1, 2)
+        >>> lilypond_file = make_lilypond_file(durations, written_duration)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
         ..  docs::
@@ -2932,13 +2902,10 @@ def multiplied_duration(
                 }
             }
 
-        Makes multiplied-duration quarter notes when ``duration=abjad.Duration(1, 4)``:
+        Makes quarter notes with duration multipliers:
 
-        >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = abjad.duration.durations(time_signatures)
-        >>> duration = abjad.Duration(1, 4)
-        >>> components = rmakers.multiplied_duration(durations, duration=duration)
-        >>> lilypond_file = rmakers.example(components, time_signatures)
+        >>> written_duration = abjad.Duration(1, 4)
+        >>> lilypond_file = make_lilypond_file(durations, written_duration)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
         ..  docs::
@@ -2969,193 +2936,27 @@ def multiplied_duration(
                 }
             }
 
-    ..  container:: example
-
-        Makes multiplied-duration notes when ``prototype`` is unset:
-
-        >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = abjad.duration.durations(time_signatures)
-        >>> components = rmakers.multiplied_duration(durations)
-        >>> lilypond_file = rmakers.example(components, time_signatures)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 1/4
-                        c'1 * 1/4
-                        \time 3/16
-                        c'1 * 3/16
-                        \time 5/8
-                        c'1 * 5/8
-                        #(ly:expect-warning "strange time signature found")
-                        \time 1/3
-                        c'1 * 1/3
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Makes multiplied-duration rests when ``prototype=abjad.Rest``:
-
-        >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = abjad.duration.durations(time_signatures)
-        >>> components = rmakers.multiplied_duration(durations, abjad.Rest)
-        >>> lilypond_file = rmakers.example(components, time_signatures)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 1/4
-                        r1 * 1/4
-                        \time 3/16
-                        r1 * 3/16
-                        \time 5/8
-                        r1 * 5/8
-                        #(ly:expect-warning "strange time signature found")
-                        \time 1/3
-                        r1 * 1/3
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Makes multiplied-duration multimeasures rests when
-        ``prototype=abjad.MultimeasureRest``:
-
-        >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = abjad.duration.durations(time_signatures)
-        >>> components = rmakers.multiplied_duration(durations, abjad.MultimeasureRest)
-        >>> lilypond_file = rmakers.example(components, time_signatures)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 1/4
-                        R1 * 1/4
-                        \time 3/16
-                        R1 * 3/16
-                        \time 5/8
-                        R1 * 5/8
-                        #(ly:expect-warning "strange time signature found")
-                        \time 1/3
-                        R1 * 1/3
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Makes multiplied-duration skips when ``prototype=abjad.Skip``:
-
-        >>> time_signatures = rmakers.time_signatures([(1, 4), (3, 16), (5, 8), (1, 3)])
-        >>> durations = abjad.duration.durations(time_signatures)
-        >>> components = rmakers.multiplied_duration(durations, abjad.Skip)
-        >>> lilypond_file = rmakers.example(components, time_signatures)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 1/4
-                        s1 * 1/4
-                        \time 3/16
-                        s1 * 3/16
-                        \time 5/8
-                        s1 * 5/8
-                        #(ly:expect-warning "strange time signature found")
-                        \time 1/3
-                        s1 * 1/3
-                    }
-                }
-            }
-
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
     assert isinstance(durations, list), repr(durations)
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    assert isinstance(duration, abjad.Duration), repr(duration)
-    leaf: abjad.Leaf
-    leaves = []
+    assert isinstance(written_duration, abjad.Duration), repr(written_duration)
+    notes = []
     pitch = abjad.NamedPitch("c'")
-    for duration_ in durations:
-        pair = duration_.numerator, duration_.denominator
-        fraction = abjad.Fraction(*pair) / duration.as_fraction()
-        denominator = abjad.math.least_common_multiple(pair[1], fraction.denominator)
-        pair = abjad.duration.pair_with_denominator(fraction, denominator)
-        if prototype is abjad.Note:
-            leaf = abjad.Note.from_duration_and_pitch(
-                duration,
-                pitch,
-                multiplier=pair,
-                tag=tag,
-            )
-        elif prototype is abjad.Rest:
-            leaf = abjad.Rest.from_duration(duration, multiplier=pair, tag=tag)
-        elif prototype is abjad.MultimeasureRest:
-            leaf = abjad.MultimeasureRest.from_duration(
-                duration,
-                multiplier=pair,
-                tag=tag,
-            )
-        else:
-            assert prototype is abjad.Skip
-            leaf = abjad.Skip.from_duration(duration, multiplier=pair, tag=tag)
-        leaves.append(leaf)
-    return leaves
+    for duration in durations:
+        multiplier = duration / written_duration
+        denominators = [duration.denominator, multiplier.denominator]
+        denominator = abjad.math.least_common_multiple(*denominators)
+        dmp = abjad.duration.pair_with_denominator(multiplier, denominator)
+        note = abjad.Note.from_duration_and_pitch(
+            written_duration,
+            pitch,
+            multiplier=dmp,
+            tag=tag,
+        )
+        notes.append(note)
+    return notes
 
 
 def note(
@@ -3165,314 +2966,15 @@ def note(
     tag: abjad.Tag | None = None,
 ) -> list[abjad.Leaf | abjad.Tuplet]:
     r"""
-    Makes one note for every duration in ``durations``.
-
-    Silences every other logical tie:
+    Makes one or more notes (or tuplets) for every duration in ``durations``.
 
     ..  container:: example
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     logical_ties = abjad.select.logical_ties(container)
-        ...     logical_ties = abjad.select.get(logical_ties, [0], 2)
-        ...     rmakers.force_rest(logical_ties)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 4/8
-                        r2
-                        \time 3/8
-                        c'4.
-                        \time 4/8
-                        r2
-                        \time 3/8
-                        c'4.
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Forces rest at every logical tie:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     logical_ties = abjad.select.logical_ties(container)
-        ...     rmakers.force_rest(logical_ties)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(4, 8), (3, 8), (4, 8), (5, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 4/8
-                        r2
-                        \time 3/8
-                        r4.
-                        \time 4/8
-                        r2
-                        \time 5/8
-                        r2
-                        r8
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Force-rests every other note, except for the first and last:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     logical_ties = abjad.select.logical_ties(container)
-        ...     logical_ties = abjad.select.get(logical_ties, [0], 2)[1:-1]
-        ...     rmakers.force_rest(logical_ties)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8), (2, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 4/8
-                        c'2
-                        \time 3/8
-                        c'4.
-                        \time 4/8
-                        r2
-                        \time 3/8
-                        c'4.
-                        \time 2/8
-                        c'4
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Beams the notes in each duration:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     voice = lilypond_file["Voice"]
-        ...     logical_ties = abjad.select.logical_ties(voice, pitched=True)
-        ...     rmakers.beam(logical_ties)
-        ...     return lilypond_file
-
-        >>> pairs = [(5, 32), (5, 32)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 5/32
-                        c'8
-                        [
-                        ~
-                        c'32
-                        ]
-                        c'8
-                        [
-                        ~
-                        c'32
-                        ]
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Beams notes grouped by ``durations``:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     voice = lilypond_file["Voice"]
-        ...     logical_ties = abjad.select.logical_ties(voice)
-        ...     rmakers.beam_groups(logical_ties)
-        ...     return lilypond_file
-
-        >>> pairs = [(5, 32), (5, 32)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \set stemLeftBeamCount = 0
-                        \set stemRightBeamCount = 1
-                        \time 5/32
-                        c'8
-                        [
-                        ~
-                        \set stemLeftBeamCount = 3
-                        \set stemRightBeamCount = 1
-                        c'32
-                        \set stemLeftBeamCount = 1
-                        \set stemRightBeamCount = 1
-                        c'8
-                        ~
-                        \set stemLeftBeamCount = 3
-                        \set stemRightBeamCount = 0
-                        c'32
-                        ]
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Makes no beams:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(5, 32), (5, 32)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 5/32
-                        c'8
-                        ~
-                        c'32
-                        c'8
-                        ~
-                        c'32
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Does not tie across ``durations``:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
+        ...     notes = rmakers.note(durations)
+        ...     lilypond_file = rmakers.example(notes, time_signatures)
         ...     return lilypond_file
 
         >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
@@ -3502,458 +3004,6 @@ def note(
                         c'2
                         \time 3/8
                         c'4.
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Ties across ``durations``:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     logical_ties = abjad.select.logical_ties(container)[:-1]
-        ...     leaves = [abjad.select.leaf(_, -1) for _ in logical_ties]
-        ...     rmakers.tie(leaves)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 4/8
-                        c'2
-                        ~
-                        \time 3/8
-                        c'4.
-                        ~
-                        \time 4/8
-                        c'2
-                        ~
-                        \time 3/8
-                        c'4.
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Ties across every other logical tie:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     logical_ties = abjad.select.logical_ties(container)[:-1]
-        ...     logical_ties = abjad.select.get(logical_ties, [0], 2)
-        ...     leaves = [abjad.select.leaf(_, -1) for _ in logical_ties]
-        ...     rmakers.tie(leaves)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 4/8
-                        c'2
-                        ~
-                        \time 3/8
-                        c'4.
-                        \time 4/8
-                        c'2
-                        ~
-                        \time 3/8
-                        c'4.
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Strips all ties:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     rmakers.untie(container)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(7, 16), (1, 4), (5, 16)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 7/16
-                        c'4..
-                        \time 1/4
-                        c'4
-                        \time 5/16
-                        c'4
-                        c'16
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Spells tuplets as diminutions:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     abjad.makers.tweak_tuplet_bracket_edge_height(nested_music)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(5, 14), (3, 7)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tweak edge-height #'(0.7 . 0)
-                        \tuplet 14/8
-                        {
-                            #(ly:expect-warning "strange time signature found")
-                            \time 5/14
-                            c'2
-                            ~
-                            c'8
-                        }
-                        \tweak edge-height #'(0.7 . 0)
-                        \tuplet 7/4
-                        {
-                            #(ly:expect-warning "strange time signature found")
-                            \time 3/7
-                            c'2.
-                        }
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Spells tuplets as augmentations:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     rmakers.force_augmentation(container)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     abjad.makers.tweak_tuplet_bracket_edge_height(components)
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(components)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(5, 14), (3, 7)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tweak edge-height #'(0.7 . 0)
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 7/8
-                        {
-                            #(ly:expect-warning "strange time signature found")
-                            \time 5/14
-                            c'4
-                            ~
-                            c'16
-                        }
-                        \tweak edge-height #'(0.7 . 0)
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 7/8
-                        {
-                            #(ly:expect-warning "strange time signature found")
-                            \time 3/7
-                            c'4.
-                        }
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Forces rest in logical tie 0:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     logical_tie = abjad.select.logical_tie(container, 0)
-        ...     rmakers.force_rest(logical_tie)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(5, 8), (2, 8), (2, 8), (5, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 5/8
-                        r2
-                        r8
-                        \time 2/8
-                        c'4
-                        c'4
-                        \time 5/8
-                        c'2
-                        ~
-                        c'8
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Forces rests in first two logical ties:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     logical_tie = abjad.select.logical_ties(container)[:2]
-        ...     rmakers.force_rest(logical_tie)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(5, 8), (2, 8), (2, 8), (5, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 5/8
-                        r2
-                        r8
-                        \time 2/8
-                        r4
-                        c'4
-                        \time 5/8
-                        c'2
-                        ~
-                        c'8
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Forces rests in first and last logical ties:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     container = abjad.Container(components)
-        ...     logical_ties = abjad.select.logical_ties(container)
-        ...     logical_ties = abjad.select.get(logical_ties, [0, -1])
-        ...     rmakers.force_rest(logical_ties)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(5, 8), (2, 8), (2, 8), (5, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 5/8
-                        r2
-                        r8
-                        \time 2/8
-                        c'4
-                        c'4
-                        \time 5/8
-                        r2
-                        r8
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Rewrites meter:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     nested_music = rmakers.note(durations)
-        ...     components = abjad.sequence.flatten(nested_music)
-        ...     voice = rmakers.wrap_in_time_signature_staff(components, time_signatures)
-        ...     rmakers.rewrite_meter(voice)
-        ...     components = abjad.mutate.eject_contents(voice)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(3, 4), (6, 16), (9, 16)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 3/4
-                        c'2.
-                        \time 6/16
-                        c'4.
-                        \time 9/16
-                        c'4.
-                        ~
-                        c'8.
                     }
                 }
             }
@@ -3963,9 +3013,10 @@ def note(
     tag = tag.append(_function_name(inspect.currentframe()))
     assert isinstance(durations, list), repr(durations)
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    lists = []
+    assert isinstance(spelling, _classes.Spelling), repr(spelling)
+    components = []
     for duration in durations:
-        list_ = abjad.makers.make_leaves(
+        components_ = abjad.makers.make_leaves(
             [[abjad.NamedPitch("c'")]],
             [duration],
             increase_monotonic=spelling.increase_monotonic,
@@ -3973,8 +3024,7 @@ def note(
             forbidden_rest_duration=spelling.forbidden_rest_duration,
             tag=tag,
         )
-        lists.append(list(list_))
-    components = abjad.sequence.flatten(lists)
+        components.extend(components_)
     assert all(isinstance(_, abjad.Leaf | abjad.Tuplet) for _ in components)
     return components
 
@@ -3998,9 +3048,9 @@ def talea(
     Reads ``counts`` cyclically and makes one tuplet for each duration in
     ``durations``.
 
-    Repeats talea of 1/16, 2/16, 3/16, 4/16:
-
     ..  container:: example
+
+        Repeats talea of 1/16, 2/16, 3/16, 4/16:
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
