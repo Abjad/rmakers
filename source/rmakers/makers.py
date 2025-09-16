@@ -334,7 +334,7 @@ def _make_accelerando(
         note = abjad.Note.from_duration_and_pitch(
             written_duration,
             pitch,
-            multiplier=pair,
+            dmp=pair,
             tag=tag,
         )
         notes.append(note)
@@ -2952,7 +2952,7 @@ def multiplied_duration(
         note = abjad.Note.from_duration_and_pitch(
             written_duration,
             pitch,
-            multiplier=dmp,
+            dmp=dmp,
             tag=tag,
         )
         notes.append(note)

@@ -205,7 +205,7 @@ def _make_time_signature_staff(time_signatures):
     staff.append(abjad.Voice(name="RhythmMaker.Music"))
     for time_signature in time_signatures:
         duration = time_signature.pair
-        skip = abjad.Skip("s1", multiplier=duration)
+        skip = abjad.Skip("s1", dmp=duration)
         time_signature_voice.append(skip)
         abjad.attach(time_signature, skip, context="Staff")
     return score
@@ -2063,8 +2063,8 @@ def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
             continue
         duration = leaf.written_duration()
         note = abjad.Note.from_duration_and_pitch(duration, pitch, tag=tag)
-        if leaf.multiplier() is not None:
-            note.set_multiplier(leaf.multiplier())
+        if leaf.dmp() is not None:
+            note.set_multiplier(leaf.dmp())
         abjad.mutate.replace(leaf, [note])
 
 
@@ -2576,8 +2576,8 @@ def force_rest(argument, *, tag: abjad.Tag | None = None) -> None:
     for leaf in leaves:
         duration = leaf.written_duration()
         rest = abjad.Rest.from_duration(duration, tag=tag)
-        if leaf.multiplier() is not None:
-            rest.set_multiplier(leaf.multiplier())
+        if leaf.dmp() is not None:
+            rest.set_multiplier(leaf.dmp())
         previous_leaf = abjad.get.leaf(leaf, -1)
         next_leaf = abjad.get.leaf(leaf, 1)
         abjad.mutate.replace(leaf, [rest])
