@@ -94,8 +94,6 @@ class Interpolation:
         """
         Swaps start duration and stop duration of interpolation.
 
-        Changes accelerando to ritardando:
-
         ..  container:: example
 
             >>> interpolation = rmakers.Interpolation(
@@ -103,20 +101,13 @@ class Interpolation:
             ...     stop_duration=abjad.Duration(1, 16),
             ...     written_duration=abjad.Duration(1, 16),
             ... )
-            >>> interpolation.reverse()
-            Interpolation(start_duration=Duration(numerator=1, denominator=16), stop_duration=Duration(numerator=1, denominator=4), written_duration=Duration(numerator=1, denominator=16))
 
-        ..  container:: example
+            >>> interpolation = interpolation.reverse()
+            >>> interpolation.start_duration
+            Duration(numerator=1, denominator=16)
 
-            Changes ritardando to accelerando:
-
-            >>> interpolation = rmakers.Interpolation(
-            ...     start_duration=abjad.Duration(1, 16),
-            ...     stop_duration=abjad.Duration(1, 4),
-            ...     written_duration=abjad.Duration(1, 16),
-            ... )
-            >>> interpolation.reverse()
-            Interpolation(start_duration=Duration(numerator=1, denominator=4), stop_duration=Duration(numerator=1, denominator=16), written_duration=Duration(numerator=1, denominator=16))
+            >>> interpolation.stop_duration
+            Duration(numerator=1, denominator=4)
 
         """
         return type(self)(

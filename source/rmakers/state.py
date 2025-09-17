@@ -15,9 +15,14 @@ Examples that show how to work with rmakers in a statal way.
         ...     if previous_state is None:
         ...         previous_state = {}
         ...     state = {}
+        ...     duration_lists = [
+        ...         abjad.duration.durations([(1, 8), (1, 20), (1, 16)]),
+        ...         abjad.duration.durations([(1, 20), (1, 8), (1, 16)]),
+        ...     ]
+        ...     interpolations = [rmakers.Interpolation(*_) for _ in duration_lists]
         ...     tuplets = rmakers.accelerando(
         ...         durations,
-        ...         [(1, 8), (1, 20), (1, 16)], [(1, 20), (1, 8), (1, 16)],
+        ...         interpolations,
         ...         previous_state=previous_state,
         ...         state=state,
         ...     )

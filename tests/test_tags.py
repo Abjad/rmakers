@@ -12,7 +12,10 @@ def test_tags_01():
         time_signatures = rmakers.time_signatures(pairs)
         durations = abjad.duration.durations(time_signatures)
         tag = abjad.Tag("ACCELERANDO_RHYTHM_MAKER")
-        tuplets = rmakers.accelerando(durations, [(1, 8), (1, 20), (1, 16)], tag=tag)
+        interpolation = rmakers.Interpolation(
+            *abjad.duration.durations([(1, 8), (1, 20), (1, 16)])
+        )
+        tuplets = rmakers.accelerando(durations, [interpolation], tag=tag)
         lilypond_file = rmakers.example(tuplets, time_signatures)
         voice = lilypond_file["Voice"]
         rmakers.feather_beam(voice, tag=tag)

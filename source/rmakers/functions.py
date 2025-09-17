@@ -2064,7 +2064,7 @@ def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
         duration = leaf.written_duration()
         note = abjad.Note.from_duration_and_pitch(duration, pitch, tag=tag)
         if leaf.dmp() is not None:
-            note.set_multiplier(leaf.dmp())
+            note.set_dmp(leaf.dmp())
         abjad.mutate.replace(leaf, [note])
 
 
@@ -2577,7 +2577,7 @@ def force_rest(argument, *, tag: abjad.Tag | None = None) -> None:
         duration = leaf.written_duration()
         rest = abjad.Rest.from_duration(duration, tag=tag)
         if leaf.dmp() is not None:
-            rest.set_multiplier(leaf.dmp())
+            rest.set_dmp(leaf.dmp())
         previous_leaf = abjad.get.leaf(leaf, -1)
         next_leaf = abjad.get.leaf(leaf, 1)
         abjad.mutate.replace(leaf, [rest])
@@ -6131,4 +6131,4 @@ def written_duration(argument, duration: abjad.Duration) -> None:
         leaf.set_written_duration(duration)
         fraction = old_duration / duration
         pair = (fraction.numerator, fraction.denominator)
-        leaf.set_multiplier(pair)
+        leaf.set_dmp(pair)
