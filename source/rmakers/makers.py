@@ -5,6 +5,7 @@ Makers.
 import dataclasses
 import inspect
 import math
+import types
 import typing
 
 import abjad
@@ -12,11 +13,11 @@ import abjad
 from . import classes as _classes
 
 
-def _all_are_durations(durations: typing.Sequence[abjad.Duration]):
+def _all_are_durations(durations: typing.Sequence[abjad.Duration]) -> bool:
     return all(isinstance(_, abjad.Duration) for _ in durations)
 
 
-def _all_are_proportions(proportions: typing.Sequence[tuple[int, ...]]):
+def _all_are_proportions(proportions: typing.Sequence[tuple[int, ...]]) -> bool:
     for proportion in proportions:
         if not isinstance(proportion, tuple):
             return False
@@ -26,19 +27,22 @@ def _all_are_proportions(proportions: typing.Sequence[tuple[int, ...]]):
 
 
 def _apply_ties_to_split_notes(
-    tuplets,
-    unscaled_end_counts,
-    unscaled_preamble,
-    unscaled_talea,
-    talea,
-):
+    tuplets: list[abjad.Tuplet],
+    unscaled_end_counts: list[int],
+    unscaled_preamble: list[int],
+    unscaled_talea: list[int],
+    talea: _classes.Talea,
+) -> None:
+    assert _is_integer_list(unscaled_end_counts), repr(unscaled_end_counts)
+    assert _is_integer_list(unscaled_preamble), repr(unscaled_preamble)
+    assert _is_integer_list(unscaled_talea), repr(unscaled_talea)
+    assert isinstance(talea, _classes.Talea), repr(talea)
     leaves = abjad.select.leaves(tuplets)
     written_durations = [leaf.written_duration() for leaf in leaves]
     written_durations = list(written_durations)
     total_duration = abjad.sequence.weight(written_durations)
     preamble_weights = []
     if unscaled_preamble:
-        preamble_weights = []
         for numerator in unscaled_preamble:
             pair = (numerator, talea.denominator)
             duration = abjad.Duration(*pair)
@@ -102,7 +106,7 @@ def _durations_to_lcm_pairs(
     durations: list[abjad.Duration],
 ) -> list[tuple[int, int]]:
     """
-    Changes ``durations`` to pairs sharing least common denominator.
+    Changes ``durations`` to pairs sharing LCM denominator.
 
     ..  container:: example
 
@@ -117,7 +121,7 @@ def _durations_to_lcm_pairs(
         (5, 16)
 
     """
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert _is_duration_list(durations), repr(durations)
     denominators = [_.denominator for _ in durations]
     lcd = abjad.math.least_common_multiple(*denominators)
     fractions = [_.as_fraction() for _ in durations]
@@ -140,25 +144,11 @@ def _fix_rounding_error(
         notes[-1].set_dmp(multiplier.as_integer_ratio())
 
 
-def _function_name(frame):
+def _function_name(frame: types.FrameType | None) -> abjad.Tag:
+    assert frame is not None, repr(frame)
     function_name = frame.f_code.co_name
     string = f"rmakers.{function_name}()"
     return abjad.Tag(string)
-
-
-def _get_interpolations(interpolations, previous_state):
-    specifiers_ = interpolations
-    if specifiers_ is None:
-        specifiers_ = abjad.CyclicTuple([_classes.Interpolation()])
-    elif isinstance(specifiers_, _classes.Interpolation):
-        specifiers_ = abjad.CyclicTuple([specifiers_])
-    else:
-        specifiers_ = abjad.CyclicTuple(specifiers_)
-    string = "durations_consumed"
-    durations_consumed = previous_state.get(string, 0)
-    specifiers_ = abjad.sequence.rotate(specifiers_, n=-durations_consumed)
-    specifiers_ = abjad.CyclicTuple(specifiers_)
-    return specifiers_
 
 
 def _interpolate_cosine(y1: float, y2: float, mu: float) -> float:
@@ -166,7 +156,9 @@ def _interpolate_cosine(y1: float, y2: float, mu: float) -> float:
     assert isinstance(y2, float), repr(y2)
     assert isinstance(mu, float), repr(mu)
     mu2 = (1 - math.cos(mu * math.pi)) / 2
-    return y1 * (1 - mu2) + y2 * mu2
+    result = y1 * (1 - mu2) + y2 * mu2
+    assert isinstance(result, float)
+    return result
 
 
 def _interpolate_divide(
@@ -221,7 +213,8 @@ def _interpolate_divide(
     float_durations = []
     partial_sum = 0.0
     while partial_sum < float(total_duration):
-        if exponent == "cosine":
+        if isinstance(exponent, str):
+            assert exponent == "cosine"
             float_duration = _interpolate_cosine(
                 float(start_duration),
                 float(stop_duration),
@@ -229,8 +222,8 @@ def _interpolate_divide(
             )
         else:
             float_duration = _interpolate_exponential(
-                start_duration,
-                stop_duration,
+                float(start_duration),
+                float(stop_duration),
                 partial_sum / float(total_duration),
                 exponent,
             )
@@ -242,7 +235,12 @@ def _interpolate_divide(
     return float_durations
 
 
-def _interpolate_exponential(y1, y2, mu, exponent=1) -> float:
+def _interpolate_exponential(
+    y1: float,
+    y2: float,
+    mu: float,
+    exponent: float = 1,
+) -> float:
     """
     Interpolates between ``y1`` and ``y2`` at position ``mu``.
 
@@ -283,7 +281,39 @@ def _interpolate_exponential(y1, y2, mu, exponent=1) -> float:
 
     """
     result = float(y1) * (1 - mu**exponent) + float(y2) * mu**exponent
+    assert isinstance(result, float)
     return result
+
+
+def _is_duration_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, abjad.Duration) for _ in argument)
+
+
+def _is_integer_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, int) for _ in argument)
+
+
+def _is_integer_pair_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    for item in argument:
+        if not isinstance(item, tuple):
+            return False
+        if not len(item) == 2:
+            return False
+        if not all(isinstance(_, int) for _ in item):
+            return False
+    return True
+
+
+def _is_integer_or_string_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, int | str) for _ in argument)
 
 
 def _make_accelerando(
@@ -308,7 +338,8 @@ def _make_accelerando(
     assert isinstance(total_duration, abjad.Duration)
     assert all(isinstance(_, _classes.Interpolation) for _ in interpolations)
     assert isinstance(index, int)
-    interpolation = interpolations[index]
+    interpolations_cycle = abjad.CyclicTuple(interpolations)
+    interpolation = interpolations_cycle[index]
     note_durations_as_floats = _interpolate_divide(
         total_duration=total_duration,
         start_duration=interpolation.start_duration,
@@ -705,7 +736,7 @@ def _make_talea_tuplets(
         tuplets,
         advanced_talea.end_counts,
         advanced_talea.preamble,
-        unscaled_talea,
+        list(unscaled_talea),
         talea,
     )
     for tuplet in abjad.iterate.components(tuplets, abjad.Tuplet):
@@ -1267,7 +1298,8 @@ def accelerando(
     previous_state = previous_state or {}
     if state is None:
         state = {}
-    interpolations = _get_interpolations(interpolations, previous_state)
+    durations_consumed = previous_state.get("durations_consumed", 0)
+    interpolations = abjad.sequence.rotate(interpolations, n=-durations_consumed)
     tuplets = []
     for i, duration in enumerate(durations):
         tuplet = _make_accelerando(duration, interpolations, i, tag=tag)
