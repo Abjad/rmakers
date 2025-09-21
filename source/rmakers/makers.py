@@ -429,7 +429,12 @@ def _make_incised_duration_lists(
         suffix_talea_index += suffix_count
         extra_count = extra_counts_cycle[pair_index]
         numerator = pair[0] + (extra_count % pair[0])
-        duration_list = _make_duration_list(numerator, prefix, suffix, incise)
+        duration_list = _make_duration_list(
+            numerator,
+            list(prefix),
+            list(suffix),
+            incise,
+        )
         duration_lists.append(duration_list)
     for duration_list in duration_lists:
         assert all(isinstance(_, abjad.Duration) for _ in duration_list)
@@ -538,27 +543,44 @@ def _make_talea_numerator_lists(
     return numerator_lists, expanded_talea
 
 
-def _make_duration_list(numerator, prefix, suffix, incise, *, is_note_filled=True):
-    numerator = abjad.Duration(numerator)
-    prefix = [abjad.Duration(_) for _ in prefix]
-    suffix = [abjad.Duration(_) for _ in suffix]
-    prefix_weight = abjad.math.weight(prefix, start=abjad.Duration(0))
-    suffix_weight = abjad.math.weight(suffix, start=abjad.Duration(0))
-    middle_duration = numerator - prefix_weight - suffix_weight
+def _make_duration_list(
+    numerator: int,
+    prefix_counts: list[int],
+    suffix_counts: list[int],
+    incise: _classes.Incise,
+    *,
+    is_note_filled: bool = True,
+) -> list[abjad.Duration]:
+    numerator_duration = abjad.Duration(numerator)
+    assert _is_integer_list(prefix_counts), repr(prefix_counts)
+    assert _is_integer_list(suffix_counts), repr(suffix_counts)
+    prefix_durations = [abjad.Duration(_) for _ in prefix_counts]
+    suffix_durations = [abjad.Duration(_) for _ in suffix_counts]
+    prefix_weight = abjad.math.weight(prefix_durations, start=abjad.Duration(0))
+    suffix_weight = abjad.math.weight(suffix_durations, start=abjad.Duration(0))
+    middle_duration = numerator_duration - prefix_weight - suffix_weight
     assert isinstance(middle_duration, abjad.Duration), repr(middle_duration)
-    if numerator < prefix_weight:
-        weights = [numerator]
-        prefix = abjad.sequence.split(prefix, weights, cyclic=False, overhang=False)[0]
+    if numerator_duration < prefix_weight:
+        weights = [numerator_duration]
+        prefix_durations = abjad.sequence.split(
+            prefix_durations, weights, cyclic=False, overhang=False
+        )[0]
     middle_durations = _make_middle_durations(middle_duration, incise)
-    suffix_space = numerator - prefix_weight
+    suffix_space = numerator_duration - prefix_weight
     if suffix_space <= abjad.Duration(0):
-        suffix = []
+        suffix_durations = []
     elif suffix_space < suffix_weight:
         weights = [suffix_space]
-        suffix = abjad.sequence.split(suffix, weights, cyclic=False, overhang=False)[0]
-    assert all(isinstance(_, abjad.Duration) for _ in prefix), repr(prefix)
-    assert all(isinstance(_, abjad.Duration) for _ in suffix), repr(suffix)
-    duration_list = prefix + middle_durations + suffix
+        suffix_durations = abjad.sequence.split(
+            suffix_durations, weights, cyclic=False, overhang=False
+        )[0]
+    assert all(isinstance(_, abjad.Duration) for _ in prefix_durations), repr(
+        prefix_durations
+    )
+    assert all(isinstance(_, abjad.Duration) for _ in suffix_durations), repr(
+        suffix_durations
+    )
+    duration_list = prefix_durations + middle_durations + suffix_durations
     assert all(isinstance(_, abjad.Duration) for _ in duration_list), repr(
         duration_list
     )
@@ -596,8 +618,8 @@ def _make_outer_tuplets_only_incised_duration_lists(
         numerator += extra_count % numerator
         numeric_map_part = _make_duration_list(
             numerator,
-            prefix_talea_counts,
-            suffix_talea_counts,
+            list(prefix_talea_counts),
+            list(suffix_talea_counts),
             incise,
         )
         numeric_map.append(numeric_map_part)
@@ -610,8 +632,8 @@ def _make_outer_tuplets_only_incised_duration_lists(
         numerator += extra_count % numerator
         numeric_map_part = _make_duration_list(
             numerator,
-            prefix_talea_counts,
-            (),
+            list(prefix_talea_counts),
+            [],
             incise,
         )
         numeric_map.append(numeric_map_part)
@@ -620,7 +642,7 @@ def _make_outer_tuplets_only_incised_duration_lists(
             extra_count = scaled_extra_counts_cycle[index]
             numerator = scaled_pair[0]
             numerator += extra_count % numerator
-            numeric_map_part = _make_duration_list(numerator, (), (), incise)
+            numeric_map_part = _make_duration_list(numerator, [], [], incise)
             numeric_map.append(numeric_map_part)
         try:
             index = i + 2
@@ -635,8 +657,8 @@ def _make_outer_tuplets_only_incised_duration_lists(
         numerator += extra_count % numerator
         numeric_map_part = _make_duration_list(
             numerator,
-            (),
-            suffix_talea_counts,
+            [],
+            list(suffix_talea_counts),
             incise,
         )
         numeric_map.append(numeric_map_part)
