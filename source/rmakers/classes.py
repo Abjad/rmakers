@@ -10,12 +10,19 @@ import typing
 import abjad
 
 
+def _is_integer_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, int) for _ in argument)
+
+
 @dataclasses.dataclass(frozen=True, order=True, slots=True, unsafe_hash=True)
 class Incise:
     """
     Incise.
     """
 
+    talea_denominator: int
     body_proportion: tuple[int, ...] = (1,)
     fill_with_rests: bool = False
     outer_tuplets_only: bool = False
@@ -23,38 +30,27 @@ class Incise:
     prefix_talea: list[int] = dataclasses.field(default_factory=list)
     suffix_counts: list[int] = dataclasses.field(default_factory=list)
     suffix_talea: list[int] = dataclasses.field(default_factory=list)
-    talea_denominator: int | None = None
 
     def __post_init__(self):
         assert isinstance(self.body_proportion, tuple), repr(self.body_proportion)
         assert isinstance(self.fill_with_rests, bool), repr(self.fill_with_rests)
         assert isinstance(self.outer_tuplets_only, bool), repr(self.outer_tuplets_only)
-        assert isinstance(self.prefix_talea, list), repr(self.prefix_talea)
-        assert self._is_integer_tuple(self.prefix_talea)
-        assert isinstance(self.prefix_counts, list), repr(self.prefix_counts)
-        assert self._is_length_tuple(self.prefix_counts)
-        if self.prefix_talea:
-            assert self.prefix_counts
-        assert isinstance(self.suffix_talea, list), repr(self.suffix_talea)
-        assert self._is_integer_tuple(self.suffix_talea)
-        assert isinstance(self.suffix_counts, list), repr(self.suffix_counts)
-        assert self._is_length_tuple(self.suffix_counts)
-        if self.suffix_talea:
-            assert self.suffix_counts
-        if self.talea_denominator is not None:
-            assert abjad.math.is_nonnegative_integer_power_of_two(
-                self.talea_denominator
-            )
-        if self.prefix_talea or self.suffix_talea:
-            assert self.talea_denominator is not None
+        assert _is_integer_list(self.prefix_talea)
+        assert _is_integer_list(self.prefix_counts)
+        if 0 < len(self.prefix_talea):
+            assert 0 < len(self.prefix_counts)
+        assert _is_integer_list(self.suffix_talea)
+        assert _is_integer_list(self.suffix_counts)
+        if 0 < len(self.suffix_talea):
+            assert 0 < len(self.suffix_counts)
+        assert isinstance(self.talea_denominator, int), repr(self.talea_denominator)
+        assert abjad.math.is_nonnegative_integer_power_of_two(self.talea_denominator)
 
     @staticmethod
-    def _is_integer_tuple(argument):
-        if argument is None:
-            return True
-        if all(isinstance(_, int) for _ in argument):
-            return True
-        return False
+    def _is_integer_list(argument: object) -> bool:
+        if not isinstance(argument, list):
+            return False
+        return all(isinstance(_, int) for _ in argument)
 
     @staticmethod
     def _is_length_tuple(argument):

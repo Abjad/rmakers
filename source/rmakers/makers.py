@@ -2163,18 +2163,18 @@ def even_division(
 
 def incised(
     durations: typing.Sequence[abjad.Duration],
+    talea_denominator: int,
     *,
     body_proportion: tuple[int, ...] = (1,),
     extra_counts: typing.Sequence[int] | None = None,
     fill_with_rests: bool = False,
     outer_tuplets_only: bool = False,
-    prefix_counts: typing.Sequence[int] | None = None,
-    prefix_talea: typing.Sequence[int] | None = None,
+    prefix_counts: list[int] | None = None,
+    prefix_talea: list[int] | None = None,
     spelling: _classes.Spelling = _classes.Spelling(),
-    suffix_counts: typing.Sequence[int] | None = None,
-    suffix_talea: typing.Sequence[int] | None = None,
+    suffix_counts: list[int] | None = None,
+    suffix_talea: list[int] | None = None,
     tag: abjad.Tag | None = None,
-    talea_denominator: int | None = None,
 ) -> list[abjad.Tuplet]:
     r"""
     Makes one incised tuplet for each duration in  ``durations``.
@@ -2695,29 +2695,17 @@ def incised(
     tag = tag.append(_function_name(inspect.currentframe()))
     assert isinstance(durations, list), repr(durations)
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    if prefix_talea is None:
-        prefix_talea = []
-    assert isinstance(prefix_talea, list), repr(prefix_talea)
-    if prefix_counts is None:
-        prefix_counts = []
-    assert isinstance(prefix_counts, list), repr(prefix_counts)
-    if suffix_talea is None:
-        suffix_talea = []
-    assert isinstance(suffix_talea, list), repr(suffix_talea)
-    if suffix_counts is None:
-        suffix_counts = []
-    assert isinstance(suffix_counts, list), repr(suffix_counts)
+    assert isinstance(talea_denominator, int), repr(talea_denominator)
     incise = _classes.Incise(
+        talea_denominator,
         body_proportion=body_proportion,
         fill_with_rests=fill_with_rests,
         outer_tuplets_only=outer_tuplets_only,
-        prefix_talea=prefix_talea,
-        prefix_counts=prefix_counts,
-        suffix_talea=suffix_talea,
-        suffix_counts=suffix_counts,
-        talea_denominator=talea_denominator,
+        prefix_talea=prefix_talea or [],
+        prefix_counts=prefix_counts or [],
+        suffix_talea=suffix_talea or [],
+        suffix_counts=suffix_counts or [],
     )
-    prefix_talea = list(incise.prefix_talea)
     prefix_counts = list(incise.prefix_counts or [0])
     suffix_talea = list(incise.suffix_talea)
     suffix_counts = list(incise.suffix_counts or [0])
@@ -2733,7 +2721,7 @@ def incised(
     multiplier = lcd / talea_denominator
     assert abjad.math.is_integer_equivalent(multiplier)
     multiplier = int(multiplier)
-    scaled_prefix_talea = [multiplier * _ for _ in prefix_talea]
+    scaled_prefix_talea = [multiplier * _ for _ in incise.prefix_talea]
     scaled_suffix_talea = [multiplier * _ for _ in suffix_talea]
     scaled_extra_counts = [multiplier * _ for _ in extra_counts]
     if incise.outer_tuplets_only:
