@@ -375,7 +375,7 @@ def _make_components(
     forbidden_rest_duration: abjad.Duration | None = None,
     tag: abjad.Tag | None = None,
 ) -> list[abjad.Leaf | abjad.Tuplet]:
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert _is_duration_list(durations), repr(durations)
     assert all(_ != 0 for _ in durations), repr(durations)
     components: list[abjad.Leaf | abjad.Tuplet] = []
     for duration in durations:
@@ -397,28 +397,38 @@ def _make_components(
 
 
 def _make_incised_duration_lists(
-    pairs,
-    prefix_talea,
-    prefix_counts,
-    suffix_talea,
-    suffix_counts,
-    extra_counts,
-    incise,
-):
-    assert all(isinstance(_, tuple) for _ in pairs), repr(pairs)
+    pairs: list[tuple[int, int]],
+    prefix_talea: list[int],
+    prefix_counts: list[int],
+    suffix_talea: list[int],
+    suffix_counts: list[int],
+    extra_counts: list[int],
+    incise: _classes.Incise,
+) -> list[list[abjad.Duration]]:
+    assert _is_integer_pair_list(pairs), repr(pairs)
+    assert _is_integer_list(prefix_talea)
+    assert _is_integer_list(prefix_counts)
+    assert _is_integer_list(suffix_talea)
+    assert _is_integer_list(suffix_counts)
+    assert _is_integer_list(extra_counts)
+    prefix_talea_cycle = abjad.CyclicTuple(prefix_talea)
+    prefix_counts_cycle = abjad.CyclicTuple(prefix_counts)
+    suffix_talea_cycle = abjad.CyclicTuple(suffix_talea)
+    suffix_counts_cycle = abjad.CyclicTuple(suffix_counts)
+    extra_counts_cycle = abjad.CyclicTuple(extra_counts)
     duration_lists, prefix_talea_index, suffix_talea_index = [], 0, 0
     for pair_index, pair in enumerate(pairs):
-        prefix_length = prefix_counts[pair_index]
-        suffix_length = suffix_counts[pair_index]
+        prefix_length = prefix_counts_cycle[pair_index]
+        suffix_length = suffix_counts_cycle[pair_index]
         start = prefix_talea_index
         stop = prefix_talea_index + prefix_length
-        prefix = prefix_talea[start:stop]
+        prefix = prefix_talea_cycle[start:stop]
         start = suffix_talea_index
         stop = suffix_talea_index + suffix_length
-        suffix = suffix_talea[start:stop]
+        suffix = suffix_talea_cycle[start:stop]
         prefix_talea_index += prefix_length
         suffix_talea_index += suffix_length
-        prolation_addendum = extra_counts[pair_index]
+        prolation_addendum = extra_counts_cycle[pair_index]
         numerator = pair[0] + (prolation_addendum % pair[0])
         duration_list = _make_duration_list(numerator, prefix, suffix, incise)
         duration_lists.append(duration_list)
@@ -490,9 +500,6 @@ def _make_talea_numerator_lists(
             pairs.append(item)
         else:
             pairs.append(item.pair)
-    if not preamble and not talea:
-        raise Exception("DO WE EVER GET HERE")
-        return pairs, None
     prolated_numerators = [_[0] for _ in pairs]
     expanded_talea = None
     if "-" in talea or "+" in talea:
@@ -560,31 +567,41 @@ def _make_duration_list(numerator, prefix, suffix, incise, *, is_note_filled=Tru
 
 
 def _make_outer_tuplets_only_incised_duration_lists(
-    pairs,
-    prefix_talea,
-    prefix_counts,
-    suffix_talea,
-    suffix_counts,
-    extra_counts,
-    incise,
-):
-    assert all(isinstance(_, tuple) for _ in pairs), repr(pairs)
+    pairs: list[tuple[int, int]],
+    prefix_talea: list[int],
+    prefix_counts: list[int],
+    suffix_talea: list[int],
+    suffix_counts: list[int],
+    extra_counts: list[int],
+    incise: _classes.Incise,
+) -> list[list[abjad.Duration]]:
+    assert _is_integer_pair_list(pairs), repr(pairs)
+    assert _is_integer_list(prefix_talea)
+    assert _is_integer_list(prefix_counts)
+    assert _is_integer_list(suffix_talea)
+    assert _is_integer_list(suffix_counts)
+    assert _is_integer_list(extra_counts)
+    prefix_talea_cycle = abjad.CyclicTuple(prefix_talea)
+    prefix_counts_cycle = abjad.CyclicTuple(prefix_counts)
+    suffix_talea_cycle = abjad.CyclicTuple(suffix_talea)
+    suffix_counts_cycle = abjad.CyclicTuple(suffix_counts)
+    extra_counts_cycle = abjad.CyclicTuple(extra_counts)
     numeric_map, prefix_talea_index, suffix_talea_index = [], 0, 0
-    prefix_length, suffix_length = prefix_counts[0], suffix_counts[0]
+    prefix_length, suffix_length = prefix_counts_cycle[0], suffix_counts_cycle[0]
     start = prefix_talea_index
     stop = prefix_talea_index + prefix_length
-    prefix = prefix_talea[start:stop]
+    prefix = prefix_talea_cycle[start:stop]
     start = suffix_talea_index
     stop = suffix_talea_index + suffix_length
-    suffix = suffix_talea[start:stop]
+    suffix = suffix_talea_cycle[start:stop]
     if len(pairs) == 1:
-        prolation_addendum = extra_counts[0]
+        prolation_addendum = extra_counts_cycle[0]
         numerator = getattr(pairs[0], "numerator", pairs[0][0])
         numerator += prolation_addendum % numerator
         numeric_map_part = _make_duration_list(numerator, prefix, suffix, incise)
         numeric_map.append(numeric_map_part)
     else:
-        prolation_addendum = extra_counts[0]
+        prolation_addendum = extra_counts_cycle[0]
         if isinstance(pairs[0], tuple):
             numerator = pairs[0][0]
         else:
@@ -594,17 +611,17 @@ def _make_outer_tuplets_only_incised_duration_lists(
         numeric_map.append(numeric_map_part)
         for i, pair in enumerate(pairs[1:-1]):
             index = i + 1
-            prolation_addendum = extra_counts[index]
+            prolation_addendum = extra_counts_cycle[index]
             numerator = pair[0]
             numerator += prolation_addendum % numerator
             numeric_map_part = _make_duration_list(numerator, (), (), incise)
             numeric_map.append(numeric_map_part)
         try:
             index = i + 2
-            prolation_addendum = extra_counts[index]
+            prolation_addendum = extra_counts_cycle[index]
         except UnboundLocalError:
             index = 1 + 2
-            prolation_addendum = extra_counts[index]
+            prolation_addendum = extra_counts_cycle[index]
         if isinstance(pairs[-1], tuple):
             numerator = pairs[-1][0]
         else:
@@ -793,25 +810,6 @@ class _PreparedIncisedCounts:
         assert all(isinstance(_, int) for _ in self.suffix_talea)
         assert all(isinstance(_, int) for _ in self.extra_counts)
 
-    def scale(self, multiplier, scaled_pairs, lcd):
-        scaled_counts = _PreparedIncisedCounts(
-            prefix_talea=abjad.CyclicTuple([multiplier * _ for _ in self.prefix_talea]),
-            suffix_talea=abjad.CyclicTuple([multiplier * _ for _ in self.suffix_talea]),
-            extra_counts=abjad.CyclicTuple([multiplier * _ for _ in self.extra_counts]),
-        )
-        return _ScaledIncisedCounts(
-            pairs=scaled_pairs,
-            lcd=lcd,
-            counts=scaled_counts,
-        )
-
-
-@dataclasses.dataclass(frozen=True)
-class _ScaledIncisedCounts:
-    pairs: list[tuple[int, int]]
-    lcd: int
-    counts: _PreparedIncisedCounts
-
 
 @dataclasses.dataclass(frozen=True)
 class _PreparedIncisedInput:
@@ -862,7 +860,13 @@ def _scale_rhythm_maker_input(
     durations: list[abjad.Duration],
     talea_denominator: int,
     counts: _PreparedIncisedCounts,
-) -> _ScaledIncisedCounts:
+) -> tuple[
+    list[tuple[int, int]],
+    int,
+    abjad.CyclicTuple,
+    abjad.CyclicTuple,
+    abjad.CyclicTuple,
+]:
     assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
     assert isinstance(talea_denominator, int), repr(talea_denominator)
     assert isinstance(counts, _PreparedIncisedCounts), repr(counts)
@@ -875,9 +879,13 @@ def _scale_rhythm_maker_input(
     multiplier = lcd / talea_denominator
     assert abjad.math.is_integer_equivalent(multiplier)
     multiplier = int(multiplier)
-    assert isinstance(counts, _PreparedIncisedCounts), repr(counts)
-    scaled_incised_input = counts.scale(multiplier, scaled_pairs, lcd)
-    return scaled_incised_input
+    return (
+        scaled_pairs,
+        lcd,
+        abjad.CyclicTuple([multiplier * _ for _ in counts.prefix_talea]),
+        abjad.CyclicTuple([multiplier * _ for _ in counts.suffix_talea]),
+        abjad.CyclicTuple([multiplier * _ for _ in counts.extra_counts]),
+    )
 
 
 def _split_talea_extended_to_weights(preamble, read_talea_once_only, talea, weights):
@@ -2794,30 +2802,35 @@ def incised(
     )
     talea_denominator = incise.talea_denominator
     assert isinstance(talea_denominator, int), repr(talea_denominator)
-    scaled_incised_counts = _scale_rhythm_maker_input(
+    (
+        scaled_pairs,
+        lcd,
+        scaled_prefix_talea,
+        scaled_suffix_talea,
+        scaled_extra_counts,
+    ) = _scale_rhythm_maker_input(
         durations,
         talea_denominator,
         prepared_incise_counts,
     )
-    assert isinstance(scaled_incised_counts, _ScaledIncisedCounts)
     if incise.outer_tuplets_only:
         duration_lists = _make_outer_tuplets_only_incised_duration_lists(
-            scaled_incised_counts.pairs,
-            scaled_incised_counts.counts.prefix_talea,
-            prepared_incise_input.prefix_counts,
-            scaled_incised_counts.counts.suffix_talea,
-            prepared_incise_input.suffix_counts,
-            scaled_incised_counts.counts.extra_counts,
+            scaled_pairs,
+            list(scaled_prefix_talea),
+            list(prepared_incise_input.prefix_counts),
+            list(scaled_suffix_talea),
+            list(prepared_incise_input.suffix_counts),
+            list(scaled_extra_counts),
             incise,
         )
     else:
         duration_lists = _make_incised_duration_lists(
-            scaled_incised_counts.pairs,
-            scaled_incised_counts.counts.prefix_talea,
-            prepared_incise_input.prefix_counts,
-            scaled_incised_counts.counts.suffix_talea,
-            prepared_incise_input.suffix_counts,
-            scaled_incised_counts.counts.extra_counts,
+            scaled_pairs,
+            list(scaled_prefix_talea),
+            list(prepared_incise_input.prefix_counts),
+            list(scaled_suffix_talea),
+            list(prepared_incise_input.suffix_counts),
+            list(scaled_extra_counts),
             incise,
         )
     component_lists = []
@@ -2826,7 +2839,7 @@ def incised(
         duration_list_ = []
         for duration in duration_list:
             fraction = duration.as_fraction()
-            fraction = abjad.Fraction(fraction, scaled_incised_counts.lcd)
+            fraction = abjad.Fraction(fraction, lcd)
             pair = fraction.as_integer_ratio()
             duration = abjad.Duration(*pair)
             duration_list_.append(duration)
@@ -2838,7 +2851,7 @@ def incised(
             tag=tag,
         )
         component_lists.append(components)
-    durations = abjad.duration.durations(scaled_incised_counts.pairs)
+    durations = abjad.duration.durations(scaled_pairs)
     tuplets = _package_tuplets(durations, component_lists, tag=tag)
     assert all(isinstance(_, abjad.Tuplet) for _ in tuplets)
     return tuplets
