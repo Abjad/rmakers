@@ -321,6 +321,12 @@ def _is_integer_or_string_list(argument: object) -> bool:
     return all(isinstance(_, int | str) for _ in argument)
 
 
+def _is_leaf_or_tuplet_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, abjad.Leaf | abjad.Tuplet) for _ in argument)
+
+
 def _make_accelerando(
     total_duration: abjad.Duration,
     interpolations: typing.Sequence[_classes.Interpolation],
@@ -397,7 +403,7 @@ def _make_components(
             tag=tag,
         )
         components.extend(components_)
-    assert all(isinstance(_, abjad.Leaf | abjad.Tuplet) for _ in components)
+    assert _is_leaf_or_tuplet_list(components), repr(components)
     return components
 
 
@@ -482,7 +488,6 @@ def _make_middle_durations(
     return durations
 
 
-# TODO: resume typehinting here
 def _make_talea_numerator_lists(
     pairs: list[tuple[int, int]],
     preamble_counts: list[int],
@@ -498,27 +503,29 @@ def _make_talea_numerator_lists(
     assert _is_integer_list(extra_counts), repr(extra_counts)
     assert _is_integer_list(end_counts), repr(end_counts)
     assert isinstance(read_talea_once_only, bool), repr(read_talea_once_only)
-    prolated_pairs = _make_prolated_pairs(pairs, list(extra_counts))
-    pairs = list(prolated_pairs)
-    prolated_numerators = [_[0] for _ in pairs]
+    if len(extra_counts) == 0:
+        prolated_pairs = pairs
+    else:
+        prolated_pairs = _make_prolated_pairs(pairs, extra_counts)
+    prolated_numerators = [_[0] for _ in prolated_pairs]
     expanded_talea = None
     talea_integer_counts = []
     if "-" in talea_counts or "+" in talea_counts:
         assert len(preamble_counts) == 0, repr(preamble_counts)
-        total_weight = sum(prolated_numerators)
-        talea_ = list(talea_counts)
+        prolated_numerator_weight = sum(prolated_numerators)
+        talea_counts_copy = list(talea_counts)
         if "-" in talea_counts:
-            index = talea_.index("-")
+            index = talea_counts.index("-")
         else:
-            index = talea_.index("+")
-        talea_[index] = 0
-        explicit_weight = sum([abs(_) for _ in talea_])
-        implicit_weight = total_weight - explicit_weight
+            index = talea_counts.index("+")
+        talea_counts_copy[index] = 0
+        explicit_weight = sum([abs(_) for _ in talea_counts_copy])
+        implicit_weight = prolated_numerator_weight - explicit_weight
         if "-" in talea_counts:
             implicit_weight *= -1
-        talea_[index] = implicit_weight
+        talea_counts_copy[index] = implicit_weight
         expanded_talea = []
-        for n in talea_:
+        for n in talea_counts_copy:
             assert isinstance(n, int), repr(n)
             expanded_talea.append(n)
         talea_integer_counts = expanded_talea
@@ -532,23 +539,21 @@ def _make_talea_numerator_lists(
         talea_integer_counts,
         read_talea_once_only=read_talea_once_only,
     )
-    if end_counts:
+    if 0 < len(end_counts):
         end_weight = abjad.sequence.weight(end_counts)
         numerator_list_weights = [abjad.sequence.weight(_) for _ in numerator_lists]
-        counts = abjad.sequence.flatten(numerator_lists)
-        counts_weight = abjad.sequence.weight(counts)
-        assert end_weight <= counts_weight, repr(end_counts)
-        left = counts_weight - end_weight
-        right = end_weight
-        counts = abjad.sequence.split(counts, [left, right])
-        counts = counts[0] + list(end_counts)
-        assert abjad.sequence.weight(counts) == counts_weight
+        numerators = abjad.sequence.flatten(numerator_lists)
+        numerators_weight = abjad.sequence.weight(numerators)
+        assert end_weight <= numerators_weight, repr(end_counts)
+        left_weight = numerators_weight - end_weight
+        numerator_lists = abjad.sequence.split(numerators, [left_weight, end_weight])
+        numerators = numerator_lists[0] + end_counts
+        assert abjad.sequence.weight(numerators) == numerators_weight
         numerator_lists = abjad.sequence.partition_by_weights(
-            counts,
+            numerators,
             numerator_list_weights,
         )
-    for numerator_list in numerator_lists:
-        assert _is_integer_list(numerator_list), repr(numerator_list)
+    assert all(_is_integer_list(_) for _ in numerator_lists), repr(numerator_lists)
     return numerator_lists, expanded_talea
 
 
@@ -681,11 +686,8 @@ def _make_prolated_pairs(
     extra_counts_cycle = abjad.CyclicTuple(extra_counts)
     prolated_pairs = []
     for i, pair in enumerate(pairs):
-        if not extra_counts_cycle:
-            prolated_pairs.append(pair)
-            continue
-        extra_count = extra_counts_cycle[i]
         numerator = pair[0]
+        extra_count = extra_counts_cycle[i]
         if 0 <= extra_count:
             extra_count %= numerator
         else:
@@ -722,6 +724,7 @@ def _make_state_dictionary(
     return state
 
 
+# TODO: resume typehinting here
 def _make_talea_tuplets(
     durations: list[abjad.Duration],
     extra_counts: list[int],
@@ -754,24 +757,16 @@ def _make_talea_tuplets(
     multiplier = lcd / talea.denominator
     assert abjad.math.is_integer_equivalent(multiplier)
     multiplier = int(multiplier)
-    scaled_end_counts_cycle = abjad.CyclicTuple(
-        [multiplier * _ for _ in advanced_talea.end_counts]
-    )
-    scaled_extra_counts_cycle = abjad.CyclicTuple(
-        [multiplier * _ for _ in rotated_extra_counts]
-    )
-    scaled_preamble_cycle = abjad.CyclicTuple(
-        [multiplier * _ for _ in advanced_talea.preamble]
-    )
-    scaled_talea_counts_cycle = abjad.CyclicTuple(
-        [multiplier * _ for _ in advanced_talea.counts]
-    )
+    scaled_end_counts = [multiplier * _ for _ in advanced_talea.end_counts]
+    scaled_extra_counts = [multiplier * _ for _ in rotated_extra_counts]
+    scaled_preamble_counts = [multiplier * _ for _ in advanced_talea.preamble]
+    scaled_talea_counts = [multiplier * _ for _ in advanced_talea.counts]
     numerator_lists, expanded_talea = _make_talea_numerator_lists(
         scaled_pairs,
-        list(scaled_preamble_cycle),
-        list(scaled_talea_counts_cycle),
-        list(scaled_extra_counts_cycle),
-        list(scaled_end_counts_cycle),
+        scaled_preamble_counts,
+        scaled_talea_counts,
+        scaled_extra_counts,
+        scaled_end_counts,
         read_talea_once_only=read_talea_once_only,
     )
     unscaled_talea = []
@@ -782,22 +777,22 @@ def _make_talea_tuplets(
             assert isinstance(count, int)
             unscaled_talea.append(count)
     talea_weight_consumed = sum(abjad.sequence.weight(_) for _ in numerator_lists)
-    duration_lists = [[abjad.Duration(_, lcd) for _ in n] for n in numerator_lists]
-    leaf_lists = []
-    for duration_list in duration_lists:
-        leaf_list = _make_components(
+    component_lists = []
+    for numerator_list in numerator_lists:
+        duration_list = [abjad.Duration(_, lcd) for _ in numerator_list]
+        component_list = _make_components(
             duration_list,
             increase_monotonic=spelling.increase_monotonic,
             forbidden_note_duration=spelling.forbidden_note_duration,
             forbidden_rest_duration=spelling.forbidden_rest_duration,
             tag=tag,
         )
-        leaf_lists.append(leaf_list)
-    if not scaled_extra_counts_cycle:
-        tuplets = [abjad.Tuplet("1:1", _) for _ in leaf_lists]
+        component_lists.append(component_list)
+    if scaled_extra_counts == []:
+        tuplets = [abjad.Tuplet("1:1", _) for _ in component_lists]
     else:
         durations_ = abjad.duration.durations(scaled_pairs)
-        tuplets = _package_tuplets(durations_, leaf_lists, tag=tag)
+        tuplets = _package_tuplets(durations_, component_lists, tag=tag)
     _apply_ties_to_split_notes(
         tuplets,
         advanced_talea.end_counts,
@@ -833,7 +828,7 @@ def _package_tuplets(
     *,
     tag: abjad.Tag,
 ) -> list[abjad.Tuplet]:
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert _is_duration_list(durations), repr(durations)
     assert isinstance(tag, abjad.Tag), repr(tag)
     prototype = (abjad.Leaf, abjad.Tuplet)
     for item in component_lists:
@@ -3042,7 +3037,7 @@ def note(
             tag=tag,
         )
         components.extend(components_)
-    assert all(isinstance(_, abjad.Leaf | abjad.Tuplet) for _ in components)
+    assert _is_leaf_or_tuplet_list(components), repr(components)
     return components
 
 
