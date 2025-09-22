@@ -290,6 +290,12 @@ def _is_duration_list(argument: object) -> bool:
     return all(isinstance(_, abjad.Duration) for _ in argument)
 
 
+def _is_fraction_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, abjad.Fraction) for _ in argument)
+
+
 def _is_integer_list(argument: object) -> bool:
     if not isinstance(argument, list):
         return False
@@ -441,22 +447,24 @@ def _make_incised_duration_lists(
     return duration_lists
 
 
-def _make_middle_durations(middle_duration, incise):
+def _make_middle_durations(
+    middle_duration: abjad.Duration,
+    incise: _classes.Incise,
+) -> list[abjad.Duration]:
     assert isinstance(middle_duration, abjad.Duration), repr(middle_duration)
     assert middle_duration.denominator == 1, repr(middle_duration)
     assert isinstance(incise, _classes.Incise), repr(incise)
     durations = []
-    if not (incise.fill_with_rests):
-        if not incise.outer_tuplets_only:
+    if incise.fill_with_rests is False:
+        if incise.outer_tuplets_only is False:
             if abjad.Duration(0) < middle_duration:
                 if incise.body_proportion is not None:
-                    shards = abjad.math.divide_integer_by_proportion(
-                        middle_duration.numerator, incise.body_proportion
+                    fractions = abjad.math.divide_integer_by_proportion(
+                        middle_duration.numerator,
+                        incise.body_proportion,
                     )
-                    assert all(isinstance(_, abjad.Fraction) for _ in shards), repr(
-                        shards
-                    )
-                    durations_ = [abjad.Duration(*_.as_integer_ratio()) for _ in shards]
+                    assert _is_fraction_list(fractions), repr(fractions)
+                    durations_ = abjad.duration.durations(fractions)
                     durations.extend(durations_)
                 else:
                     durations.append(middle_duration)
@@ -464,65 +472,65 @@ def _make_middle_durations(middle_duration, incise):
             if abjad.Duration(0) < middle_duration:
                 durations.append(middle_duration)
     else:
-        if not incise.outer_tuplets_only:
+        if incise.outer_tuplets_only is False:
             if abjad.Duration(0) < middle_duration:
                 durations.append(-abs(middle_duration))
         else:
             if abjad.Duration(0) < middle_duration:
                 durations.append(-abs(middle_duration))
-    assert isinstance(durations, list)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert _is_duration_list(durations), repr(durations)
     return durations
 
 
+# TODO: resume typehinting here
 def _make_talea_numerator_lists(
     pairs: list[tuple[int, int]],
-    preamble: abjad.CyclicTuple,
-    talea: abjad.CyclicTuple,
-    extra_counts: abjad.CyclicTuple,
-    end_counts: abjad.CyclicTuple,
+    preamble_counts: list[int],
+    talea_counts: list[int | str],
+    extra_counts: list[int],
+    end_counts: list[int],
+    *,
     read_talea_once_only: bool,
-):
-    assert all(isinstance(_, tuple) for _ in pairs), repr(pairs)
-    assert isinstance(preamble, abjad.CyclicTuple), repr(preamble)
-    assert all(isinstance(_, int) for _ in preamble), repr(preamble)
-    assert isinstance(talea, abjad.CyclicTuple), repr(talea)
-    assert all(isinstance(_, int | str) for _ in talea), repr(talea)
-    assert isinstance(extra_counts, abjad.CyclicTuple), repr(extra_counts)
-    assert all(isinstance(_, int) for _ in extra_counts), repr(extra_counts)
-    assert isinstance(end_counts, abjad.CyclicTuple), repr(end_counts)
-    assert all(isinstance(_, int) for _ in end_counts), repr(end_counts)
+) -> tuple[list[list[int]], list[int] | None]:
+    assert _is_integer_pair_list(pairs), repr(pairs)
+    assert _is_integer_list(preamble_counts), repr(preamble_counts)
+    assert _is_integer_or_string_list(talea_counts), repr(talea_counts)
+    assert _is_integer_list(extra_counts), repr(extra_counts)
+    assert _is_integer_list(end_counts), repr(end_counts)
     assert isinstance(read_talea_once_only, bool), repr(read_talea_once_only)
-    for count in talea:
-        assert isinstance(count, int) or count in "+-", repr(talea)
-    if "+" in talea or "-" in talea:
-        assert not preamble, repr(preamble)
-    prolated_pairs = _make_prolated_pairs(pairs, extra_counts)
-    pairs = []
-    for item in prolated_pairs:
-        if isinstance(item, tuple):
-            pairs.append(item)
-        else:
-            pairs.append(item.pair)
+    prolated_pairs = _make_prolated_pairs(pairs, list(extra_counts))
+    pairs = list(prolated_pairs)
     prolated_numerators = [_[0] for _ in pairs]
     expanded_talea = None
-    if "-" in talea or "+" in talea:
+    talea_integer_counts = []
+    if "-" in talea_counts or "+" in talea_counts:
+        assert len(preamble_counts) == 0, repr(preamble_counts)
         total_weight = sum(prolated_numerators)
-        talea_ = list(talea)
-        if "-" in talea:
+        talea_ = list(talea_counts)
+        if "-" in talea_counts:
             index = talea_.index("-")
         else:
             index = talea_.index("+")
         talea_[index] = 0
         explicit_weight = sum([abs(_) for _ in talea_])
         implicit_weight = total_weight - explicit_weight
-        if "-" in talea:
+        if "-" in talea_counts:
             implicit_weight *= -1
         talea_[index] = implicit_weight
-        expanded_talea = tuple(talea_)
-        talea = abjad.CyclicTuple(expanded_talea)
+        expanded_talea = []
+        for n in talea_:
+            assert isinstance(n, int), repr(n)
+            expanded_talea.append(n)
+        talea_integer_counts = expanded_talea
+    else:
+        for n in talea_counts:
+            assert isinstance(n, int), repr(n)
+            talea_integer_counts.append(n)
     numerator_lists = _split_talea_extended_to_weights(
-        preamble, read_talea_once_only, talea, prolated_numerators
+        preamble_counts,
+        prolated_numerators,
+        talea_integer_counts,
+        read_talea_once_only=read_talea_once_only,
     )
     if end_counts:
         end_weight = abjad.sequence.weight(end_counts)
@@ -536,10 +544,11 @@ def _make_talea_numerator_lists(
         counts = counts[0] + list(end_counts)
         assert abjad.sequence.weight(counts) == counts_weight
         numerator_lists = abjad.sequence.partition_by_weights(
-            counts, numerator_list_weights
+            counts,
+            numerator_list_weights,
         )
     for numerator_list in numerator_lists:
-        assert all(isinstance(_, int) for _ in numerator_list), repr(numerator_list)
+        assert _is_integer_list(numerator_list), repr(numerator_list)
     return numerator_lists, expanded_talea
 
 
@@ -665,13 +674,17 @@ def _make_outer_tuplets_only_incised_duration_lists(
     return numeric_map
 
 
-def _make_prolated_pairs(pairs, extra_counts):
+def _make_prolated_pairs(
+    pairs: list[tuple[int, int]],
+    extra_counts: list[int],
+) -> list[tuple[int, int]]:
+    extra_counts_cycle = abjad.CyclicTuple(extra_counts)
     prolated_pairs = []
     for i, pair in enumerate(pairs):
-        if not extra_counts:
+        if not extra_counts_cycle:
             prolated_pairs.append(pair)
             continue
-        extra_count = extra_counts[i]
+        extra_count = extra_counts_cycle[i]
         numerator = pair[0]
         if 0 <= extra_count:
             extra_count %= numerator
@@ -686,7 +699,7 @@ def _make_prolated_pairs(pairs, extra_counts):
         numerator, denominator = pair
         prolated_pair = (numerator + extra_count, denominator)
         prolated_pairs.append(prolated_pair)
-    assert all(isinstance(_, tuple) for _ in prolated_pairs)
+    assert _is_integer_pair_list(prolated_pairs), repr(prolated_pairs)
     return prolated_pairs
 
 
@@ -755,16 +768,19 @@ def _make_talea_tuplets(
     )
     numerator_lists, expanded_talea = _make_talea_numerator_lists(
         scaled_pairs,
-        scaled_preamble_cycle,
-        scaled_talea_counts_cycle,
-        scaled_extra_counts_cycle,
-        scaled_end_counts_cycle,
-        read_talea_once_only,
+        list(scaled_preamble_cycle),
+        list(scaled_talea_counts_cycle),
+        list(scaled_extra_counts_cycle),
+        list(scaled_end_counts_cycle),
+        read_talea_once_only=read_talea_once_only,
     )
+    unscaled_talea = []
     if expanded_talea is not None:
         unscaled_talea = expanded_talea
     else:
-        unscaled_talea = advanced_talea.counts
+        for count in advanced_talea.counts:
+            assert isinstance(count, int)
+            unscaled_talea.append(count)
     talea_weight_consumed = sum(abjad.sequence.weight(_) for _ in numerator_lists)
     duration_lists = [[abjad.Duration(_, lcd) for _ in n] for n in numerator_lists]
     leaf_lists = []
@@ -845,27 +861,45 @@ def _round_durations(
     return durations
 
 
-def _split_talea_extended_to_weights(preamble, read_talea_once_only, talea, weights):
-    assert all(isinstance(_, int) for _ in preamble), repr(preamble)
-    assert all(isinstance(_, int) for _ in talea), repr(talea)
-    assert all(isinstance(_, int) for _ in weights), repr(weights)
-    assert abjad.math.all_are_positive_integers(weights)
-    preamble_weight = abjad.math.weight(preamble, start=0)
-    talea_weight = abjad.math.weight(talea, start=0)
-    weight = abjad.math.weight(weights, start=0)
-    if read_talea_once_only and preamble_weight + talea_weight < weight:
-        message = f"{preamble!s} + {talea!s} is too short"
-        message += f" to read {weights} once."
+def _split_talea_extended_to_weights(
+    preamble_counts: list[int],
+    prolated_numerators: list[int],
+    talea_counts: list[int],
+    *,
+    read_talea_once_only: bool,
+) -> list[list[int]]:
+    assert _is_integer_list(preamble_counts), repr(preamble_counts)
+    assert _is_integer_list(talea_counts), repr(talea_counts)
+    assert _is_integer_list(prolated_numerators), repr(prolated_numerators)
+    assert abjad.math.all_are_positive_integers(prolated_numerators)
+    preamble_weight = abjad.math.weight(preamble_counts, start=0)
+    talea_weight = abjad.math.weight(talea_counts, start=0)
+    prolated_numerator_weight = abjad.math.weight(prolated_numerators, start=0)
+    if (
+        read_talea_once_only is True
+        and preamble_weight + talea_weight < prolated_numerator_weight
+    ):
+        message = f"{preamble_counts!s} + {talea_counts!s} is too short"
+        message += f" to read {prolated_numerators} once."
         raise Exception(message)
-    if weight <= preamble_weight:
-        talea = list(preamble)
-        talea = abjad.sequence.truncate(talea, weight=weight)
+    if prolated_numerator_weight <= preamble_weight:
+        talea_counts = abjad.sequence.truncate(
+            preamble_counts,
+            weight=prolated_numerator_weight,
+        )
     else:
-        weight -= preamble_weight
-        talea = abjad.sequence.repeat_to_weight(talea, weight)
-        talea = list(preamble) + list(talea)
-    talea = abjad.sequence.split(talea, weights, cyclic=True)
-    return talea
+        prolated_numerator_weight -= preamble_weight
+        talea_counts = abjad.sequence.repeat_to_weight(
+            talea_counts,
+            prolated_numerator_weight,
+        )
+        talea_counts = preamble_counts + talea_counts
+    numerator_lists = abjad.sequence.split(
+        talea_counts,
+        prolated_numerators,
+        cyclic=True,
+    )
+    return numerator_lists
 
 
 def accelerando(
