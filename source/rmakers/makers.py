@@ -541,7 +541,9 @@ def _make_talea_numerator_lists(
     )
     if 0 < len(end_counts):
         end_weight = abjad.math.weight(end_counts, start=0)
-        numerator_list_weights = [abjad.math.weight(_, start=0) for _ in numerator_lists]
+        numerator_list_weights = [
+            abjad.math.weight(_, start=0) for _ in numerator_lists
+        ]
         numerators = abjad.sequence.flatten(numerator_lists)
         numerators_weight = abjad.math.weight(numerators, start=0)
         assert end_weight <= numerators_weight, repr(end_counts)
