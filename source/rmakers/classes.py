@@ -701,7 +701,7 @@ class Talea:
             cumulative = abjad.math.cumulative_sums(preamble)[1:]
             if argument in cumulative:
                 return True
-            preamble_weight = abjad.sequence.weight(preamble)
+            preamble_weight = abjad.math.weight(preamble, start=0)
         else:
             preamble_weight = 0
         if self.counts is not None:
@@ -858,24 +858,27 @@ class Talea:
             raise Exception(f"weight {weight} must be nonnegative.")
         if weight == 0:
             return dataclasses.replace(self)
-        preamble: list[int | str] = list(self.preamble)
-        counts = list(self.counts)
-        if weight < abjad.sequence.weight(preamble):
+        preamble: list[int] = list(self.preamble)
+        counts = []
+        for count in self.counts:
+            assert isinstance(count, int), repr(count)
+            counts.append(count)
+        if weight < abjad.math.weight(preamble, start=0):
             consumed, remaining = abjad.sequence.split(
                 preamble, [weight], overhang=True
             )
             preamble_ = remaining
-        elif weight == abjad.sequence.weight(preamble):
+        elif weight == abjad.math.weight(preamble, start=0):
             preamble_ = ()
         else:
-            assert abjad.sequence.weight(preamble) < weight
-            weight -= abjad.sequence.weight(preamble)
+            assert abjad.math.weight(preamble, start=0) < weight
+            weight -= abjad.math.weight(preamble, start=0)
             preamble = counts[:]
             while True:
-                if weight <= abjad.sequence.weight(preamble):
+                if weight <= abjad.math.weight(preamble, start=0):
                     break
                 preamble += counts
-            if abjad.sequence.weight(preamble) == weight:
+            if abjad.math.weight(preamble, start=0) == weight:
                 consumed, remaining = preamble[:], ()
             else:
                 consumed, remaining = abjad.sequence.split(
@@ -922,4 +925,10 @@ class Talea:
             10
 
         """
-        return abjad.sequence.weight(self.counts)
+        counts = []
+        for count in self.counts:
+            if isinstance(count, str):
+                raise ValueError("can not calculate period.")
+            else:
+                counts.append(count)
+        return abjad.math.weight(counts, start=0)

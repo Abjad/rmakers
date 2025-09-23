@@ -39,7 +39,7 @@ def _apply_ties_to_split_notes(
     leaves = abjad.select.leaves(tuplets)
     written_durations = [leaf.written_duration() for leaf in leaves]
     written_durations = list(written_durations)
-    total_duration = abjad.sequence.weight(written_durations)
+    total_duration = abjad.math.weight(written_durations, start=abjad.Duration(0))
     preamble_weights = []
     if unscaled_preamble:
         for numerator in unscaled_preamble:
@@ -540,15 +540,15 @@ def _make_talea_numerator_lists(
         read_talea_once_only=read_talea_once_only,
     )
     if 0 < len(end_counts):
-        end_weight = abjad.sequence.weight(end_counts)
-        numerator_list_weights = [abjad.sequence.weight(_) for _ in numerator_lists]
+        end_weight = abjad.math.weight(end_counts, start=0)
+        numerator_list_weights = [abjad.math.weight(_, start=0) for _ in numerator_lists]
         numerators = abjad.sequence.flatten(numerator_lists)
-        numerators_weight = abjad.sequence.weight(numerators)
+        numerators_weight = abjad.math.weight(numerators, start=0)
         assert end_weight <= numerators_weight, repr(end_counts)
         left_weight = numerators_weight - end_weight
         numerator_lists = abjad.sequence.split(numerators, [left_weight, end_weight])
         numerators = numerator_lists[0] + end_counts
-        assert abjad.sequence.weight(numerators) == numerators_weight
+        assert abjad.math.weight(numerators, start=0) == numerators_weight
         numerator_lists = abjad.sequence.partition_by_weights(
             numerators,
             numerator_list_weights,
@@ -776,7 +776,7 @@ def _make_talea_tuplets(
         for count in advanced_talea.counts:
             assert isinstance(count, int)
             unscaled_talea.append(count)
-    talea_weight_consumed = sum(abjad.sequence.weight(_) for _ in numerator_lists)
+    talea_weight_consumed = sum(abjad.math.weight(_, start=0) for _ in numerator_lists)
     component_lists = []
     for numerator_list in numerator_lists:
         duration_list = [abjad.Duration(_, lcd) for _ in numerator_list]
