@@ -12,39 +12,24 @@ import abjad
 from . import classes as _classes
 
 
-def _all_are_durations(durations: typing.Sequence[abjad.Duration]) -> bool:
-    return all(isinstance(_, abjad.Duration) for _ in durations)
-
-
-def _all_are_proportions(proportions: typing.Sequence[tuple[int, ...]]) -> bool:
-    for proportion in proportions:
-        if not isinstance(proportion, tuple):
-            return False
-        if not all(isinstance(_, int) for _ in proportion):
-            return False
-    return True
-
-
 def _apply_ties_to_split_notes(
     tuplets: list[abjad.Tuplet],
     unscaled_end_counts: list[int],
-    unscaled_preamble: list[int],
-    unscaled_talea: list[int],
+    unscaled_preamble_counts: list[int],
+    unscaled_talea_counts: list[int],
     talea: _classes.Talea,
 ) -> None:
     assert _is_integer_list(unscaled_end_counts), repr(unscaled_end_counts)
-    assert _is_integer_list(unscaled_preamble), repr(unscaled_preamble)
-    assert _is_integer_list(unscaled_talea), repr(unscaled_talea)
+    assert _is_integer_list(unscaled_preamble_counts), repr(unscaled_preamble_counts)
+    assert _is_integer_list(unscaled_talea_counts), repr(unscaled_talea_counts)
     assert isinstance(talea, _classes.Talea), repr(talea)
     leaves = abjad.select.leaves(tuplets)
     written_durations = [leaf.written_duration() for leaf in leaves]
-    written_durations = list(written_durations)
     total_duration = abjad.math.weight(written_durations, start=abjad.Duration(0))
     preamble_weights = []
-    if unscaled_preamble:
-        for numerator in unscaled_preamble:
-            pair = (numerator, talea.denominator)
-            duration = abjad.Duration(*pair)
+    if unscaled_preamble_counts:
+        for count in unscaled_preamble_counts:
+            duration = abjad.Duration(count, talea.denominator)
             weight = abs(duration)
             preamble_weights.append(weight)
     preamble_duration = sum(preamble_weights, start=abjad.Duration(0))
@@ -67,7 +52,7 @@ def _apply_ties_to_split_notes(
             overhang=False,
         )
         talea_weights = []
-        for numerator in unscaled_talea:
+        for numerator in unscaled_talea_counts:
             pair = (numerator, talea.denominator)
             weight = abs(abjad.Duration(*pair))
             talea_weights.append(weight)
@@ -92,7 +77,7 @@ def _apply_ties_to_split_notes(
             continue
         abjad.tie(part)
     # TODO: this will need to be generalized and better tested:
-    if unscaled_end_counts:
+    if 0 < len(unscaled_end_counts):
         total = len(unscaled_end_counts)
         end_leaves = leaves[-total:]
         for leaf in reversed(end_leaves):
@@ -309,6 +294,17 @@ def _is_integer_pair_list(argument: object) -> bool:
         if not isinstance(item, tuple):
             return False
         if not len(item) == 2:
+            return False
+        if not all(isinstance(_, int) for _ in item):
+            return False
+    return True
+
+
+def _is_integer_tuple_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    for item in argument:
+        if not isinstance(item, tuple):
             return False
         if not all(isinstance(_, int) for _ in item):
             return False
@@ -619,7 +615,7 @@ def _make_outer_tuplets_only_incised_duration_lists(
     scaled_suffix_talea_counts_cycle = abjad.CyclicTuple(scaled_suffix_talea_counts)
     suffix_counts_cycle = abjad.CyclicTuple(incise.suffix_counts or [0])
     scaled_extra_counts_cycle = abjad.CyclicTuple(scaled_extra_counts)
-    numeric_map, prefix_talea_index, suffix_talea_index = [], 0, 0
+    duration_lists, prefix_talea_index, suffix_talea_index = [], 0, 0
     prefix_count = prefix_counts_cycle[0]
     suffix_count = suffix_counts_cycle[0]
     start = prefix_talea_index
@@ -632,13 +628,13 @@ def _make_outer_tuplets_only_incised_duration_lists(
         extra_count = scaled_extra_counts_cycle[0]
         numerator = scaled_pairs[0][0]
         numerator += extra_count % numerator
-        numeric_map_part = _make_duration_list(
+        duration_list = _make_duration_list(
             numerator,
             list(prefix_talea_counts),
             list(suffix_talea_counts),
             incise,
         )
-        numeric_map.append(numeric_map_part)
+        duration_lists.append(duration_list)
     else:
         extra_count = scaled_extra_counts_cycle[0]
         if isinstance(scaled_pairs[0], tuple):
@@ -646,20 +642,20 @@ def _make_outer_tuplets_only_incised_duration_lists(
         else:
             numerator = scaled_pairs[0].numerator
         numerator += extra_count % numerator
-        numeric_map_part = _make_duration_list(
+        duration_list = _make_duration_list(
             numerator,
             list(prefix_talea_counts),
             [],
             incise,
         )
-        numeric_map.append(numeric_map_part)
+        duration_lists.append(duration_list)
         for i, scaled_pair in enumerate(scaled_pairs[1:-1]):
             index = i + 1
             extra_count = scaled_extra_counts_cycle[index]
             numerator = scaled_pair[0]
             numerator += extra_count % numerator
-            numeric_map_part = _make_duration_list(numerator, [], [], incise)
-            numeric_map.append(numeric_map_part)
+            duration_list = _make_duration_list(numerator, [], [], incise)
+            duration_lists.append(duration_list)
         try:
             index = i + 2
             extra_count = scaled_extra_counts_cycle[index]
@@ -671,14 +667,14 @@ def _make_outer_tuplets_only_incised_duration_lists(
         else:
             numerator = scaled_pairs[-1].numerator
         numerator += extra_count % numerator
-        numeric_map_part = _make_duration_list(
+        duration_list = _make_duration_list(
             numerator,
             [],
             list(suffix_talea_counts),
             incise,
         )
-        numeric_map.append(numeric_map_part)
-    return numeric_map
+        duration_lists.append(duration_list)
+    return duration_lists
 
 
 def _make_prolated_pairs(
@@ -709,13 +705,13 @@ def _make_prolated_pairs(
 
 def _make_state_dictionary(
     *,
-    durations_consumed,
-    logical_ties_produced,
-    previous_durations_consumed,
-    previous_incomplete_last_note,
-    previous_logical_ties_produced,
-    state,
-):
+    durations_consumed: int,
+    logical_ties_produced: int,
+    previous_durations_consumed: int,
+    previous_incomplete_last_note: int,
+    previous_logical_ties_produced: int,
+    state: dict,
+) -> dict:
     durations_consumed_ = previous_durations_consumed + durations_consumed
     state["durations_consumed"] = durations_consumed_
     logical_ties_produced_ = previous_logical_ties_produced + logical_ties_produced
@@ -726,7 +722,6 @@ def _make_state_dictionary(
     return state
 
 
-# TODO: resume typehinting here
 def _make_talea_tuplets(
     durations: list[abjad.Duration],
     extra_counts: list[int],
@@ -737,10 +732,8 @@ def _make_talea_tuplets(
     talea: _classes.Talea,
     tag: abjad.Tag,
 ) -> list[abjad.Tuplet]:
-    assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    assert isinstance(extra_counts, list), repr(extra_counts)
-    assert all(isinstance(_, int) for _ in extra_counts), repr(extra_counts)
+    assert _is_duration_list(durations), repr(durations)
+    assert _is_integer_list(extra_counts)
     assert isinstance(previous_state, dict), repr(previous_state)
     assert isinstance(read_talea_once_only, bool), repr(read_talea_once_only)
     assert isinstance(talea, _classes.Talea), repr(talea)
@@ -799,7 +792,7 @@ def _make_talea_tuplets(
         tuplets,
         advanced_talea.end_counts,
         advanced_talea.preamble,
-        list(unscaled_talea),
+        unscaled_talea,
         talea,
     )
     for tuplet in abjad.iterate.components(tuplets, abjad.Tuplet):
@@ -900,8 +893,8 @@ def _split_talea_extended_to_weights(
 
 
 def accelerando(
-    durations: typing.Sequence[abjad.Duration],
-    interpolations: typing.Sequence[_classes.Interpolation],
+    durations: list[abjad.Duration],
+    interpolations: list[_classes.Interpolation],
     *,
     previous_state: dict | None = None,
     spelling: _classes.Spelling = _classes.Spelling(),
@@ -1285,8 +1278,7 @@ def accelerando(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert _is_duration_list(durations), repr(durations)
     assert isinstance(interpolations, list), repr(interpolations)
     class_ = _classes.Interpolation
     assert all(isinstance(_, class_) for _ in interpolations), repr(interpolations)
@@ -1321,10 +1313,10 @@ def accelerando(
 
 
 def even_division(
-    durations: typing.Sequence[abjad.Duration],
-    denominators: typing.Sequence[int],
+    durations: list[abjad.Duration],
+    denominators: list[int],
     *,
-    extra_counts: typing.Sequence[int] | None = None,
+    extra_counts: list[int] | None = None,
     previous_state: dict | None = None,
     spelling: _classes.Spelling = _classes.Spelling(),
     state: dict | None = None,
@@ -2143,14 +2135,11 @@ def even_division(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    assert isinstance(denominators, list), repr(denominators)
-    assert all(isinstance(_, int) for _ in denominators), repr(denominators)
+    assert _is_duration_list(durations), repr(durations)
+    assert _is_integer_list(denominators), repr(denominators)
     if extra_counts is None:
         extra_counts = [0]
-    assert isinstance(extra_counts, list), repr(extra_counts)
-    assert all(isinstance(_, int) for _ in extra_counts), repr(extra_counts)
+    assert _is_integer_list(extra_counts), repr(extra_counts)
     previous_state = previous_state or {}
     if state is None:
         state = {}
@@ -2177,8 +2166,8 @@ def even_division(
         if tuplet_duration < 2 * note_duration:
             note_durations = [tuplet_duration]
         else:
-            unprolated_note_count = tuplet_duration / note_duration
-            unprolated_note_count = int(unprolated_note_count)
+            unprolated_note_count_fraction = tuplet_duration / note_duration
+            unprolated_note_count = int(unprolated_note_count_fraction)
             unprolated_note_count = unprolated_note_count or 1
             if 0 < extra_count:
                 modulus = unprolated_note_count
@@ -2227,7 +2216,7 @@ def even_division(
 
 
 def incised(
-    durations: typing.Sequence[abjad.Duration],
+    durations: list[abjad.Duration],
     talea_denominator: int,
     *,
     body_proportion: tuple[int, ...] = (1,),
@@ -2758,8 +2747,7 @@ def incised(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert _is_duration_list(durations)
     assert isinstance(talea_denominator, int), repr(talea_denominator)
     if extra_counts is None:
         extra_counts = [0]
@@ -2827,7 +2815,7 @@ def incised(
 
 
 def multiplied_duration(
-    durations: typing.Sequence[abjad.Duration],
+    durations: list[abjad.Duration],
     written_duration: abjad.Duration = abjad.Duration(1, 1),
     *,
     tag: abjad.Tag | None = None,
@@ -2974,7 +2962,7 @@ def multiplied_duration(
 
 
 def note(
-    durations: typing.Sequence[abjad.Duration],
+    durations: list[abjad.Duration],
     *,
     spelling: _classes.Spelling = _classes.Spelling(),
     tag: abjad.Tag | None = None,
@@ -3044,14 +3032,14 @@ def note(
 
 
 def talea(
-    durations: typing.Sequence[abjad.Duration],
-    counts: typing.Sequence[int | str],
+    durations: list[abjad.Duration],
+    counts: list[int | str],
     denominator: int,
     *,
     advance: int = 0,
-    end_counts: typing.Sequence[int] | None = None,
-    extra_counts: typing.Sequence[int] | None = None,
-    preamble: typing.Sequence[int] | None = None,
+    end_counts: list[int] | None = None,
+    extra_counts: list[int] | None = None,
+    preamble: list[int] | None = None,
     previous_state: dict | None = None,
     read_talea_once_only: bool = False,
     spelling: _classes.Spelling = _classes.Spelling(),
@@ -3523,24 +3511,18 @@ def talea(
                 }
 
     """
-    assert isinstance(durations, list), repr(durations)
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
-    assert isinstance(counts, list), repr(counts)
-    assert all(isinstance(_, int | str) for _ in counts), repr(counts)
+    assert _is_duration_list(durations), repr(durations)
+    assert _is_integer_or_string_list(counts), repr(counts)
     assert isinstance(denominator, int), repr(denominator)
     assert isinstance(advance, int), repr(advance)
     if end_counts is None:
         end_counts = []
-    assert isinstance(end_counts, list), repr(end_counts)
-    assert all(isinstance(_, int) for _ in end_counts), repr(end_counts)
     if extra_counts is None:
         extra_counts = []
-    assert isinstance(extra_counts, list), repr(extra_counts)
-    assert all(isinstance(_, int) for _ in extra_counts), repr(extra_counts)
+    assert _is_integer_list(extra_counts), repr(extra_counts)
     if preamble is None:
         preamble = []
-    assert isinstance(preamble, list), repr(preamble)
-    assert all(isinstance(_, int) for _ in preamble), repr(preamble)
+    assert _is_integer_list(preamble), repr(preamble)
     if previous_state is None:
         previous_state = {}
     assert isinstance(previous_state, dict)
@@ -3589,8 +3571,8 @@ def talea(
 
 
 def tuplet(
-    durations: typing.Sequence[abjad.Duration],
-    proportions: typing.Sequence[tuple[int, ...]],
+    durations: list[abjad.Duration],
+    proportions: list[tuple[int, ...]],
     *,
     tag: abjad.Tag | None = None,
 ) -> list[abjad.Tuplet]:
@@ -3722,8 +3704,8 @@ def tuplet(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    assert _all_are_durations(durations), repr(durations)
-    assert _all_are_proportions(proportions), repr(proportions)
+    assert _is_duration_list(durations), repr(durations)
+    assert _is_integer_tuple_list(proportions), repr(proportions)
     tuplets = []
     proportions_cycle = abjad.CyclicTuple(proportions)
     for i, duration in enumerate(durations):
