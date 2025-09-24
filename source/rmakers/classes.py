@@ -10,6 +10,10 @@ import typing
 import abjad
 
 
+def _is_duration(argument: object) -> bool:
+    return isinstance(argument, abjad.Duration)
+
+
 def _is_integer_list(argument: object) -> bool:
     if not isinstance(argument, list):
         return False
@@ -46,26 +50,6 @@ class Incise:
         assert isinstance(self.talea_denominator, int), repr(self.talea_denominator)
         assert abjad.math.is_nonnegative_integer_power_of_two(self.talea_denominator)
 
-    @staticmethod
-    def _is_integer_list(argument: object) -> bool:
-        if not isinstance(argument, list):
-            return False
-        return all(isinstance(_, int) for _ in argument)
-
-    @staticmethod
-    def _is_length_tuple(argument):
-        if argument is None:
-            return True
-        if abjad.math.all_are_nonnegative_integer_equivalent_numbers(argument):
-            if isinstance(argument, tuple | list):
-                return True
-        return False
-
-    @staticmethod
-    def _reverse_tuple(argument):
-        if argument is not None:
-            return tuple(reversed(argument))
-
 
 @dataclasses.dataclass(frozen=True, order=True, slots=True, unsafe_hash=True)
 class Interpolation:
@@ -78,13 +62,9 @@ class Interpolation:
     written_duration: abjad.Duration = abjad.Duration(1, 16)
 
     def __post_init__(self) -> None:
-        assert isinstance(self.start_duration, abjad.Duration), repr(
-            self.start_duration
-        )
-        assert isinstance(self.stop_duration, abjad.Duration), repr(self.stop_duration)
-        assert isinstance(self.written_duration, abjad.Duration), repr(
-            self.written_duration
-        )
+        assert _is_duration(self.start_duration), repr(self.start_duration)
+        assert _is_duration(self.stop_duration), repr(self.stop_duration)
+        assert _is_duration(self.written_duration), repr(self.written_duration)
 
     def reverse(self) -> Interpolation:
         """
@@ -106,7 +86,7 @@ class Interpolation:
             Duration(numerator=1, denominator=4)
 
         """
-        return type(self)(
+        return Interpolation(
             start_duration=self.stop_duration,
             stop_duration=self.start_duration,
             written_duration=self.written_duration,
@@ -562,11 +542,11 @@ class Spelling:
 
     def __post_init__(self):
         if self.forbidden_note_duration is not None:
-            assert isinstance(self.forbidden_note_duration, abjad.Duration), repr(
+            assert _is_duration(self.forbidden_note_duration), repr(
                 self.forbidden_note_duration
             )
         if self.forbidden_rest_duration is not None:
-            assert isinstance(self.forbidden_rest_duration, abjad.Duration), repr(
+            assert _is_duration(self.forbidden_rest_duration), repr(
                 self.forbidden_rest_duration
             )
         assert isinstance(self.increase_monotonic, bool), repr(self.increase_monotonic)
@@ -645,6 +625,7 @@ class Talea:
     counts: list[int | str]
     denominator: int
     end_counts: list[int] = dataclasses.field(default_factory=list)
+    # TODO: change `preamble` to `preamble_counts`
     preamble: list[int] = dataclasses.field(default_factory=list)
 
     def __post_init__(self):
@@ -652,18 +633,16 @@ class Talea:
         for count in self.counts:
             assert isinstance(count, int) or count in "+-", repr(count)
         assert abjad.math.is_positive_integer_power_of_two(self.denominator)
-        assert isinstance(self.end_counts, list), repr(self.end_counts)
-        assert all(isinstance(_, int) for _ in self.end_counts)
-        assert isinstance(self.preamble, list), repr(self.preamble)
-        assert all(isinstance(_, int) for _ in self.preamble)
+        assert _is_integer_list(self.end_counts), repr(self.end_counts)
+        assert _is_integer_list(self.preamble), repr(self.preamble)
 
     def __contains__(self, argument: int) -> bool:
         """
         Is true when talea contains ``argument``.
 
-        With preamble:
-
         ..  container:: example
+
+            With preamble:
 
             >>> talea = rmakers.Talea([10],16,preamble=[1, -1, 1])
             >>> for i in range(1, 23 + 1):
@@ -713,6 +692,7 @@ class Talea:
         argument %= self.period()
         return argument in cumulative
 
+    # TODO: how do you typehint `argument`?
     def __getitem__(self, argument) -> tuple[int, int] | list[tuple[int, int]]:
         """
         Gets item or slice identified by ``argument``.
@@ -815,6 +795,7 @@ class Talea:
         """
         return len(self.counts or [])
 
+    # TODO: FIXME
     def advance(self, weight: int) -> Talea:
         """
         Advances talea by ``weight``.
@@ -865,11 +846,13 @@ class Talea:
             counts.append(count)
         if weight < abjad.math.weight(preamble, start=0):
             consumed, remaining = abjad.sequence.split(
-                preamble, [weight], overhang=True
+                preamble,
+                [weight],
+                overhang=True,
             )
             preamble_ = remaining
         elif weight == abjad.math.weight(preamble, start=0):
-            preamble_ = ()
+            preamble_ = []
         else:
             assert abjad.math.weight(preamble, start=0) < weight
             weight -= abjad.math.weight(preamble, start=0)
@@ -879,17 +862,20 @@ class Talea:
                     break
                 preamble += counts
             if abjad.math.weight(preamble, start=0) == weight:
-                consumed, remaining = preamble[:], ()
+                consumed, remaining = preamble[:], []
             else:
                 consumed, remaining = abjad.sequence.split(
-                    preamble, [weight], overhang=True
+                    preamble,
+                    [weight],
+                    overhang=True,
                 )
             preamble_ = remaining
         return dataclasses.replace(
             self,
+            # TODO: remove typehinting problem that comes with removing list():
             counts=list(counts),
             denominator=self.denominator,
-            preamble=list(preamble_),
+            preamble=preamble_,
         )
 
     def period(self) -> int:
