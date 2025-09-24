@@ -3,7 +3,6 @@ The rmakers functions.
 """
 
 import inspect
-import math
 import typing
 
 import abjad
@@ -15,124 +14,6 @@ def _function_name(frame):
     function_name = frame.f_code.co_name
     string = f"rmakers.{function_name}()"
     return abjad.Tag(string)
-
-
-def _interpolate_cosine(y1, y2, mu) -> float:
-    mu2 = (1 - math.cos(mu * math.pi)) / 2
-    return y1 * (1 - mu2) + y2 * mu2
-
-
-def _interpolate_exponential(y1, y2, mu, exponent=1) -> float:
-    """
-    Interpolates between ``y1`` and ``y2`` at position ``mu``.
-
-    ..  container:: example
-
-        Exponents equal to 1 leave durations unscaled:
-
-        >>> for mu in (0, 0.25, 0.5, 0.75, 1):
-        ...     rmakers.functions._interpolate_exponential(100, 200, mu, exponent=1)
-        ...
-        100.0
-        125.0
-        150.0
-        175.0
-        200.0
-
-        Exponents greater than 1 generate ritardandi:
-
-        >>> for mu in (0, 0.25, 0.5, 0.75, 1):
-        ...     rmakers.functions._interpolate_exponential(100, 200, mu, exponent=2)
-        ...
-        100.0
-        106.25
-        125.0
-        156.25
-        200.0
-
-        Exponents less than 1 generate accelerandi:
-
-        >>> for mu in (0, 0.25, 0.5, 0.75, 1):
-        ...     rmakers.functions._interpolate_exponential(100, 200, mu, exponent=0.5)
-        ...
-        100.0
-        150.0
-        170.71067811865476
-        186.60254037844388
-        200.0
-
-    """
-    result = float(y1) * (1 - mu**exponent) + float(y2) * mu**exponent
-    return result
-
-
-def _interpolate_divide(
-    total_duration: abjad.Duration,
-    start_duration: abjad.Duration,
-    stop_duration: abjad.Duration,
-    exponent="cosine",
-) -> str | list[float]:
-    """
-    Divides ``total_duration`` into durations computed from interpolating between
-    ``start_duration`` and ``stop_duration``.
-
-    ..  container:: example
-
-        >>> rmakers.functions._interpolate_divide(
-        ...     total_duration=abjad.Duration(10, 1),
-        ...     start_duration=abjad.Duration(1, 1),
-        ...     stop_duration=abjad.Duration(1, 1),
-        ...     exponent=1,
-        ... )
-        [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-        >>> sum(_)
-        10.0
-
-        >>> rmakers.functions._interpolate_divide(
-        ...     total_duration=abjad.Duration(10, 1),
-        ...     start_duration=abjad.Duration(5, 1),
-        ...     stop_duration=abjad.Duration(1, 1),
-        ... )
-        [4.798..., 2.879..., 1.326..., 0.995...]
-        >>> sum(_)
-        10.0
-
-    Set ``exponent`` to ``'cosine'`` for cosine interpolation.
-
-    Set ``exponent`` to a numeric value for exponential interpolation with
-    ``exponent`` as the exponent.
-
-    Scales resulting durations so that their sum equals ``total_duration`` exactly.
-    """
-    zero = abjad.Duration(0, 1)
-    if total_duration <= zero:
-        raise ValueError("Total duration must be positive.")
-    if start_duration <= zero or stop_duration <= zero:
-        raise ValueError("Both 'start_duration' and 'stop_duration' must be positive.")
-    if total_duration < (stop_duration + start_duration):
-        return "too small"
-    float_durations = []
-    partial_sum = 0.0
-    while partial_sum < float(total_duration):
-        if exponent == "cosine":
-            float_duration = _interpolate_cosine(
-                float(start_duration),
-                float(stop_duration),
-                partial_sum / float(total_duration),
-            )
-        else:
-            float_duration = _interpolate_exponential(
-                float(start_duration),
-                float(stop_duration),
-                partial_sum / float(total_duration),
-                exponent,
-            )
-        float_durations.append(float_duration)
-        partial_sum += float_duration
-    float_durations = [
-        _ * float(total_duration) / sum(float_durations) for _ in float_durations
-    ]
-    return float_durations
 
 
 def _is_accelerando(argument):

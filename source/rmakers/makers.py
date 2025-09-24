@@ -172,7 +172,7 @@ def _interpolate_divide(
 
     ..  container:: example
 
-        >>> rmakers.functions._interpolate_divide(
+        >>> rmakers.makers._interpolate_divide(
         ...     total_duration=abjad.Duration(10, 1),
         ...     start_duration=abjad.Duration(1, 1),
         ...     stop_duration=abjad.Duration(1, 1),
@@ -182,7 +182,7 @@ def _interpolate_divide(
         >>> sum(_)
         10.0
 
-        >>> rmakers.functions._interpolate_divide(
+        >>> rmakers.makers._interpolate_divide(
         ...     total_duration=abjad.Duration(10, 1),
         ...     start_duration=abjad.Duration(5, 1),
         ...     stop_duration=abjad.Duration(1, 1),
@@ -201,7 +201,7 @@ def _interpolate_divide(
     assert isinstance(total_duration, abjad.Duration), repr(total_duration)
     assert isinstance(start_duration, abjad.Duration), repr(start_duration)
     assert isinstance(stop_duration, abjad.Duration), repr(stop_duration)
-    assert isinstance(exponent, str | float), repr(exponent)
+    assert isinstance(exponent, str | float | int), repr(exponent)
     zero = abjad.Duration(0)
     if total_duration <= zero:
         raise ValueError("Total duration must be positive.")
@@ -248,7 +248,7 @@ def _interpolate_exponential(
         Exponents equal to 1 leave durations unscaled:
 
         >>> for mu in (0, 0.25, 0.5, 0.75, 1):
-        ...     rmakers.functions._interpolate_exponential(100, 200, mu, exponent=1)
+        ...     rmakers.makers._interpolate_exponential(100, 200, mu, exponent=1)
         ...
         100.0
         125.0
@@ -259,7 +259,7 @@ def _interpolate_exponential(
         Exponents greater than 1 generate ritardandi:
 
         >>> for mu in (0, 0.25, 0.5, 0.75, 1):
-        ...     rmakers.functions._interpolate_exponential(100, 200, mu, exponent=2)
+        ...     rmakers.makers._interpolate_exponential(100, 200, mu, exponent=2)
         ...
         100.0
         106.25
@@ -270,7 +270,7 @@ def _interpolate_exponential(
         Exponents less than 1 generate accelerandi:
 
         >>> for mu in (0, 0.25, 0.5, 0.75, 1):
-        ...     rmakers.functions._interpolate_exponential(100, 200, mu, exponent=0.5)
+        ...     rmakers.makers._interpolate_exponential(100, 200, mu, exponent=0.5)
         ...
         100.0
         150.0
