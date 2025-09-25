@@ -3,6 +3,7 @@ The rmakers functions.
 """
 
 import inspect
+import types
 import typing
 
 import abjad
@@ -10,34 +11,104 @@ import abjad
 from . import classes as _classes
 
 
-def _function_name(frame):
+def _function_name(frame: types.FrameType | None) -> abjad.Tag:
+    assert frame is not None, repr(frame)
     function_name = frame.f_code.co_name
     string = f"rmakers.{function_name}()"
     return abjad.Tag(string)
 
 
-def _is_accelerando(argument):
+def _is_accelerando(argument: abjad.Component | list[abjad.Component]) -> bool:
+    assert _is_component_or_component_list(argument), repr(argument)
     first_leaf = abjad.select.leaf(argument, 0)
     last_leaf = abjad.select.leaf(argument, -1)
     first_duration = abjad.get.duration(first_leaf)
     last_duration = abjad.get.duration(last_leaf)
-    if last_duration < first_duration:
+    return last_duration < first_duration
+
+
+def _is_clt_or_clt_list(argument: object) -> bool:
+    if isinstance(argument, abjad.Component):
+        return True
+    if isinstance(argument, abjad.LogicalTie):
+        return True
+    if _is_component_list(argument) is True:
+        return True
+    if _is_logical_tie_list(argument) is True:
         return True
     return False
 
 
-def _is_ritardando(argument):
+def _is_clt_or_clt_list_or_list_of_clt_lists(argument: object) -> bool:
+    if _is_clt_or_clt_list(argument) is True:
+        return True
+    if isinstance(argument, list):
+        return all(_is_clt_or_clt_list(_) for _ in argument)
+    return False
+
+
+def _is_component_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, abjad.Component) for _ in argument)
+
+
+def _is_component_or_clt_list(argument: object) -> bool:
+    if isinstance(argument, abjad.Component):
+        return True
+    if _is_component_list(argument) is True:
+        return True
+    if isinstance(argument, list):
+        if all(isinstance(_, abjad.LogicalTie) for _ in argument):
+            return True
+    return False
+
+
+def _is_component_or_component_list(argument: object) -> bool:
+    if isinstance(argument, abjad.Component):
+        return True
+    return _is_component_list(argument)
+
+
+def _is_duration_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, abjad.Duration) for _ in argument)
+
+
+def _is_integer_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, int) for _ in argument)
+
+
+def _is_logical_tie_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, abjad.LogicalTie) for _ in argument)
+
+
+def _is_ritardando(argument: abjad.Component | list[abjad.Component]):
+    assert _is_component_or_component_list(argument), repr(argument)
     first_leaf = abjad.select.leaf(argument, 0)
     last_leaf = abjad.select.leaf(argument, -1)
     first_duration = abjad.get.duration(first_leaf)
     last_duration = abjad.get.duration(last_leaf)
-    if first_duration < last_duration:
-        return True
-    return False
+    return first_duration < last_duration
 
 
-def _make_beamable_groups(components, durations):
-    assert all(isinstance(_, abjad.Duration) for _ in durations)
+def _is_time_signature_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, abjad.TimeSignature) for _ in argument)
+
+
+def _make_beamable_groups(
+    components: typing.Sequence[abjad.Component],
+    durations: list[abjad.Duration],
+) -> list[list[abjad.Component]]:
+    assert _is_component_list(components), repr(components)
+    assert _is_duration_list(durations), repr(durations)
     music_duration = abjad.get.duration(components)
     if music_duration != sum(durations):
         message = f"music duration {music_duration} does not equal"
@@ -51,8 +122,7 @@ def _make_beamable_groups(components, durations):
         duration = abjad.get.duration(component)
         stop_offset = start_offset + duration
         timespan = abjad.Timespan(start_offset, stop_offset)
-        pair = (component, timespan)
-        component_to_timespan.append(pair)
+        component_to_timespan.append((component, timespan))
         start_offset = stop_offset
     group_to_target_duration = []
     start_offset = abjad.duration.offset(0)
@@ -64,8 +134,7 @@ def _make_beamable_groups(components, durations):
         for component, component_timespan in component_to_timespan:
             if component_timespan in group_timespan:
                 group.append(component)
-        pair = ([group], target_duration)
-        group_to_target_duration.append(pair)
+        group_to_target_duration.append((group, target_duration))
     beamable_groups = []
     for group, target_duration in group_to_target_duration:
         group_duration = abjad.get.duration(group)
@@ -77,7 +146,11 @@ def _make_beamable_groups(components, durations):
     return beamable_groups
 
 
-def _make_time_signature_staff(time_signatures):
+def _make_time_signature_staff(
+    time_signatures: typing.Sequence[abjad.TimeSignature],
+) -> abjad.Score:
+    assert isinstance(time_signatures, list), repr(time_signatures)
+    assert all(isinstance(_, abjad.TimeSignature) for _ in time_signatures)
     assert time_signatures, repr(time_signatures)
     staff = abjad.Staff(simultaneous=True)
     score = abjad.Score([staff], name="Score")
@@ -92,8 +165,8 @@ def _make_time_signature_staff(time_signatures):
     return score
 
 
-def _validate_tuplets(argument):
-    for tuplet in abjad.iterate.components(argument, abjad.Tuplet):
+def _validate_tuplets(voice: abjad.Voice) -> None:
+    for tuplet in abjad.iterate.components(voice, abjad.Tuplet):
         assert tuplet.ratio().is_normalized(), repr(tuplet)
         assert len(tuplet), repr(tuplet)
 
@@ -260,19 +333,16 @@ def after_grace_container(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    if not isinstance(argument, abjad.Component):
-        assert isinstance(argument, list), repr(argument)
-        assert all(isinstance(_, abjad.Component) for _ in argument), repr(argument)
-    assert isinstance(counts, list), repr(counts)
-    assert all(isinstance(_, int) for _ in counts), repr(counts)
+    assert _is_component_or_component_list(argument), repr(argument)
+    assert _is_integer_list(counts), repr(counts)
     if slash is True:
         assert beam is True, repr(beam)
     assert isinstance(talea, _classes.Talea), repr(talea)
     leaves = abjad.select.leaves(argument, grace=False)
-    cyclic_counts = abjad.CyclicTuple(counts)
+    counts_cycle = abjad.CyclicTuple(counts)
     start = 0
     for i, leaf in enumerate(leaves):
-        count = cyclic_counts[i]
+        count = counts_cycle[i]
         if not count:
             continue
         stop = start + count
@@ -308,7 +378,14 @@ def attach_time_signatures(
 
 
 def beam(
-    argument,
+    argument: (
+        abjad.Container
+        | typing.Sequence[abjad.Component]
+        | typing.Sequence[typing.Sequence[abjad.Component]]
+        | abjad.LogicalTie
+        | typing.Sequence[abjad.LogicalTie]
+        | typing.Sequence[typing.Sequence[abjad.LogicalTie]]
+    ),
     *,
     beam_lone_notes: bool = False,
     beam_rests: bool = False,
@@ -627,8 +704,9 @@ def beam(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    assert _is_clt_or_clt_list_or_list_of_clt_lists(argument), repr(argument)
     for item in argument:
-        if not do_not_unbeam:
+        if do_not_unbeam is False:
             unbeam(item)
         leaves = abjad.select.leaves(item)
         abjad.beam(
@@ -641,7 +719,14 @@ def beam(
 
 
 def beam_groups(
-    argument,
+    argument: (
+        abjad.Container
+        | typing.Sequence[abjad.Component]
+        | typing.Sequence[typing.Sequence[abjad.Component]]
+        | abjad.LogicalTie
+        | typing.Sequence[abjad.LogicalTie]
+        | typing.Sequence[typing.Sequence[abjad.LogicalTie]]
+    ),
     *,
     beam_lone_notes: bool = False,
     beam_rests: bool = False,
@@ -787,6 +872,7 @@ def beam_groups(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
+    assert _is_clt_or_clt_list_or_list_of_clt_lists(argument), repr(argument)
     unbeam(argument)
     durations = [abjad.get.duration(_) for _ in argument]
     leaves = abjad.select.leaves(argument)
@@ -1258,19 +1344,16 @@ def before_grace_container(
         (When ``slash=True`` then ``beam`` must also be true.)
 
     """
-    if not isinstance(argument, abjad.Component):
-        assert isinstance(argument, list), repr(argument)
-        assert all(isinstance(_, abjad.Component) for _ in argument), repr(argument)
-    assert isinstance(counts, list), repr(counts)
-    assert all(isinstance(_, int) for _ in counts), repr(counts)
+    assert _is_component_or_component_list(argument), repr(argument)
+    assert _is_integer_list(counts), repr(counts)
     if slash is True:
         assert beam is True, repr(beam)
     assert isinstance(talea, _classes.Talea), repr(talea)
     leaves = abjad.select.leaves(argument, grace=False)
-    cyclic_counts = abjad.CyclicTuple(counts)
+    counts_cycle = abjad.CyclicTuple(counts)
     start = 0
     for i, leaf in enumerate(leaves):
-        count = cyclic_counts[i]
+        count = counts_cycle[i]
         if not count:
             continue
         stop = start + count
@@ -1309,10 +1392,11 @@ def before_grace_container(
                 abjad.beam(notes)
 
 
-def duration_bracket(argument) -> None:
+def duration_bracket(argument: abjad.Component | list[abjad.Component]) -> None:
     """
     Applies duration bracket to tuplets in ``argument``.
     """
+    assert _is_component_or_component_list(argument), repr(argument)
     for tuplet in abjad.select.tuplets(argument):
         pitch_list = [abjad.NamedPitch("c'")]
         duration_ = abjad.get.duration(tuplet)
@@ -1341,8 +1425,7 @@ def example(
 
     Function is a documentation helper.
     """
-    assert isinstance(components, list), repr(components)
-    assert all(isinstance(_, abjad.Component) for _ in components), repr(components)
+    assert _is_component_list(components), repr(components)
     assert isinstance(time_signatures, list), repr(time_signatures)
     assert all(isinstance(_, abjad.TimeSignature) for _ in time_signatures), repr(
         time_signatures
@@ -1359,17 +1442,18 @@ def example(
     return lilypond_file
 
 
-def extract_rest_filled(argument) -> None:
+def extract_rest_filled(argument: abjad.Container | list[abjad.Component]) -> None:
     """
     Extracts rest-filled tuplets from ``argument``.
     """
+    assert _is_component_or_component_list(argument), repr(argument)
     tuplets = abjad.select.tuplets(argument)
     for tuplet in tuplets:
         if tuplet.is_rest_filled():
             abjad.mutate.extract(tuplet)
 
 
-def extract_trivial(argument) -> None:
+def extract_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
     r"""
     Extracts trivial tuplets from ``argument``.
 
@@ -1440,6 +1524,7 @@ def extract_trivial(argument) -> None:
             }
 
     """
+    assert _is_component_or_component_list(argument), repr(argument)
     tuplets = abjad.select.tuplets(argument)
     for tuplet in tuplets:
         if tuplet.is_trivial():
@@ -1447,7 +1532,7 @@ def extract_trivial(argument) -> None:
 
 
 def feather_beam(
-    argument,
+    argument: abjad.Container | list[abjad.Component],
     *,
     beam_rests: bool = False,
     stemlet_length: int | float | None = None,
@@ -1515,7 +1600,7 @@ def feather_beam(
             abjad.override(first_leaf).Beam.grow_direction = abjad.LEFT
 
 
-def force_augmentation(argument) -> None:
+def force_augmentation(argument: abjad.Container | list[abjad.Component]) -> None:
     r"""
     Spells tuplets in ``argument`` as augmentations.
 
@@ -1667,7 +1752,7 @@ def force_augmentation(argument) -> None:
             tuplet.toggle_prolation()
 
 
-def force_diminution(argument) -> None:
+def force_diminution(argument: abjad.Container | list[abjad.Component]) -> None:
     r"""
     Spells tuplets in ``argument`` as diminutions.
 
@@ -1834,7 +1919,11 @@ def force_diminution(argument) -> None:
             tuplet.toggle_prolation()
 
 
-def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
+def force_note(
+    argument: abjad.Component | list[abjad.Component],
+    *,
+    tag: abjad.Tag | None = None,
+) -> None:
     r"""
     Replaces leaves in ``argument`` with notes.
 
@@ -1950,7 +2039,7 @@ def force_note(argument, *, tag: abjad.Tag | None = None) -> None:
 
 
 def force_repeat_tie(
-    argument,
+    argument: abjad.Component | list[abjad.Component],
     *,
     tag: abjad.Tag | None = None,
     threshold: bool | abjad.Duration | typing.Callable = True,
@@ -2139,7 +2228,11 @@ def force_repeat_tie(
         abjad.attach(repeat_tie, leaf, tag=tag)
 
 
-def force_rest(argument, *, tag: abjad.Tag | None = None) -> None:
+def force_rest(
+    argument: abjad.Component | list[abjad.Component],
+    *,
+    tag: abjad.Tag | None = None,
+) -> None:
     r"""
     Replaces leaves in ``argument`` with rests.
 
@@ -2470,7 +2563,11 @@ def force_rest(argument, *, tag: abjad.Tag | None = None) -> None:
             abjad.detach(abjad.RepeatTie, next_leaf)
 
 
-def invisible_music(argument, *, tag: abjad.Tag | None = None) -> None:
+def invisible_music(
+    argument: abjad.Component | list[abjad.Component],
+    *,
+    tag: abjad.Tag | None = None,
+) -> None:
     """
     Makes ``argument`` invisible.
     """
@@ -2501,11 +2598,14 @@ def interpolate(
 
 
 def nongrace_leaves_in_each_tuplet(
-    argument, *, level: int = -1
+    argument: abjad.Container | list[abjad.Component],
+    *,
+    level: int = -1,
 ) -> list[list[abjad.Leaf]]:
     """
     Selects nongrace leaves in each tuplet.
     """
+    assert _is_component_or_component_list(argument), repr(argument)
     tuplets = abjad.select.tuplets(argument, level=level)
     lists = [abjad.select.leaves(_, grace=False) for _ in tuplets]
     for list_ in lists:
@@ -2855,7 +2955,7 @@ def on_beat_grace_container(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    assert isinstance(counts, list), repr(counts)
+    assert _is_integer_list(counts), repr(counts)
     assert isinstance(nongrace_leaf_lists, list), repr(nongrace_leaf_lists)
     for item in nongrace_leaf_lists:
         assert isinstance(item, list), repr(item)
@@ -2871,13 +2971,13 @@ def on_beat_grace_container(
     )
     if voice_name:
         voice.set_name(voice_name)
-    cyclic_counts = abjad.CyclicTuple(counts)
+    counts_cycle = abjad.CyclicTuple(counts)
     start = 0
     for i, nongrace_leaves in enumerate(nongrace_leaf_lists):
         assert all(isinstance(_, abjad.Leaf) for _ in nongrace_leaves), repr(
             nongrace_leaves
         )
-        count = cyclic_counts[i]
+        count = counts_cycle[i]
         if not count:
             continue
         stop = start + count
@@ -2895,7 +2995,11 @@ def on_beat_grace_container(
         )
 
 
-def repeat_tie(argument, *, tag: abjad.Tag | None = None) -> None:
+def repeat_tie(
+    argument: abjad.Component | list[abjad.Component],
+    *,
+    tag: abjad.Tag | None = None,
+) -> None:
     r"""
     Attaches repeat-ties to pitched leaves in ``argument``.
 
@@ -3103,7 +3207,7 @@ def repeat_tie(argument, *, tag: abjad.Tag | None = None) -> None:
 
 
 # TODO: rename to reduce_tuplet_ratio()
-def reduce_multiplier(argument) -> None:
+def reduce_multiplier(argument: abjad.Container | list[abjad.Component]) -> None:
     """
     Reduces multipliers of tuplets in ``argument``.
     """
@@ -3115,7 +3219,11 @@ def reduce_multiplier(argument) -> None:
         tuplet.set_ratio(ratio)
 
 
-def rewrite_dots(argument, *, tag: abjad.Tag | None = None) -> None:
+def rewrite_dots(
+    argument: abjad.Container | list[abjad.Component],
+    *,
+    tag: abjad.Tag | None = None,
+) -> None:
     """
     Rewrites dots of tuplets in ``argument``.
     """
@@ -3269,7 +3377,10 @@ def rewrite_meter(
 
 
 def rewrite_rest_filled(
-    argument, *, spelling=None, tag: abjad.Tag | None = None
+    argument: abjad.Container | list[abjad.Component],
+    *,
+    spelling: _classes.Spelling | None = None,
+    tag: abjad.Tag | None = None,
 ) -> None:
     r"""
     Rewrites rest-filled tuplets in ``argument``.
@@ -3602,7 +3713,7 @@ def rewrite_rest_filled(
         forbidden_note_duration = spelling.forbidden_note_duration
         forbidden_rest_duration = spelling.forbidden_rest_duration
     else:
-        increase_monotonic = None
+        increase_monotonic = False
         forbidden_note_duration = None
         forbidden_rest_duration = None
     for tuplet in abjad.select.tuplets(argument):
@@ -3621,7 +3732,11 @@ def rewrite_rest_filled(
         tuplet.set_ratio(abjad.Ratio(1, 1))
 
 
-def rewrite_sustained(argument, *, tag: abjad.Tag | None = None) -> None:
+def rewrite_sustained(
+    argument: abjad.Container | list[abjad.Component],
+    *,
+    tag: abjad.Tag | None = None,
+) -> None:
     r"""
     Rewrites sustained tuplets in ``argument``.
 
@@ -3985,13 +4100,13 @@ def split_measures(
     durations: list[abjad.Duration] | None = None,
     tag: abjad.Tag | None = None,
 ) -> None:
-    r"""
+    """
     Splits measures in ``voice``.
 
     Uses ``durations`` when ``durations`` is not none.
 
-    Tries to find time signature information (from the staff that contains ``voice``)
-    when ``durations`` is none.
+    Tries to find time signature information (from the staff that contains
+    ``voice``) when ``durations`` is none.
     """
     assert isinstance(voice, abjad.Voice), repr(voice)
     tag = tag or abjad.Tag()
@@ -4014,7 +4129,7 @@ def split_measures(
     abjad.mutate.split(voice[:], durations=durations)
 
 
-def swap_length_1(argument) -> None:
+def swap_length_1(argument: abjad.Container | list[abjad.Component]) -> None:
     """
     Swaps length-1 tuplets in ``argument`` with containers.
     """
@@ -4025,7 +4140,7 @@ def swap_length_1(argument) -> None:
             abjad.mutate.swap(tuplet, container)
 
 
-def swap_skip_filled(argument) -> None:
+def swap_skip_filled(argument: abjad.Container | list[abjad.Component]) -> None:
     """
     Swaps skip-filled tuplets in ``argument`` with containers.
     """
@@ -4036,7 +4151,7 @@ def swap_skip_filled(argument) -> None:
             abjad.mutate.swap(tuplet, container)
 
 
-def swap_trivial(argument) -> None:
+def swap_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
     r"""
     Swaps trivial tuplets in ``argument`` with containers.
 
@@ -4118,7 +4233,11 @@ def swap_trivial(argument) -> None:
             abjad.mutate.swap(tuplet, container)
 
 
-def tie(argument, *, tag: abjad.Tag | None = None) -> None:
+def tie(
+    argument: abjad.Component | list[abjad.Component],
+    *,
+    tag: abjad.Tag | None = None,
+) -> None:
     r"""
     Attaches ties to pitched leaves in ``argument``.
 
@@ -4531,7 +4650,12 @@ def time_signatures(pairs: list[tuple[int, int]]) -> list[abjad.TimeSignature]:
     return [abjad.TimeSignature(_) for _ in pairs]
 
 
-def tremolo_container(argument, count: int, *, tag: abjad.Tag | None = None) -> None:
+def tremolo_container(
+    argument: abjad.Container | list[abjad.Component],
+    count: int,
+    *,
+    tag: abjad.Tag | None = None,
+) -> None:
     r"""
     Replaces pitched leaves in ``argument`` with tremolo containers.
 
@@ -4697,7 +4821,7 @@ def tremolo_container(argument, count: int, *, tag: abjad.Tag | None = None) -> 
         abjad.mutate.replace(leaf, container)
 
 
-def trivialize(argument) -> None:
+def trivialize(argument: abjad.Container | list[abjad.Component]) -> None:
     r"""
     Trivializes tuplets in ``argument``.
 
@@ -4848,7 +4972,9 @@ def trivialize(argument) -> None:
         tuplet.trivialize()
 
 
-def tweak_skip_filled_tuplets_stencil_false(argument) -> None:
+def tweak_skip_filled_tuplets_stencil_false(
+    argument: abjad.Container | list[abjad.Component],
+) -> None:
     """
     Tweaks skip-filled tuplets' stencil false.
     """
@@ -4857,7 +4983,9 @@ def tweak_skip_filled_tuplets_stencil_false(argument) -> None:
             abjad.tweak(tuplet, r"\tweak stencil ##f")
 
 
-def tweak_trivial_tuplets_stencil_false(argument) -> None:
+def tweak_trivial_tuplets_stencil_false(
+    argument: abjad.Container | list[abjad.Component],
+) -> None:
     r"""
     Tweaks trivial tuplets in ``argument`` with ``stencil ##f``.
 
@@ -4943,8 +5071,10 @@ def tweak_trivial_tuplets_stencil_false(argument) -> None:
             abjad.tweak(tuplet, r"\tweak stencil ##f")
 
 
-def tweak_tuplet_number_text_calc_fraction_text(argument) -> None:
-    r"""
+def tweak_tuplet_number_text_calc_fraction_text(
+    argument: abjad.Container | list[abjad.Component],
+) -> None:
+    """
     Tweaks tuplet number text for tuplets in ``argument``. Sets tuplet number
     text equal to ``#tuplet-number::calc-fraction-text`` when any of these
     conditions is true:
@@ -4966,7 +5096,19 @@ def tweak_tuplet_number_text_calc_fraction_text(argument) -> None:
             abjad.tweak(tuplet, r"\tweak text #tuplet-number::calc-fraction-text")
 
 
-def unbeam(argument, *, smart: bool = False, tag: abjad.Tag | None = None) -> None:
+def unbeam(
+    argument: (
+        abjad.Component
+        | typing.Sequence[abjad.Component]
+        | typing.Sequence[typing.Sequence[abjad.Component]]
+        | abjad.LogicalTie
+        | typing.Sequence[abjad.LogicalTie]
+        | typing.Sequence[typing.Sequence[abjad.LogicalTie]]
+    ),
+    *,
+    smart: bool = False,
+    tag: abjad.Tag | None = None,
+) -> None:
     r"""
     Unbeams leaves in ``argument``.
 
@@ -5703,6 +5845,7 @@ def unbeam(argument, *, smart: bool = False, tag: abjad.Tag | None = None) -> No
             >>
 
     """
+    assert _is_clt_or_clt_list_or_list_of_clt_lists(argument), repr(argument)
     leaves = abjad.select.leaves(argument)
     leaf: abjad.Leaf | None
     for leaf in leaves:
@@ -5760,7 +5903,7 @@ def unbeam(argument, *, smart: bool = False, tag: abjad.Tag | None = None) -> No
             abjad.attach(abjad.StartBeam(), leaf, tag=tag)
 
 
-def untie(argument) -> None:
+def untie(argument: abjad.Component | list[abjad.Component]) -> None:
     r"""
     Unties leaves in ``argument``.
 
@@ -5987,19 +6130,20 @@ def wrap_in_time_signature_staff(
 
     See ``rmakers.rewrite_meter()`` for examples of this function.
     """
-    assert isinstance(components, list), repr(components)
-    assert all(isinstance(_, abjad.Component) for _ in components), repr(components)
-    assert all(isinstance(_, abjad.TimeSignature) for _ in time_signatures), repr(
-        time_signatures
-    )
+    assert _is_component_list(components), repr(components)
+    assert _is_time_signature_list(time_signatures), repr(time_signatures)
     score = _make_time_signature_staff(time_signatures)
     music_voice = score["RhythmMaker.Music"]
+    assert isinstance(music_voice, abjad.Voice), repr(music_voice)
     music_voice.extend(components)
     _validate_tuplets(music_voice)
     return music_voice
 
 
-def written_duration(argument, duration: abjad.Duration) -> None:
+def written_duration(
+    argument: abjad.Component | list[abjad.Component],
+    duration: abjad.Duration,
+) -> None:
     """
     Sets written duration of leaves in ``argument``.
     """
@@ -6011,5 +6155,4 @@ def written_duration(argument, duration: abjad.Duration) -> None:
             continue
         leaf.set_written_duration(duration)
         fraction = old_duration / duration
-        pair = (fraction.numerator, fraction.denominator)
-        leaf.set_dmp(pair)
+        leaf.set_dmp(fraction.as_integer_ratio())
