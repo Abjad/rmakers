@@ -18,7 +18,9 @@ def _function_name(frame: types.FrameType | None) -> abjad.Tag:
     return abjad.Tag(string)
 
 
-def _is_accelerando(argument: abjad.Component | list[abjad.Component]) -> bool:
+def _is_accelerando(
+    argument: abjad.Component | typing.Sequence[abjad.Component],
+) -> bool:
     assert _is_component_or_component_list(argument), repr(argument)
     first_leaf = abjad.select.leaf(argument, 0)
     last_leaf = abjad.select.leaf(argument, -1)
@@ -88,7 +90,7 @@ def _is_logical_tie_list(argument: object) -> bool:
     return all(isinstance(_, abjad.LogicalTie) for _ in argument)
 
 
-def _is_ritardando(argument: abjad.Component | list[abjad.Component]):
+def _is_ritardando(argument: abjad.Component | typing.Sequence[abjad.Component]):
     assert _is_component_or_component_list(argument), repr(argument)
     first_leaf = abjad.select.leaf(argument, 0)
     last_leaf = abjad.select.leaf(argument, -1)
@@ -1532,7 +1534,11 @@ def extract_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
 
 
 def feather_beam(
-    argument: abjad.Container | list[abjad.Component],
+    argument: (
+        abjad.Container
+        | typing.Sequence[abjad.Component]
+        | typing.Sequence[typing.Sequence[abjad.Component]]
+    ),
     *,
     beam_rests: bool = False,
     stemlet_length: int | float | None = None,
@@ -2229,7 +2235,7 @@ def force_repeat_tie(
 
 
 def force_rest(
-    argument: abjad.Component | list[abjad.Component],
+    argument: abjad.Component | typing.Sequence[abjad.Component],
     *,
     tag: abjad.Tag | None = None,
 ) -> None:
@@ -2996,7 +3002,7 @@ def on_beat_grace_container(
 
 
 def repeat_tie(
-    argument: abjad.Component | list[abjad.Component],
+    argument: abjad.Component | typing.Sequence[abjad.Component],
     *,
     tag: abjad.Tag | None = None,
 ) -> None:
@@ -4234,7 +4240,7 @@ def swap_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
 
 
 def tie(
-    argument: abjad.Component | list[abjad.Component],
+    argument: abjad.Component | typing.Sequence[abjad.Component],
     *,
     tag: abjad.Tag | None = None,
 ) -> None:
