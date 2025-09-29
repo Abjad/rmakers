@@ -32,8 +32,6 @@ def _is_accelerando(
 def _is_clt_or_clt_list(argument: object) -> bool:
     if isinstance(argument, abjad.Component):
         return True
-    if isinstance(argument, abjad.LogicalTie):
-        return True
     if _is_component_list(argument) is True:
         return True
     if _is_logical_tie_list(argument) is True:
@@ -61,7 +59,7 @@ def _is_component_or_clt_list(argument: object) -> bool:
     if _is_component_list(argument) is True:
         return True
     if isinstance(argument, list):
-        if all(isinstance(_, abjad.LogicalTie) for _ in argument):
+        if all(_is_component_list(_) for _ in argument):
             return True
     return False
 
@@ -87,7 +85,7 @@ def _is_integer_list(argument: object) -> bool:
 def _is_logical_tie_list(argument: object) -> bool:
     if not isinstance(argument, list):
         return False
-    return all(isinstance(_, abjad.LogicalTie) for _ in argument)
+    return all(_is_component_list(_) for _ in argument)
 
 
 def _is_ritardando(argument: abjad.Component | typing.Sequence[abjad.Component]):
@@ -384,9 +382,6 @@ def beam(
         abjad.Container
         | typing.Sequence[abjad.Component]
         | typing.Sequence[typing.Sequence[abjad.Component]]
-        | abjad.LogicalTie
-        | typing.Sequence[abjad.LogicalTie]
-        | typing.Sequence[typing.Sequence[abjad.LogicalTie]]
     ),
     *,
     beam_lone_notes: bool = False,
@@ -725,9 +720,6 @@ def beam_groups(
         abjad.Container
         | typing.Sequence[abjad.Component]
         | typing.Sequence[typing.Sequence[abjad.Component]]
-        | abjad.LogicalTie
-        | typing.Sequence[abjad.LogicalTie]
-        | typing.Sequence[typing.Sequence[abjad.LogicalTie]]
     ),
     *,
     beam_lone_notes: bool = False,
@@ -5107,9 +5099,6 @@ def unbeam(
         abjad.Component
         | typing.Sequence[abjad.Component]
         | typing.Sequence[typing.Sequence[abjad.Component]]
-        | abjad.LogicalTie
-        | typing.Sequence[abjad.LogicalTie]
-        | typing.Sequence[typing.Sequence[abjad.LogicalTie]]
     ),
     *,
     smart: bool = False,
