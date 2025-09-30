@@ -684,7 +684,10 @@ class Talea:
         else:
             preamble_weight = 0
         if self.counts is not None:
-            counts = [abs(_) for _ in self.counts]
+            counts = []
+            for count in self.counts:
+                assert isinstance(count, int)
+                counts.append(abs(count))
         else:
             counts = []
         cumulative = abjad.math.cumulative_sums(counts)[:-1]

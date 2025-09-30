@@ -515,7 +515,10 @@ def _make_talea_numerator_lists(
         else:
             index = talea_counts.index("+")
         talea_counts_copy[index] = 0
-        explicit_weight = sum([abs(_) for _ in talea_counts_copy])
+        explicit_weight = 0
+        for count in talea_counts_copy:
+            assert isinstance(count, int), repr(count)
+            explicit_weight = explicit_weight + abs(count)
         implicit_weight = prolated_numerator_weight - explicit_weight
         if "-" in talea_counts:
             implicit_weight *= -1
