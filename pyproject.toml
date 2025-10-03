@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rmakers"
-version = "3.29"
+version = "3.30"
 description = "rmakers extends Abjad with tools for rhythm construction."
 authors = [ { name = "Trevor Bača", email = "trevor.baca@gmail.com" } ]
 license = { text = "MIT" }
@@ -19,7 +19,7 @@ classifiers = [
     "Topic :: Artistic Software"
 ]
 dependencies = [
-    "abjad>=3.29"
+    "abjad>=3.30"
 ]
 
 [project.urls]
