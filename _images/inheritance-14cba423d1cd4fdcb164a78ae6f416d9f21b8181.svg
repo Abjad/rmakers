@@ -1,0 +1,84 @@
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" xmlns:ns1="http://www.w3.org/1999/xlink" width="225pt" height="194pt" viewBox="0.00 0.00 225.00 194.00">
+<ns0:g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 190)">
+<ns0:title>InheritanceGraph</ns0:title>
+<ns0:g id="clust1" class="cluster">
+<ns0:title>cluster_builtins</ns0:title>
+<ns0:path fill="none" stroke="#bcd2ee" stroke-width="2" stroke-dasharray="5,2" d="M20,-65C20,-65 54.25,-65 54.25,-65 60.25,-65 66.25,-71 66.25,-77 66.25,-77 66.25,-109 66.25,-109 66.25,-115 60.25,-121 54.25,-121 54.25,-121 20,-121 20,-121 14,-121 8,-115 8,-109 8,-109 8,-77 8,-77 8,-71 14,-65 20,-65" />
+<ns0:text xml:space="preserve" text-anchor="middle" x="37.12" y="-107.5" font-family="Arial" font-size="10.00">builtins</ns0:text>
+</ns0:g>
+<ns0:g id="clust2" class="cluster">
+<ns0:title>cluster_rmakers.classes</ns0:title>
+<ns0:path fill="none" stroke="#bcd2ee" stroke-width="2" stroke-dasharray="5,2" d="M135.25,-8C135.25,-8 199.25,-8 199.25,-8 205.25,-8 211.25,-14 211.25,-20 211.25,-20 211.25,-166 211.25,-166 211.25,-172 205.25,-178 199.25,-178 199.25,-178 135.25,-178 135.25,-178 129.25,-178 123.25,-172 123.25,-166 123.25,-166 123.25,-20 123.25,-20 123.25,-14 129.25,-8 135.25,-8" />
+<ns0:text xml:space="preserve" text-anchor="middle" x="167.25" y="-164.5" font-family="Arial" font-size="10.00">rmakers.classes</ns0:text>
+</ns0:g>
+
+<ns0:g id="edge1" class="edge">
+<ns0:title>builtins.object-&gt;rmakers.classes.Incise</ns0:title>
+<ns0:path fill="none" stroke="lightslategrey" d="M59.2,-92.41C79.61,-101.53 110.83,-115.47 134.2,-125.91" />
+<ns0:polygon fill="lightslategrey" stroke="lightslategrey" points="132.7,-129.07 143.26,-129.96 135.56,-122.68 132.7,-129.07" />
+</ns0:g>
+
+<ns0:g id="edge2" class="edge">
+<ns0:title>builtins.object-&gt;rmakers.classes.Interpolation</ns0:title>
+<ns0:path fill="none" stroke="lightslategrey" d="M59.2,-86.14C75.69,-88.59 99.22,-92.1 119.98,-95.19" />
+<ns0:polygon fill="lightslategrey" stroke="lightslategrey" points="119.26,-98.62 129.66,-96.63 120.29,-91.69 119.26,-98.62" />
+</ns0:g>
+
+<ns0:g id="edge3" class="edge">
+<ns0:title>builtins.object-&gt;rmakers.classes.Spelling</ns0:title>
+<ns0:path fill="none" stroke="lightslategrey" d="M59.2,-79.86C78.25,-77.03 106.71,-72.79 129.42,-69.41" />
+<ns0:polygon fill="lightslategrey" stroke="lightslategrey" points="129.82,-72.89 139.2,-67.95 128.79,-65.96 129.82,-72.89" />
+</ns0:g>
+
+<ns0:g id="edge4" class="edge">
+<ns0:title>builtins.object-&gt;rmakers.classes.Talea</ns0:title>
+<ns0:path fill="none" stroke="lightslategrey" d="M59.2,-73.59C80.1,-64.25 112.33,-49.86 135.87,-39.35" />
+<ns0:polygon fill="lightslategrey" stroke="lightslategrey" points="137.23,-42.57 144.94,-35.3 134.38,-36.18 137.23,-42.57" />
+</ns0:g>
+
+<ns0:g id="node1" class="node">
+<ns0:title>builtins.object</ns0:title>
+<ns0:g id="a_node1"><ns0:a ns1:href="https://docs.python.org/3/library/functions.html#object" ns1:title="object" target="_top">
+<ns0:path fill="#fbb4ae" stroke="#fbb4ae" stroke-width="2" d="M51.58,-93C51.58,-93 22.67,-93 22.67,-93 19.33,-93 16,-89.67 16,-86.33 16,-86.33 16,-79.67 16,-79.67 16,-76.33 19.33,-73 22.67,-73 22.67,-73 51.58,-73 51.58,-73 54.92,-73 58.25,-76.33 58.25,-79.67 58.25,-79.67 58.25,-86.33 58.25,-86.33 58.25,-89.67 54.92,-93 51.58,-93" />
+<ns0:text xml:space="preserve" text-anchor="middle" x="37.12" y="-79.5" font-family="Arial" font-size="10.00">object</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="node2" class="node">
+<ns0:title>rmakers.classes.Incise</ns0:title>
+<ns0:g id="a_node2"><ns0:a ns1:href="../api/api/rmakers/classes.html#rmakers.classes.Incise" ns1:title="Incise" target="_top">
+<ns0:path fill="black" stroke="black" stroke-width="2" d="M181.21,-150C181.21,-150 152.29,-150 152.29,-150 148.96,-150 145.62,-146.67 145.62,-143.33 145.62,-143.33 145.62,-136.67 145.62,-136.67 145.62,-133.33 148.96,-130 152.29,-130 152.29,-130 181.21,-130 181.21,-130 184.54,-130 187.88,-133.33 187.88,-136.67 187.88,-136.67 187.88,-143.33 187.88,-143.33 187.88,-146.67 184.54,-150 181.21,-150" />
+<ns0:text xml:space="preserve" text-anchor="middle" x="166.75" y="-136.5" font-family="Arial" font-size="10.00" fill="white">Incise</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="node3" class="node">
+<ns0:title>rmakers.classes.Interpolation</ns0:title>
+<ns0:g id="a_node3"><ns0:a ns1:href="../api/api/rmakers/classes.html#rmakers.classes.Interpolation" ns1:title="Interpolation" target="_top">
+<ns0:path fill="black" stroke="black" stroke-width="2" d="M194.71,-112C194.71,-112 138.79,-112 138.79,-112 135.46,-112 132.12,-108.67 132.12,-105.33 132.12,-105.33 132.12,-98.67 132.12,-98.67 132.12,-95.33 135.46,-92 138.79,-92 138.79,-92 194.71,-92 194.71,-92 198.04,-92 201.38,-95.33 201.38,-98.67 201.38,-98.67 201.38,-105.33 201.38,-105.33 201.38,-108.67 198.04,-112 194.71,-112" />
+<ns0:text xml:space="preserve" text-anchor="middle" x="166.75" y="-98.5" font-family="Arial" font-size="10.00" fill="white">Interpolation</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="node4" class="node">
+<ns0:title>rmakers.classes.Spelling</ns0:title>
+<ns0:g id="a_node4"><ns0:a ns1:href="../api/api/rmakers/classes.html#rmakers.classes.Spelling" ns1:title="Spelling" target="_top">
+<ns0:path fill="black" stroke="black" stroke-width="2" d="M185.33,-74C185.33,-74 148.17,-74 148.17,-74 144.83,-74 141.5,-70.67 141.5,-67.33 141.5,-67.33 141.5,-60.67 141.5,-60.67 141.5,-57.33 144.83,-54 148.17,-54 148.17,-54 185.33,-54 185.33,-54 188.67,-54 192,-57.33 192,-60.67 192,-60.67 192,-67.33 192,-67.33 192,-70.67 188.67,-74 185.33,-74" />
+<ns0:text xml:space="preserve" text-anchor="middle" x="166.75" y="-60.5" font-family="Arial" font-size="10.00" fill="white">Spelling</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="node5" class="node">
+<ns0:title>rmakers.classes.Talea</ns0:title>
+<ns0:g id="a_node5"><ns0:a ns1:href="../api/api/rmakers/classes.html#rmakers.classes.Talea" ns1:title="Talea" target="_top">
+<ns0:path fill="black" stroke="black" stroke-width="2" d="M179.71,-36C179.71,-36 153.79,-36 153.79,-36 150.46,-36 147.12,-32.67 147.12,-29.33 147.12,-29.33 147.12,-22.67 147.12,-22.67 147.12,-19.33 150.46,-16 153.79,-16 153.79,-16 179.71,-16 179.71,-16 183.04,-16 186.38,-19.33 186.38,-22.67 186.38,-22.67 186.38,-29.33 186.38,-29.33 186.38,-32.67 183.04,-36 179.71,-36" />
+<ns0:text xml:space="preserve" text-anchor="middle" x="166.75" y="-22.5" font-family="Arial" font-size="10.00" fill="white">Talea</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+</ns0:g>
+</ns0:svg>

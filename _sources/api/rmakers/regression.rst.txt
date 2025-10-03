@@ -1,0 +1,27 @@
+.. _rmakers--regression:
+
+regression
+==========
+
+.. automodule:: rmakers.regression
+
+.. currentmodule:: rmakers.regression
+
+.. container:: svg-container
+
+   .. inheritance-diagram:: rmakers
+      :lineage: rmakers.regression
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: section-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~test
+
+.. autofunction:: test
