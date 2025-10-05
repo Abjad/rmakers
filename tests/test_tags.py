@@ -210,7 +210,8 @@ def test_tags_02():
         )
         container = abjad.Container(tuplets)
         rmakers.force_augmentation(container)
-        rmakers.beam(container, tag=tag)
+        leaf_lists = [_[:] for _ in tuplets]
+        rmakers.beam(leaf_lists, tag=tag)
         rmakers.tweak_tuplet_number_text_calc_fraction_text(container)
         components = abjad.mutate.eject_contents(container)
         lilypond_file = rmakers.example(components, time_signatures)
@@ -311,8 +312,8 @@ def test_tags_03():
         )
         rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         lilypond_file = rmakers.example(tuplets, time_signatures)
-        voice = lilypond_file["Voice"]
-        rmakers.beam(voice, tag=tag)
+        leaf_lists = [_[:] for _ in tuplets]
+        rmakers.beam(leaf_lists, tag=tag)
         return lilypond_file
 
     pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -447,25 +448,6 @@ def test_tags_04():
     Tags work with rmakers.tuplet().
     """
 
-    """
-    def make_lilypond_file(pairs):
-        time_signatures = rmakers.time_signatures(pairs)
-        durations = abjad.duration.durations(time_signatures)
-        tag = abjad.Tag("TALEA_RHYTHM_MAKER")
-        tuplets = rmakers.talea(
-            durations, [1, 2, 3, 4], 16, extra_counts=[0, 1], tag=tag
-        )
-        rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        lilypond_file = rmakers.example(tuplets, time_signatures)
-        voice = lilypond_file["Voice"]
-        rmakers.beam(voice, tag=tag)
-        return lilypond_file
-
-    pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
-    lilypond_file = make_lilypond_file(pairs)
-    string = abjad.lilypond(lilypond_file["Score"], tags=True)
-    """
-
     def make_lilypond_file(pairs):
         time_signatures = rmakers.time_signatures(pairs)
         durations = abjad.duration.durations(time_signatures)
@@ -473,8 +455,8 @@ def test_tags_04():
         tuplets = rmakers.tuplet(durations, [(3, 2)], tag=tag)
         rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         lilypond_file = rmakers.example(tuplets, time_signatures)
-        voice = lilypond_file["Voice"]
-        rmakers.beam(voice, tag=tag)
+        leaf_lists = [_[:] for _ in tuplets]
+        rmakers.beam(leaf_lists, tag=tag)
         return lilypond_file
 
     pairs = [(1, 2), (3, 8), (5, 16), (5, 16)]
