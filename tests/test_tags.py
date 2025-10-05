@@ -16,9 +16,10 @@ def test_tags_01():
             *abjad.duration.durations([(1, 8), (1, 20), (1, 16)])
         )
         tuplets = rmakers.accelerando(durations, [interpolation], tag=tag)
+        leaf_lists = [_[:] for _ in tuplets]
         lilypond_file = rmakers.example(tuplets, time_signatures)
         voice = lilypond_file["Voice"]
-        rmakers.feather_beam(voice, tag=tag)
+        rmakers.feather_beam(leaf_lists, tag=tag)
         rmakers.duration_bracket(voice)
         return lilypond_file
 

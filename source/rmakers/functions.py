@@ -18,33 +18,11 @@ def _function_name(frame: types.FrameType | None) -> abjad.Tag:
     return abjad.Tag(string)
 
 
-def _is_accelerando(
-    argument: abjad.Component | typing.Sequence[abjad.Component],
-) -> bool:
-    assert _is_component_or_component_list(argument), repr(argument)
-    first_leaf = abjad.select.leaf(argument, 0)
-    last_leaf = abjad.select.leaf(argument, -1)
-    first_duration = abjad.get.duration(first_leaf)
-    last_duration = abjad.get.duration(last_leaf)
+def _is_accelerando(leaf_list: typing.Sequence[abjad.Leaf]) -> bool:
+    assert _is_leaf_list(leaf_list), repr(leaf_list)
+    first_duration = abjad.get.duration(leaf_list[0])
+    last_duration = abjad.get.duration(leaf_list[-1])
     return last_duration < first_duration
-
-
-def _is_clt_or_clt_list(argument: object) -> bool:
-    if isinstance(argument, abjad.Component):
-        return True
-    if _is_component_list(argument) is True:
-        return True
-    if _is_logical_tie_list(argument) is True:
-        return True
-    return False
-
-
-def _is_clt_or_clt_list_or_list_of_clt_lists(argument: object) -> bool:
-    if _is_clt_or_clt_list(argument) is True:
-        return True
-    if isinstance(argument, list):
-        return all(_is_clt_or_clt_list(_) for _ in argument)
-    return False
 
 
 def _is_component_list(argument: object) -> bool:
@@ -53,8 +31,14 @@ def _is_component_list(argument: object) -> bool:
     return all(isinstance(_, abjad.Component) for _ in argument)
 
 
-def _is_component_or_clt_list(argument: object) -> bool:
-    if isinstance(argument, abjad.Component):
+def _is_container_or_component_list(argument: object) -> bool:
+    if isinstance(argument, abjad.Container):
+        return True
+    return _is_component_list(argument)
+
+
+def _is_container_or_possibly_nested_component_list(argument: object) -> bool:
+    if isinstance(argument, abjad.Container):
         return True
     if _is_component_list(argument) is True:
         return True
@@ -62,12 +46,6 @@ def _is_component_or_clt_list(argument: object) -> bool:
         if all(_is_component_list(_) for _ in argument):
             return True
     return False
-
-
-def _is_component_or_component_list(argument: object) -> bool:
-    if isinstance(argument, abjad.Component):
-        return True
-    return _is_component_list(argument)
 
 
 def _is_duration_list(argument: object) -> bool:
@@ -82,18 +60,25 @@ def _is_integer_list(argument: object) -> bool:
     return all(isinstance(_, int) for _ in argument)
 
 
-def _is_logical_tie_list(argument: object) -> bool:
+def _is_leaf_list(argument: object) -> bool:
     if not isinstance(argument, list):
         return False
-    return all(_is_component_list(_) for _ in argument)
+    return all(isinstance(_, abjad.Leaf) for _ in argument)
 
 
-def _is_ritardando(argument: abjad.Component | typing.Sequence[abjad.Component]):
-    assert _is_component_or_component_list(argument), repr(argument)
-    first_leaf = abjad.select.leaf(argument, 0)
-    last_leaf = abjad.select.leaf(argument, -1)
-    first_duration = abjad.get.duration(first_leaf)
-    last_duration = abjad.get.duration(last_leaf)
+def _is_list_of_leaf_lists(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    for item in argument:
+        if _is_leaf_list(item) is False:
+            return False
+    return True
+
+
+def _is_ritardando(leaf_list: typing.Sequence[abjad.Leaf]) -> bool:
+    assert _is_leaf_list(leaf_list), repr(leaf_list)
+    first_duration = abjad.get.duration(leaf_list[0])
+    last_duration = abjad.get.duration(leaf_list[-1])
     return first_duration < last_duration
 
 
@@ -333,7 +318,7 @@ def after_grace_container(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    assert _is_component_or_component_list(argument), repr(argument)
+    assert _is_container_or_component_list(argument), repr(argument)
     assert _is_integer_list(counts), repr(counts)
     if slash is True:
         assert beam is True, repr(beam)
@@ -363,6 +348,9 @@ def attach_time_signatures(
     voice: abjad.Voice,
     time_signatures: typing.Sequence[abjad.TimeSignature],
 ) -> None:
+    """
+    Attaches ``time_signatures`` to leaves in ``voice``.
+    """
     leaves = abjad.select.leaves(voice, grace=False)
     durations = [_.duration() for _ in time_signatures]
     parts = abjad.select.partition_by_durations(leaves, durations)
@@ -701,10 +689,13 @@ def beam(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    assert _is_clt_or_clt_list_or_list_of_clt_lists(argument), repr(argument)
+    assert _is_container_or_possibly_nested_component_list(argument), repr(argument)
     for item in argument:
         if do_not_unbeam is False:
-            unbeam(item)
+            if isinstance(item, abjad.Leaf):
+                unbeam([item])
+            else:
+                unbeam(item)
         leaves = abjad.select.leaves(item)
         abjad.beam(
             leaves,
@@ -866,7 +857,7 @@ def beam_groups(
     """
     tag = tag or abjad.Tag()
     tag = tag.append(_function_name(inspect.currentframe()))
-    assert _is_clt_or_clt_list_or_list_of_clt_lists(argument), repr(argument)
+    assert _is_container_or_possibly_nested_component_list(argument), repr(argument)
     unbeam(argument)
     durations = [abjad.get.duration(_) for _ in argument]
     leaves = abjad.select.leaves(argument)
@@ -1338,7 +1329,7 @@ def before_grace_container(
         (When ``slash=True`` then ``beam`` must also be true.)
 
     """
-    assert _is_component_or_component_list(argument), repr(argument)
+    assert _is_container_or_component_list(argument), repr(argument)
     assert _is_integer_list(counts), repr(counts)
     if slash is True:
         assert beam is True, repr(beam)
@@ -1390,7 +1381,7 @@ def duration_bracket(argument: abjad.Component | list[abjad.Component]) -> None:
     """
     Applies duration bracket to tuplets in ``argument``.
     """
-    assert _is_component_or_component_list(argument), repr(argument)
+    assert _is_container_or_component_list(argument), repr(argument)
     for tuplet in abjad.select.tuplets(argument):
         pitch_list = [abjad.NamedPitch("c'")]
         duration_ = abjad.get.duration(tuplet)
@@ -1440,7 +1431,7 @@ def extract_rest_filled(argument: abjad.Container | list[abjad.Component]) -> No
     """
     Extracts rest-filled tuplets from ``argument``.
     """
-    assert _is_component_or_component_list(argument), repr(argument)
+    assert _is_container_or_component_list(argument), repr(argument)
     tuplets = abjad.select.tuplets(argument)
     for tuplet in tuplets:
         if tuplet.is_rest_filled():
@@ -1518,7 +1509,7 @@ def extract_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
             }
 
     """
-    assert _is_component_or_component_list(argument), repr(argument)
+    assert _is_container_or_component_list(argument), repr(argument)
     tuplets = abjad.select.tuplets(argument)
     for tuplet in tuplets:
         if tuplet.is_trivial():
@@ -1526,25 +1517,20 @@ def extract_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
 
 
 def feather_beam(
-    argument: (
-        abjad.Container
-        | typing.Sequence[abjad.Component]
-        | typing.Sequence[typing.Sequence[abjad.Component]]
-    ),
+    leaf_lists: typing.Sequence[typing.Sequence[abjad.Leaf]],
     *,
     beam_rests: bool = False,
     stemlet_length: int | float | None = None,
-    tag: abjad.Tag | None = None,
+    tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Feather-beams leaves in ``argument``.
+    Feather-beams each leaf list in ``leaf_lists``.
 
     ..  container:: example
 
         >>> def make_lilypond_file():
         ...     voice = abjad.Voice("c'16 d' r f' g'8")
-        ...     leaves = abjad.select.leaves(voice)
-        ...     rmakers.feather_beam([leaves], beam_rests=True, stemlet_length=1)
+        ...     rmakers.feather_beam([voice[:]], beam_rests=True, stemlet_length=1)
         ...     staff = abjad.Staff([voice])
         ...     score = abjad.Score([staff], name="Score")
         ...     lilypond_file = abjad.LilyPondFile([score])
@@ -1579,22 +1565,23 @@ def feather_beam(
             >>
 
     """
-    tag = tag or abjad.Tag()
+    assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
+    assert isinstance(beam_rests, bool), repr(beam_rests)
+    if stemlet_length is not None:
+        assert isinstance(stemlet_length, int | float), repr(stemlet_length)
     tag = tag.append(_function_name(inspect.currentframe()))
-    for item in argument:
-        unbeam(item)
-        leaves = abjad.select.leaves(item)
+    for leaf_list in leaf_lists:
+        unbeam(leaf_list)
         abjad.beam(
-            leaves,
+            leaf_list,
             beam_rests=beam_rests,
             stemlet_length=stemlet_length,
             tag=tag,
         )
-    for item in argument:
-        first_leaf = abjad.select.leaf(item, 0)
-        if _is_accelerando(item):
+        first_leaf = leaf_list[0]
+        if _is_accelerando(leaf_list):
             abjad.override(first_leaf).Beam.grow_direction = abjad.RIGHT
-        elif _is_ritardando(item):
+        elif _is_ritardando(leaf_list):
             abjad.override(first_leaf).Beam.grow_direction = abjad.LEFT
 
 
@@ -2603,7 +2590,7 @@ def nongrace_leaves_in_each_tuplet(
     """
     Selects nongrace leaves in each tuplet.
     """
-    assert _is_component_or_component_list(argument), repr(argument)
+    assert _is_container_or_component_list(argument), repr(argument)
     tuplets = abjad.select.tuplets(argument, level=level)
     lists = [abjad.select.leaves(_, grace=False) for _ in tuplets]
     for list_ in lists:
@@ -5109,15 +5096,15 @@ def unbeam(
 
     Adjusts adjacent start- and stop-beams when ``smart=True``.
 
-    Unbeams 1 note:
-
     ..  container:: example
 
+        Unbeams 1 note:
+
         >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[0], smart=True)
+        >>> rmakers.unbeam(voice[:1], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5150,7 +5137,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[1], smart=True)
+        >>> rmakers.unbeam(voice[1:2], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5183,7 +5170,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[2], smart=True)
+        >>> rmakers.unbeam(voice[2:3], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5218,7 +5205,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[3], smart=True)
+        >>> rmakers.unbeam(voice[3:4], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5253,7 +5240,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[4], smart=True)
+        >>> rmakers.unbeam(voice[4:5], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5286,7 +5273,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[5], smart=True)
+        >>> rmakers.unbeam(voice[5:6], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5494,7 +5481,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[0], smart=True)
+        >>> rmakers.unbeam(voice[:1], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5529,7 +5516,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[1], smart=True)
+        >>> rmakers.unbeam(voice[1:2], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5563,7 +5550,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[2], smart=True)
+        >>> rmakers.unbeam(staff[2:3], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5594,7 +5581,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[3], smart=True)
+        >>> rmakers.unbeam(staff[3:4], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5625,7 +5612,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[4], smart=True)
+        >>> rmakers.unbeam(staff[4:5], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5656,7 +5643,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[5], smart=True)
+        >>> rmakers.unbeam(staff[5:6], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5840,7 +5827,7 @@ def unbeam(
             >>
 
     """
-    assert _is_clt_or_clt_list_or_list_of_clt_lists(argument), repr(argument)
+    assert _is_container_or_possibly_nested_component_list(argument), repr(argument)
     leaves = abjad.select.leaves(argument)
     leaf: abjad.Leaf | None
     for leaf in leaves:

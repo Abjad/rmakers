@@ -915,7 +915,8 @@ def accelerando(
         ...     tuplets = rmakers.accelerando(durations, interpolations)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.feather_beam(voice)
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     rmakers.feather_beam(leaf_lists)
         ...     rmakers.duration_bracket(voice)
         ...     rmakers.swap_length_1(voice)
         ...     score = lilypond_file["Score"]
