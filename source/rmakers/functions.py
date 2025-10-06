@@ -365,11 +365,7 @@ def attach_time_signatures(
 
 
 def beam(
-    argument: (
-        abjad.Container
-        | typing.Sequence[abjad.Component]
-        | typing.Sequence[typing.Sequence[abjad.Component]]
-    ),
+    leaf_lists: typing.Sequence[typing.Sequence[abjad.Leaf]],
     *,
     beam_lone_notes: bool = False,
     beam_rests: bool = False,
@@ -378,7 +374,7 @@ def beam(
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Beams runs of notes in each component in ``argument``.
+    Beams runs of notes in each component in ``leaf_lists``.
 
     ..  container:: example
 
@@ -691,22 +687,13 @@ def beam(
             }
 
     """
-    assert _is_container_or_possibly_nested_component_list(argument), repr(argument)
-    # assert _is_list_of_leaf_lists(argument), repr(argument)
+    assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
     tag = tag.append(_function_name(inspect.currentframe()))
-    for item in argument:
+    for leaf_list in leaf_lists:
         if do_not_unbeam is False:
-            if isinstance(item, abjad.Leaf):
-                unbeam([item])
-            elif isinstance(item, abjad.Container):
-                unbeam(item)
-            else:
-                assert isinstance(item, list)
-                assert all(isinstance(_, abjad.Component) for _ in item)
-                unbeam(item)
-        leaves = abjad.select.leaves(item)
+            unbeam(leaf_list)
         abjad.beam(
-            leaves,
+            leaf_list,
             beam_lone_notes=beam_lone_notes,
             beam_rests=beam_rests,
             stemlet_length=stemlet_length,
