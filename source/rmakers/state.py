@@ -28,7 +28,7 @@ Examples that show how to work with rmakers in a statal way.
         ...     )
         ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file_["Voice"]
-        ...     rmakers.duration_bracket(voice)
+        ...     rmakers.duration_bracket(tuplets)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.feather_beam(leaf_lists)
         ...     return lilypond_file_, state

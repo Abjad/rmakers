@@ -18,9 +18,8 @@ def test_tags_01():
         tuplets = rmakers.accelerando(durations, [interpolation], tag=tag)
         leaf_lists = [_[:] for _ in tuplets]
         lilypond_file = rmakers.example(tuplets, time_signatures)
-        voice = lilypond_file["Voice"]
         rmakers.feather_beam(leaf_lists, tag=tag)
-        rmakers.duration_bracket(voice)
+        rmakers.duration_bracket(tuplets)
         return lilypond_file
 
     pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]

@@ -88,6 +88,12 @@ def _is_time_signature_list(argument: object) -> bool:
     return all(isinstance(_, abjad.TimeSignature) for _ in argument)
 
 
+def _is_tuplet_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, abjad.Tuplet) for _ in argument)
+
+
 def _make_beamable_groups(
     components: typing.Sequence[abjad.Component],
     durations: list[abjad.Duration],
@@ -863,8 +869,10 @@ def beam_groups(
     )
 
 
+# TODO: function seems to be doing too much:
+#       separate BCG creation from BCG attach
 def before_grace_container(
-    argument: abjad.Component | typing.Sequence[abjad.Component],
+    leaf_list: typing.Sequence[abjad.Leaf],
     counts: typing.Sequence[int],
     *,
     beam: bool = False,
@@ -873,32 +881,30 @@ def before_grace_container(
     talea: _classes.Talea = _classes.Talea([1], 8),
 ) -> None:
     r"""
-    Makes (and attaches) before-grace containers.
+    Makes before-grace containers with ``counts`` grace notes and attaches
+    to leaves in ``leaf_list``.
 
     ..  container:: example
 
-        With ``beam=False``, ``slash=False``, ``slur=False`` (default):
+        Default:
 
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [4], extra_counts=[2])
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        ...     container = abjad.Container(tuplets)
-        ...     tuplets = abjad.select.tuplets(container)
-        ...     notes = [abjad.select.notes(_) for _ in tuplets]
-        ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
-        ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.before_grace_container(notes, [1, 2, 3])
-        ...     rmakers.extract_trivial(container)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
+        >>> def make_lilypond_file(beam=False, slash=False, slur=False):
+        ...     tuplet = abjad.Tuplet("5:3", "c'4 c'4 c'4 c'4 c'4")
+        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text([tuplet])
+        ...     rmakers.before_grace_container(
+        ...         abjad.select.leaves(tuplet)[1:4],
+        ...         [1, 2, 3],
+        ...         beam=beam,
+        ...         slash=slash,
+        ...         slur=slur,
+        ...     )
+        ...     time_signature = abjad.TimeSignature((3, 4))
+        ...     lilypond_file = rmakers.example([tuplet], [time_signature])
+        ...     score = lilypond_file["Score"]
+        ...     abjad.setting(score).autoBeaming = False
         ...     return lilypond_file
 
-        >>> pairs = [(3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> score = lilypond_file["Score"]
-        >>> abjad.setting(score).autoBeaming = False
+        >>> lilypond_file = make_lilypond_file()
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
         ..  docs::
@@ -948,28 +954,9 @@ def before_grace_container(
 
     ..  container:: example
 
-        With ``beam=False``, ``slash=False``, ``slur=True``:
+        With ``slur=True``:
 
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [4], extra_counts=[2])
-        ...     container = abjad.Container(tuplets)
-        ...     tuplets = abjad.select.tuplets(container)
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        ...     notes = [abjad.select.notes(_) for _ in tuplets]
-        ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
-        ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.before_grace_container(notes, [1, 2, 3], slur=True)
-        ...     rmakers.extract_trivial(container)
-        ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> score = lilypond_file["Score"]
-        >>> abjad.setting(score).autoBeaming = False
+        >>> lilypond_file = make_lilypond_file(slur=True)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
         ..  docs::
@@ -1019,26 +1006,9 @@ def before_grace_container(
 
     ..  container:: example
 
-        With ``beam=True``, ``slash=False``, ``slur=False``:
+        With ``beam=True``:
 
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [4], extra_counts=[2])
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        ...     lilypond_file = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file["Voice"]
-        ...     notes = [abjad.select.notes(_) for _ in tuplets]
-        ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
-        ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.before_grace_container(notes, [1, 2, 3], beam=True)
-        ...     rmakers.extract_trivial(voice)
-        ...     return lilypond_file
-
-        >>> pairs = [(3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> score = lilypond_file["Score"]
-        >>> abjad.setting(score).autoBeaming = False
+        >>> lilypond_file = make_lilypond_file(beam=True)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
         ..  docs::
@@ -1092,26 +1062,9 @@ def before_grace_container(
 
     ..  container:: example
 
-        With ``beam=True``, ``slash=False``, ``slur=True``:
+        With ``beam=True``, ``slur=True``:
 
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [4], extra_counts=[2])
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        ...     lilypond_file = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file["Voice"]
-        ...     notes = [abjad.select.notes(_) for _ in tuplets]
-        ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
-        ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.before_grace_container(notes, [1, 2, 3], beam=True, slur=True)
-        ...     rmakers.extract_trivial(voice)
-        ...     return lilypond_file
-
-        >>> pairs = [(3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> score = lilypond_file["Score"]
-        >>> abjad.setting(score).autoBeaming = False
+        >>> lilypond_file = make_lilypond_file(beam=True, slur=True)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
         ..  docs::
@@ -1165,26 +1118,9 @@ def before_grace_container(
 
     ..  container:: example
 
-        With ``beam=True``, ``slash=True``, ``slur=False``:
+        With ``beam=True``, ``slash=True``:
 
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [4], extra_counts=[2])
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        ...     lilypond_file = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file["Voice"]
-        ...     notes = [abjad.select.notes(_) for _ in tuplets]
-        ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
-        ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.before_grace_container(notes, [1, 2, 3], beam=True, slash=True)
-        ...     rmakers.extract_trivial(voice)
-        ...     return lilypond_file
-
-        >>> pairs = [(3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> score = lilypond_file["Score"]
-        >>> abjad.setting(score).autoBeaming = False
+        >>> lilypond_file = make_lilypond_file(beam=True, slash=True)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
         ..  docs::
@@ -1244,26 +1180,7 @@ def before_grace_container(
 
         With ``beam=True``, ``slash=True``, ``slur=True``:
 
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [4], extra_counts=[2])
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        ...     lilypond_file = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file["Voice"]
-        ...     notes = [abjad.select.notes(_) for _ in tuplets]
-        ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
-        ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.before_grace_container(
-        ...         notes, [1, 2, 3], beam=True, slash=True, slur=True
-        ...     )
-        ...     rmakers.extract_trivial(voice)
-        ...     return lilypond_file
-
-        >>> pairs = [(3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> score = lilypond_file["Score"]
-        >>> abjad.setting(score).autoBeaming = False
+        >>> lilypond_file = make_lilypond_file(beam=True, slash=True, slur=True)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
         ..  docs::
@@ -1320,21 +1237,24 @@ def before_grace_container(
         (When ``slash=True`` then ``beam`` must also be true.)
 
     """
-    assert _is_container_or_component_list(argument), repr(argument)
+    assert _is_leaf_list(leaf_list), repr(leaf_list)
     assert _is_integer_list(counts), repr(counts)
+    assert isinstance(beam, bool), repr(beam)
+    assert isinstance(slash, bool), repr(slash)
+    assert isinstance(slur, bool), repr(slur)
     if slash is True:
         assert beam is True, repr(beam)
     assert isinstance(talea, _classes.Talea), repr(talea)
-    leaves = abjad.select.leaves(argument, grace=False)
     counts_cycle = abjad.CyclicTuple(counts)
     start = 0
-    for i, leaf in enumerate(leaves):
+    pitch_list = [abjad.NamedPitch("c'")]
+    for i, leaf in enumerate(leaf_list):
         count = counts_cycle[i]
-        if not count:
+        if count == 0:
             continue
         stop = start + count
-        pitch_list = [abjad.NamedPitch("c'")]
-        durations = abjad.duration.durations(list(talea[start:stop]))
+        talea_pairs = list(talea[start:stop])
+        durations = abjad.duration.durations(talea_pairs)
         notes = abjad.makers.make_leaves([pitch_list], durations)
         if len(notes) == 1:
             if slash is False and slur is False:
@@ -1368,15 +1288,15 @@ def before_grace_container(
                 abjad.beam(notes)
 
 
-def duration_bracket(argument: abjad.Component | list[abjad.Component]) -> None:
+def duration_bracket(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
     """
-    Applies duration bracket to tuplets in ``argument``.
+    Overrides ``TupletNumber.text`` of each tuplet in ``tuplets``.
     """
-    assert _is_container_or_component_list(argument), repr(argument)
-    for tuplet in abjad.select.tuplets(argument):
-        pitch_list = [abjad.NamedPitch("c'")]
-        duration_ = abjad.get.duration(tuplet)
-        components = abjad.makers.make_leaves([pitch_list], [duration_])
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    pitch_list = [abjad.NamedPitch("c'")]
+    for tuplet in tuplets:
+        duration = abjad.get.duration(tuplet)
+        components = abjad.makers.make_leaves([pitch_list], [duration])
         if all(isinstance(_, abjad.Note) for _ in components):
             durations = [abjad.get.duration(_) for _ in components]
             strings = [_.lilypond_duration_string() for _ in durations]
@@ -4963,6 +4883,7 @@ def trivialize(argument: abjad.Container | list[abjad.Component]) -> None:
         tuplet.trivialize()
 
 
+# TODO: tuplets: typing.Sequence[abjad.Tuplet]
 def tweak_skip_filled_tuplets_stencil_false(
     argument: abjad.Container | list[abjad.Component],
 ) -> None:
@@ -4974,6 +4895,7 @@ def tweak_skip_filled_tuplets_stencil_false(
             abjad.tweak(tuplet, r"\tweak stencil ##f")
 
 
+# TODO: tuplets: typing.Sequence[abjad.Tuplet]
 def tweak_trivial_tuplets_stencil_false(
     argument: abjad.Container | list[abjad.Component],
 ) -> None:
@@ -5063,6 +4985,7 @@ def tweak_trivial_tuplets_stencil_false(
             abjad.tweak(tuplet, r"\tweak stencil ##f")
 
 
+# TODO: tuplets: typing.Sequence[abjad.Tuplet]
 def tweak_tuplet_number_text_calc_fraction_text(
     argument: abjad.Container | list[abjad.Component],
 ) -> None:

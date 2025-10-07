@@ -917,7 +917,7 @@ def accelerando(
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.feather_beam(leaf_lists)
-        ...     rmakers.duration_bracket(voice)
+        ...     rmakers.duration_bracket(tuplets)
         ...     rmakers.swap_length_1(voice)
         ...     score = lilypond_file["Score"]
         ...     abjad.override(score).TupletBracket.padding = 2
