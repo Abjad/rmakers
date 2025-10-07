@@ -21,7 +21,7 @@ def test():
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.extract_trivial(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     notes = abjad.select.notes(voice)[:-1]
         ...     rmakers.tie(notes)
         ...     return lilypond_file
@@ -92,7 +92,7 @@ def test():
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.extract_trivial(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (3, 8)]

@@ -140,8 +140,7 @@ def _make_beamable_groups(
 def _make_time_signature_staff(
     time_signatures: typing.Sequence[abjad.TimeSignature],
 ) -> abjad.Score:
-    assert isinstance(time_signatures, list), repr(time_signatures)
-    assert all(isinstance(_, abjad.TimeSignature) for _ in time_signatures)
+    assert _is_time_signature_list(time_signatures), repr(time_signatures)
     assert time_signatures, repr(time_signatures)
     staff = abjad.Staff(simultaneous=True)
     score = abjad.Score([staff], name="Score")
@@ -185,7 +184,7 @@ def after_grace_container(
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.note(_, -1) for _ in tuplets]
         ...     rmakers.after_grace_container(notes, [1, 4], beam=beam, slash=slash)
-        ...     rmakers.extract_trivial(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     score = lilypond_file["Score"]
         ...     abjad.setting(score).autoBeaming = False
         ...     return lilypond_file
@@ -356,13 +355,13 @@ def attach_time_signatures(
     """
     Attaches ``time_signatures`` to leaves in ``voice``.
     """
+    assert _is_time_signature_list(time_signatures), repr(time_signatures)
     leaves = abjad.select.leaves(voice, grace=False)
     durations = [_.duration() for _ in time_signatures]
     parts = abjad.select.partition_by_durations(leaves, durations)
     assert len(parts) == len(time_signatures)
     previous_time_signature = None
     for time_signature, part in zip(time_signatures, parts, strict=True):
-        assert isinstance(time_signature, abjad.TimeSignature)
         if time_signature != previous_time_signature:
             leaf = abjad.select.leaf(part, 0)
             abjad.detach(abjad.TimeSignature, leaf)
@@ -899,14 +898,9 @@ def example(
 ) -> abjad.LilyPondFile:
     """
     Makes example LilyPond file.
-
-    Function is a documentation helper.
     """
     assert _is_component_list(components), repr(components)
-    assert isinstance(time_signatures, list), repr(time_signatures)
-    assert all(isinstance(_, abjad.TimeSignature) for _ in time_signatures), repr(
-        time_signatures
-    )
+    assert _is_time_signature_list(time_signatures), repr(time_signatures)
     if includes is None:
         includes = []
     assert all(isinstance(_, str) for _ in includes), repr(includes)
@@ -919,20 +913,19 @@ def example(
     return lilypond_file
 
 
-def extract_rest_filled(argument: abjad.Container | list[abjad.Component]) -> None:
+def extract_rest_filled(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
     """
-    Extracts rest-filled tuplets from ``argument``.
+    Extracts each rest-filled tuplet in ``tuplets``.
     """
-    assert _is_container_or_component_list(argument), repr(argument)
-    tuplets = abjad.select.tuplets(argument)
+    assert _is_tuplet_list(tuplets), repr(tuplets)
     for tuplet in tuplets:
-        if tuplet.is_rest_filled():
+        if tuplet.is_rest_filled() is True:
             abjad.mutate.extract(tuplet)
 
 
-def extract_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
+def extract_trivial(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
     r"""
-    Extracts trivial tuplets from ``argument``.
+    Extracts each trivial tuplet in ``tuplets``.
 
     ..  container:: example
 
@@ -1002,8 +995,7 @@ def extract_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
             }
 
     """
-    assert _is_container_or_component_list(argument), repr(argument)
-    tuplets = abjad.select.tuplets(argument)
+    assert _is_tuplet_list(tuplets), repr(tuplets)
     for tuplet in tuplets:
         if tuplet.is_trivial():
             abjad.mutate.extract(tuplet)
@@ -1731,7 +1723,7 @@ def force_rest(
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
         ...     rmakers.attach_time_signatures(voice, time_signatures)
-        ...     rmakers.extract_trivial(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -1797,7 +1789,7 @@ def force_rest(
         ...     rmakers.force_note(logical_ties)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.extract_trivial(container)
+        ...     rmakers.extract_trivial(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.example(components, time_signatures)
         ...     return lilypond_file
@@ -1857,7 +1849,8 @@ def force_rest(
         ...     rmakers.force_rest(tuplets)
         ...     rmakers.beam(leaf_lists)
         ...     rmakers.rewrite_rest_filled(voice)
-        ...     rmakers.extract_trivial(voice)
+        ...     tuplets = abjad.select.tuplets(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     rmakers.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
 
@@ -1912,7 +1905,7 @@ def force_rest(
         ...     rmakers.force_rest(leaves)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.extract_trivial(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     rmakers.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
 
@@ -1977,7 +1970,7 @@ def force_rest(
         ...     rmakers.force_rest(leaves)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.extract_trivial(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     rmakers.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
 
@@ -2255,7 +2248,7 @@ def on_beat_grace_container(
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [5], 16)
         ...     voice = abjad.Voice(tuplets)
-        ...     rmakers.extract_trivial(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     logical_ties = abjad.select.logical_ties(voice)
         ...     leaf_lists = [list(_) for _ in logical_ties]
         ...     rmakers.on_beat_grace_container(
@@ -2738,7 +2731,7 @@ def rewrite_meter(
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     voice = rmakers.wrap_in_time_signature_staff(tuplets, time_signatures)
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.extract_trivial(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     rmakers.rewrite_meter(voice)
         ...     components = abjad.mutate.eject_contents(voice)
         ...     lilypond_file = rmakers.example(components, time_signatures)
@@ -2877,7 +2870,7 @@ def rewrite_rest_filled(
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     container = abjad.Container(tuplets)
         ...     tuplets = abjad.select.tuplets(container)
-        ...     rmakers.extract_trivial(container)
+        ...     rmakers.extract_trivial(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.example(components, time_signatures)
         ...     return lilypond_file
@@ -2950,9 +2943,9 @@ def rewrite_rest_filled(
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [-1], 16, extra_counts=[1])
         ...     container = abjad.Container(tuplets)
-        ...     tuplets = abjad.select.tuplets(container)
         ...     rmakers.rewrite_rest_filled(container)
-        ...     rmakers.extract_trivial(container)
+        ...     tuplets = abjad.select.tuplets(container)
+        ...     rmakers.extract_trivial(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.example(components, time_signatures)
         ...     return lilypond_file
@@ -3000,7 +2993,8 @@ def rewrite_rest_filled(
         ...         container,
         ...         spelling=rmakers.Spelling(increase_monotonic=True)
         ...     )
-        ...     rmakers.extract_trivial(container)
+        ...     tuplets = abjad.select.tuplets(container)
+        ...     rmakers.extract_trivial(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.example(components, time_signatures)
         ...     return lilypond_file
@@ -3395,7 +3389,8 @@ def rewrite_sustained(
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
         ...     rmakers.tie(leaves)
         ...     rmakers.rewrite_sustained(container)
-        ...     rmakers.extract_trivial(container)
+        ...     tuplets = abjad.select.tuplets(container)
+        ...     rmakers.extract_trivial(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.example(components, time_signatures)
         ...     return lilypond_file
@@ -3520,7 +3515,8 @@ def rewrite_sustained(
         ...     rmakers.tie(notes)
         ...     rmakers.rewrite_sustained(tuplets)
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.extract_trivial(voice)
+        ...     tuplets = abjad.select.tuplets(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -3837,7 +3833,8 @@ def tie(
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
         ...     rmakers.tie(leaves)
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.extract_trivial(voice)
+        ...     tuplets = abjad.select.tuplets(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
@@ -3905,7 +3902,8 @@ def tie(
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
         ...     rmakers.tie(leaves)
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.extract_trivial(voice)
+        ...     tuplets = abjad.select.tuplets(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
@@ -3973,7 +3971,7 @@ def tie(
         ...     notes = [abjad.select.notes(_)[:-1] for _ in runs]
         ...     rmakers.tie(notes)
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.extract_trivial(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
@@ -4163,7 +4161,7 @@ def tremolo_container(
         ...     notes = [abjad.select.notes(_) for _ in tuplets]
         ...     groups = [abjad.select.get(_, [0, -1]) for _ in notes]
         ...     rmakers.tremolo_container(groups, 2)
-        ...     rmakers.extract_trivial(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     containers = abjad.select.components(voice, abjad.TremoloContainer)
         ...     result = [abjad.slur(_) for _ in containers]
         ...     rmakers.attach_time_signatures(voice, time_signatures)
@@ -4236,7 +4234,7 @@ def tremolo_container(
         ...     notes = [abjad.select.notes(_) for _ in tuplets]
         ...     groups = [abjad.select.get(_, [0, -1]) for _ in notes]
         ...     rmakers.tremolo_container(groups, 4)
-        ...     rmakers.extract_trivial(voice)
+        ...     rmakers.extract_trivial(tuplets)
         ...     containers = abjad.select.components(voice, abjad.TremoloContainer)
         ...     result = [abjad.slur(_) for _ in containers]
         ...     rmakers.attach_time_signatures(voice, time_signatures)
