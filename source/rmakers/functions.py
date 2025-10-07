@@ -702,11 +702,7 @@ def beam(
 
 
 def beam_groups(
-    argument: (
-        abjad.Container
-        | typing.Sequence[abjad.Component]
-        | typing.Sequence[typing.Sequence[abjad.Component]]
-    ),
+    leaf_lists: typing.Sequence[typing.Sequence[abjad.Leaf]],
     *,
     beam_lone_notes: bool = False,
     beam_rests: bool = False,
@@ -714,7 +710,7 @@ def beam_groups(
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Beams groups in ``argument`` with single span beam.
+    Beams ``leaf_lists`` with single span beam.
 
     ..  container:: example
 
@@ -725,7 +721,7 @@ def beam_groups(
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam_groups(tuplets)
+        ...     rmakers.beam_groups(leaf_lists)
         ...     rmakers.swap_trivial(voice)
         ...     return lilypond_file
 
@@ -851,11 +847,11 @@ def beam_groups(
             }
 
     """
-    assert _is_container_or_possibly_nested_component_list(argument), repr(argument)
+    assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
     tag = tag.append(_function_name(inspect.currentframe()))
-    unbeam(argument)
-    durations = [abjad.get.duration(_) for _ in argument]
-    leaves = abjad.select.leaves(argument)
+    unbeam(leaf_lists)
+    durations = [abjad.get.duration(_) for _ in leaf_lists]
+    leaves = abjad.select.leaves(leaf_lists)
     abjad.beam(
         leaves,
         beam_lone_notes=beam_lone_notes,
