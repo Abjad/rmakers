@@ -207,13 +207,11 @@ def test_tags_02():
             talea_denominator=8,
             tag=tag,
         )
-        container = abjad.Container(tuplets)
-        rmakers.force_augmentation(container)
+        rmakers.force_augmentation(tuplets)
         leaf_lists = [_[:] for _ in tuplets]
         rmakers.beam(leaf_lists, tag=tag)
-        rmakers.tweak_tuplet_number_text_calc_fraction_text(container)
-        components = abjad.mutate.eject_contents(container)
-        lilypond_file = rmakers.example(components, time_signatures)
+        rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
+        lilypond_file = rmakers.example(tuplets, time_signatures)
         return lilypond_file
 
     pairs = [(8, 8), (4, 8), (6, 8)]

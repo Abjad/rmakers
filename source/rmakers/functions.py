@@ -1070,9 +1070,9 @@ def feather_beam(
             abjad.override(first_leaf).Beam.grow_direction = abjad.LEFT
 
 
-def force_augmentation(argument: abjad.Container | list[abjad.Component]) -> None:
+def force_augmentation(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
     r"""
-    Spells tuplets in ``argument`` as augmentations.
+    Spells each tuplet in ``tuplets`` as an augmentation.
 
     ..  container:: example
 
@@ -1085,9 +1085,9 @@ def force_augmentation(argument: abjad.Container | list[abjad.Component]) -> Non
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam(leaf_lists)
         ...     if force_augmentation is True:
-        ...         rmakers.force_augmentation(voice)
+        ...         rmakers.force_augmentation(tuplets)
         ...     tweak_string = r"\tweak text #tuplet-number::calc-fraction-text"
-        ...     for tuplet in abjad.select.tuplets(voice):
+        ...     for tuplet in tuplets:
         ...         abjad.tweak(tuplet, tweak_string)
         ...     score = lilypond_file["Score"]
         ...     abjad.override(score).TupletBracket.bracket_visibility = True
@@ -1218,14 +1218,15 @@ def force_augmentation(argument: abjad.Container | list[abjad.Component]) -> Non
             }
 
     """
-    for tuplet in abjad.select.tuplets(argument):
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    for tuplet in tuplets:
         if not tuplet.ratio().is_augmented():
             tuplet.toggle_prolation()
 
 
-def force_diminution(argument: abjad.Container | list[abjad.Component]) -> None:
+def force_diminution(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
     r"""
-    Spells tuplets in ``argument`` as diminutions.
+    Spells each tuplet in ``tuplets`` as diminution.
 
     ..  container:: example
 
@@ -1238,10 +1239,11 @@ def force_diminution(argument: abjad.Container | list[abjad.Component]) -> None:
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam(leaf_lists)
         ...     rmakers.swap_trivial(voice)
+        ...     tuplets = abjad.select.tuplets(voice)
         ...     if force_diminution is True:
-        ...         rmakers.force_diminution(voice)
+        ...         rmakers.force_diminution(tuplets)
         ...     tweak_string = r"\tweak text #tuplet-number::calc-fraction-text"
-        ...     for tuplet in abjad.select.tuplets(voice):
+        ...     for tuplet in tuplets:
         ...         abjad.tweak(tuplet, tweak_string)
         ...     score = lilypond_file["Score"]
         ...     abjad.override(score).TupletBracket.bracket_visibility = True
@@ -1386,7 +1388,8 @@ def force_diminution(argument: abjad.Container | list[abjad.Component]) -> None:
             }
 
     """
-    for tuplet in abjad.select.tuplets(argument):
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    for tuplet in tuplets:
         if not tuplet.ratio().is_diminished():
             tuplet.toggle_prolation()
 
