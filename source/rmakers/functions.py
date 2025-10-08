@@ -1395,12 +1395,12 @@ def force_diminution(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
 
 
 def force_note(
-    argument: abjad.Component | list[abjad.Component],
+    leaves: typing.Sequence[abjad.Leaf],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Replaces leaves in ``argument`` with notes.
+    Replaces each leaf in ``leaves`` with note.
 
     ..  container:: example
 
@@ -1412,8 +1412,8 @@ def force_note(
         ...     components = rmakers.note(durations)
         ...     container = abjad.Container(components)
         ...     rmakers.force_rest(components)
-        ...     logical_ties = abjad.select.logical_ties(container)[1:3]
-        ...     rmakers.force_note(logical_ties)
+        ...     rests = container[1:3]
+        ...     rmakers.force_note(rests)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.example(components, time_signatures)
         ...     return lilypond_file
@@ -1460,8 +1460,7 @@ def force_note(
         ...     container = abjad.Container(components)
         ...     leaves = abjad.select.leaves(container)
         ...     rmakers.force_rest(leaves)
-        ...     logical_ties = abjad.select.logical_ties(container)
-        ...     leaves = abjad.select.get(logical_ties, [0, -1])
+        ...     leaves = abjad.select.get(container[:], [0, -1])
         ...     rmakers.force_note(leaves)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.example(components, time_signatures)
@@ -1499,8 +1498,8 @@ def force_note(
             }
 
     """
+    assert _is_leaf_list(leaves), repr(leaves)
     tag = tag.append(_function_name(inspect.currentframe()))
-    leaves = abjad.select.leaves(argument)
     pitch = abjad.NamedPitch("C4")
     for leaf in leaves:
         if isinstance(leaf, abjad.Note):
@@ -1703,12 +1702,12 @@ def force_repeat_tie(
 
 
 def force_rest(
-    argument: abjad.Component | typing.Sequence[abjad.Component],
+    leaves: typing.Sequence[abjad.Leaf],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Replaces leaves in ``argument`` with rests.
+    Replaces each leaf in ``leaves`` with rest.
 
     ..  container:: example
 
@@ -1720,9 +1719,9 @@ def force_rest(
         ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     logical_ties = abjad.select.logical_ties(voice)
-        ...     logical_ties = abjad.select.get(logical_ties, [0, -1])
-        ...     rmakers.force_rest(logical_ties)
+        ...     leaves = abjad.select.leaves(voice)
+        ...     leaves = abjad.select.get(leaves, [0, -1])
+        ...     rmakers.force_rest(leaves)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
         ...     rmakers.attach_time_signatures(voice, time_signatures)
@@ -1785,11 +1784,11 @@ def force_rest(
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
         ...     container = abjad.Container(tuplets)
-        ...     logical_ties = abjad.select.logical_ties(container)
-        ...     rmakers.force_rest(logical_ties)
-        ...     logical_ties = abjad.select.logical_ties(container)
-        ...     logical_ties = abjad.select.get(logical_ties, [0, -1])
-        ...     rmakers.force_note(logical_ties)
+        ...     leaves = abjad.select.leaves(container)
+        ...     rmakers.force_rest(leaves)
+        ...     leaves = abjad.select.leaves(container)
+        ...     rests = abjad.select.get(leaves[:], [0, -1])
+        ...     rmakers.force_note(rests)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
@@ -1849,7 +1848,8 @@ def force_rest(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     tuplets = abjad.select.get(tuplets, [1], 2)
-        ...     rmakers.force_rest(tuplets)
+        ...     leaves = abjad.select.leaves(tuplets)
+        ...     rmakers.force_rest(leaves)
         ...     rmakers.beam(leaf_lists)
         ...     rmakers.rewrite_rest_filled(voice)
         ...     tuplets = abjad.select.tuplets(voice)
@@ -2024,8 +2024,8 @@ def force_rest(
             }
 
     """
+    assert _is_leaf_list(leaves), repr(leaves)
     tag = tag.append(_function_name(inspect.currentframe()))
-    leaves = abjad.select.leaves(argument)
     for leaf in leaves:
         duration = leaf.written_duration()
         rest = abjad.Rest.from_duration(duration, tag=tag)
