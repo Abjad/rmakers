@@ -1512,13 +1512,13 @@ def force_note(
 
 
 def force_repeat_tie(
-    argument: abjad.Component | list[abjad.Component],
+    leaves: typing.Sequence[abjad.Leaf],
     *,
     tag: abjad.Tag = abjad.Tag(),
     threshold: bool | abjad.Duration | typing.Callable = True,
 ) -> None:
     r"""
-    Replaces ties in ``argument`` with repeat-ties.
+    Replaces ties attached to ``leaves`` with repeat-ties.
 
     ..  container:: example
 
@@ -1602,7 +1602,8 @@ def force_repeat_tie(
 
         Changes ties to repeat-ties:
 
-        >>> rmakers.force_repeat_tie(lilypond_file["Score"])
+        >>> leaves = abjad.select.leaves(lilypond_file["Score"])
+        >>> rmakers.force_repeat_tie(leaves)
         >>> abjad.show(lilypond_file) # doctest: +SKIP
 
         ..  docs::
@@ -1661,8 +1662,8 @@ def force_repeat_tie(
             }
 
     """
+    assert _is_leaf_list(leaves), repr(leaves)
     tag = tag.append(_function_name(inspect.currentframe()))
-    assert isinstance(argument, abjad.Container), repr(argument)
     if callable(threshold):
         inequality = threshold
     elif threshold in (None, False):
@@ -1682,7 +1683,7 @@ def force_repeat_tie(
             return item >= threshold
 
     attach_repeat_ties = []
-    for leaf in abjad.select.leaves(argument):
+    for leaf in leaves:
         if abjad.get.has_indicator(leaf, abjad.Tie):
             next_leaf = abjad.get.leaf(leaf, 1)
             if next_leaf is None:
