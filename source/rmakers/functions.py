@@ -2697,17 +2697,18 @@ def reduce_tuplet_ratios(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
         tuplet.set_ratio(ratio)
 
 
-def rewrite_dots(
-    argument: abjad.Container | list[abjad.Component],
+def respell_tuplets_without_dots(
+    tuplets: typing.Iterable[abjad.Tuplet],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     """
-    Rewrites dots of tuplets in ``argument``.
+    Respells ``tuplets`` without dots.
     """
+    assert _is_tuplet_list(tuplets), repr(tuplets)
     tag = tag.append(_function_name(inspect.currentframe()))
-    for tuplet in abjad.select.tuplets(argument):
-        tuplet.rewrite_dots()
+    for tuplet in tuplets:
+        tuplet.respell_without_dots()
 
 
 def rewrite_meter(
