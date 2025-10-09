@@ -31,6 +31,12 @@ def _is_component_list(argument: object) -> bool:
     return all(isinstance(_, abjad.Component) for _ in argument)
 
 
+def _is_container_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, abjad.Container) for _ in argument)
+
+
 def _is_container_or_component_list(argument: object) -> bool:
     if isinstance(argument, abjad.Container):
         return True
@@ -2044,19 +2050,20 @@ def force_rest(
 
 
 def invisible_music(
-    argument: abjad.Component | list[abjad.Component],
+    leaves: typing.Sequence[abjad.Leaf],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     """
     Makes ``argument`` invisible.
     """
+    assert _is_leaf_list(leaves), repr(leaves)
     tag = tag.append(_function_name(inspect.currentframe()))
     tag_1 = tag.append(abjad.Tag("INVISIBLE_MUSIC_COMMAND"))
     literal_1 = abjad.LilyPondLiteral(r"\abjad-invisible-music", site="before")
     tag_2 = tag.append(abjad.Tag("INVISIBLE_MUSIC_COLORING"))
     literal_2 = abjad.LilyPondLiteral(r"\abjad-invisible-music-coloring", site="before")
-    for leaf in abjad.select.leaves(argument):
+    for leaf in leaves:
         abjad.attach(literal_1, leaf, tag=tag_1, deactivate=True)
         abjad.attach(literal_2, leaf, tag=tag_2)
 
@@ -2077,20 +2084,15 @@ def interpolate(
 
 
 def nongrace_leaves_in_each_tuplet(
-    argument: abjad.Container | list[abjad.Component],
-    *,
-    level: int = -1,
+    tuplets: typing.Sequence[abjad.Tuplet],
 ) -> list[list[abjad.Leaf]]:
     """
-    Selects nongrace leaves in each tuplet.
+    Selects nongrace leaves in each tuplet in ``tuplets``.
     """
-    assert _is_container_or_component_list(argument), repr(argument)
-    tuplets = abjad.select.tuplets(argument, level=level)
-    lists = [abjad.select.leaves(_, grace=False) for _ in tuplets]
-    for list_ in lists:
-        assert isinstance(list_, list)
-        assert all(isinstance(_, abjad.Leaf) for _ in list_), repr(list_)
-    return lists
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    leaf_lists = [abjad.select.leaves(_, grace=False) for _ in tuplets]
+    assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
+    return leaf_lists
 
 
 def on_beat_grace_container(
