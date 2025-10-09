@@ -2434,12 +2434,8 @@ def on_beat_grace_container(
             }
 
     """
-    tag = tag.append(_function_name(inspect.currentframe()))
     assert _is_integer_list(counts), repr(counts)
-    assert isinstance(nongrace_leaf_lists, list), repr(nongrace_leaf_lists)
-    for item in nongrace_leaf_lists:
-        assert isinstance(item, list), repr(item)
-        assert all(isinstance(_, abjad.Leaf) for _ in item), repr(item)
+    assert _is_list_of_leaf_lists(nongrace_leaf_lists), repr(nongrace_leaf_lists)
     assert isinstance(voice, abjad.Voice), repr(voice)
     assert isinstance(voice_name, str), repr(voice_name)
     assert isinstance(talea, _classes.Talea), repr(talea)
@@ -2449,6 +2445,7 @@ def on_beat_grace_container(
     assert isinstance(nongrace_polyphony_command, abjad.VoiceNumber), repr(
         nongrace_polyphony_command
     )
+    tag = tag.append(_function_name(inspect.currentframe()))
     if voice_name:
         voice.set_name(voice_name)
     counts_cycle = abjad.CyclicTuple(counts)
@@ -2687,12 +2684,12 @@ def repeat_tie(
         abjad.attach(tie, leaf, tag=tag)
 
 
-# TODO: rename to reduce_tuplet_ratio()
-def reduce_multiplier(argument: abjad.Container | list[abjad.Component]) -> None:
+def reduce_tuplet_ratios(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
     """
-    Reduces multipliers of tuplets in ``argument``.
+    Reduces ratio of each tuplet in ``tuplets``.
     """
-    for tuplet in abjad.select.tuplets(argument):
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    for tuplet in tuplets:
         ratio = abjad.Ratio(
             tuplet.multiplier().denominator,
             tuplet.multiplier().numerator,
