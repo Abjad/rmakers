@@ -2,6 +2,7 @@
 The rmakers functions.
 """
 
+import collections
 import inspect
 import types
 import typing
@@ -2474,12 +2475,12 @@ def on_beat_grace_container(
 
 
 def repeat_tie(
-    argument: abjad.Component | typing.Sequence[abjad.Component],
+    pleaves: typing.Iterable[abjad.Note | abjad.Chord],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Attaches repeat-ties to pitched leaves in ``argument``.
+    Attaches repeat-ties to pitched leaves in ``pleaves``.
 
     ..  container:: example
 
@@ -2588,6 +2589,7 @@ def repeat_tie(
         ...     voice = abjad.Voice(tuplets)
         ...     tuplets = abjad.select.tuplets(voice)
         ...     notes = [abjad.select.notes(_)[1:] for _ in tuplets]
+        ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.repeat_tie(notes)
         ...     rmakers.beam(leaf_lists)
         ...     components = abjad.mutate.eject_contents(voice)
@@ -2679,10 +2681,12 @@ def repeat_tie(
             }
 
     """
+    assert _is_leaf_list(pleaves), repr(pleaves)
+    assert all(isinstance(_, abjad.Note | abjad.Chord) for _ in pleaves), repr(pleaves)
     tag = tag.append(_function_name(inspect.currentframe()))
-    for leaf in abjad.select.leaves(argument, pitched=True):
+    for pleaf in pleaves:
         tie = abjad.RepeatTie()
-        abjad.attach(tie, leaf, tag=tag)
+        abjad.attach(tie, pleaf, tag=tag)
 
 
 def reduce_tuplet_ratios(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
@@ -3443,6 +3447,7 @@ def rewrite_sustained_tuplets(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.notes(_)[:-1] for _ in tuplets]
+        ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.tie(notes)
         ...     rmakers.rewrite_sustained_tuplets(tuplets[-2:])
         ...     rmakers.beam(leaf_lists)
@@ -3516,6 +3521,7 @@ def rewrite_sustained_tuplets(
         ...     voice = lilypond_file["Voice"]
         ...     tuplets = abjad.select.get(tuplets, [1], 2)
         ...     notes = [abjad.select.notes(_)[:-1] for _ in tuplets]
+        ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.tie(notes)
         ...     rmakers.rewrite_sustained_tuplets(tuplets)
         ...     rmakers.beam(leaf_lists)
@@ -3722,7 +3728,7 @@ def swap_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
 
 
 def tie(
-    argument: abjad.Component | typing.Sequence[abjad.Component],
+    pleaves: collections.abc.Iterable[abjad.Note | abjad.Chord],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
@@ -3974,6 +3980,7 @@ def tie(
         ...     rmakers.untie(voice)
         ...     runs = abjad.select.runs(voice)
         ...     notes = [abjad.select.notes(_)[:-1] for _ in runs]
+        ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.tie(notes)
         ...     rmakers.beam(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
@@ -4038,6 +4045,7 @@ def tie(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.notes(_)[:-1] for _ in tuplets]
+        ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.untie(notes)
         ...     rmakers.tie(notes)
         ...     rmakers.beam(leaf_lists)
@@ -4128,10 +4136,12 @@ def tie(
             }
 
     """
+    assert _is_leaf_list(pleaves), repr(pleaves)
+    assert all(isinstance(_, abjad.Note | abjad.Chord) for _ in pleaves), repr(pleaves)
     tag = tag.append(_function_name(inspect.currentframe()))
-    for leaf in abjad.select.leaves(argument, pitched=True):
+    for pleaf in pleaves:
         tie = abjad.Tie()
-        abjad.attach(tie, leaf, tag=tag)
+        abjad.attach(tie, pleaf, tag=tag)
 
 
 def time_signatures(pairs: list[tuple[int, int]]) -> list[abjad.TimeSignature]:
