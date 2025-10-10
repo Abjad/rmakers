@@ -1858,7 +1858,8 @@ def force_rest(
         ...     leaves = abjad.select.leaves(tuplets)
         ...     rmakers.force_rest(leaves)
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.rewrite_rest_filled(voice)
+        ...     tuplets = abjad.select.tuplets(voice)
+        ...     rmakers.rewrite_rest_filled_tuplets(tuplets)
         ...     tuplets = abjad.select.tuplets(voice)
         ...     rmakers.extract_trivial(tuplets)
         ...     rmakers.attach_time_signatures(voice, time_signatures)
@@ -2854,14 +2855,14 @@ def rewrite_meter(
             )
 
 
-def rewrite_rest_filled(
-    argument: abjad.Container | list[abjad.Component],
+def rewrite_rest_filled_tuplets(
+    tuplets: typing.Sequence[abjad.Tuplet],
     *,
     spelling: _classes.Spelling | None = None,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Rewrites rest-filled tuplets in ``argument``.
+    Rewrites rest-filled tuplets in ``tuplets``.
 
     ..  container:: example
 
@@ -2947,7 +2948,7 @@ def rewrite_rest_filled(
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [-1], 16, extra_counts=[1])
         ...     container = abjad.Container(tuplets)
-        ...     rmakers.rewrite_rest_filled(container)
+        ...     rmakers.rewrite_rest_filled_tuplets(tuplets)
         ...     tuplets = abjad.select.tuplets(container)
         ...     rmakers.extract_trivial(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
@@ -2993,10 +2994,8 @@ def rewrite_rest_filled(
         ...     tuplets = rmakers.talea(durations, [-1], 16, extra_counts=[1])
         ...     container = abjad.Container(tuplets)
         ...     tuplets = abjad.select.tuplets(container)
-        ...     rmakers.rewrite_rest_filled(
-        ...         container,
-        ...         spelling=rmakers.Spelling(increase_monotonic=True)
-        ...     )
+        ...     spelling = rmakers.Spelling(increase_monotonic=True)
+        ...     rmakers.rewrite_rest_filled_tuplets(tuplets, spelling=spelling)
         ...     tuplets = abjad.select.tuplets(container)
         ...     rmakers.extract_trivial(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
@@ -3036,7 +3035,7 @@ def rewrite_rest_filled(
 
     ..  container:: example
 
-        Working with ``rewrite_rest_filled``.
+        Working with ``rewrite_rest_filled_tuplets``.
 
         Makes rest-filled tuplets:
 
@@ -3118,14 +3117,17 @@ def rewrite_rest_filled(
         ...     time_signatures = rmakers.time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(
-        ...         durations, [3, 3, -6, -6], 16, extra_counts=[1, 0]
+        ...         durations,
+        ...         [3, 3, -6, -6],
+        ...         16,
+        ...         extra_counts=[1, 0],
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.rewrite_rest_filled(voice)
+        ...     rmakers.rewrite_rest_filled_tuplets(tuplets)
         ...     rmakers.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
 
@@ -3187,38 +3189,34 @@ def rewrite_rest_filled(
             }
 
     """
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    if spelling is None:
+        spelling = _classes.Spelling()
+    assert isinstance(spelling, _classes.Spelling), repr(spelling)
     tag = tag.append(_function_name(inspect.currentframe()))
-    if spelling is not None:
-        increase_monotonic = spelling.increase_monotonic
-        forbidden_note_duration = spelling.forbidden_note_duration
-        forbidden_rest_duration = spelling.forbidden_rest_duration
-    else:
-        increase_monotonic = False
-        forbidden_note_duration = None
-        forbidden_rest_duration = None
-    for tuplet in abjad.select.tuplets(argument):
+    for tuplet in tuplets:
         if not tuplet.is_rest_filled():
             continue
         duration = abjad.get.duration(tuplet)
         rests = abjad.makers.make_leaves(
             [[]],
             [duration],
-            increase_monotonic=increase_monotonic,
-            forbidden_note_duration=forbidden_note_duration,
-            forbidden_rest_duration=forbidden_rest_duration,
+            increase_monotonic=spelling.increase_monotonic,
+            forbidden_note_duration=spelling.forbidden_note_duration,
+            forbidden_rest_duration=spelling.forbidden_rest_duration,
             tag=tag,
         )
         abjad.mutate.replace(tuplet[:], rests)
         tuplet.set_ratio(abjad.Ratio(1, 1))
 
 
-def rewrite_sustained(
-    argument: abjad.Container | list[abjad.Component],
+def rewrite_sustained_tuplets(
+    tuplets: typing.Iterable[abjad.Tuplet],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Rewrites sustained tuplets in ``argument``.
+    Rewrites sustained tuplets in ``tuplets``.
 
     ..  container:: example
 
@@ -3320,7 +3318,8 @@ def rewrite_sustained(
         ...     tuplets = abjad.select.tuplets(container)[1:3]
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
         ...     rmakers.tie(leaves)
-        ...     rmakers.rewrite_sustained(container)
+        ...     tuplets = abjad.select.tuplets(container)
+        ...     rmakers.rewrite_sustained_tuplets(tuplets)
         ...     tuplets = abjad.select.tuplets(container, level=1)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
@@ -3392,7 +3391,8 @@ def rewrite_sustained(
         ...     tuplets = abjad.select.tuplets(container)[1:3]
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
         ...     rmakers.tie(leaves)
-        ...     rmakers.rewrite_sustained(container)
+        ...     tuplets = abjad.select.tuplets(container)
+        ...     rmakers.rewrite_sustained_tuplets(tuplets)
         ...     tuplets = abjad.select.tuplets(container)
         ...     rmakers.extract_trivial(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
@@ -3444,7 +3444,7 @@ def rewrite_sustained(
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.notes(_)[:-1] for _ in tuplets]
         ...     rmakers.tie(notes)
-        ...     rmakers.rewrite_sustained(tuplets[-2:])
+        ...     rmakers.rewrite_sustained_tuplets(tuplets[-2:])
         ...     rmakers.beam(leaf_lists)
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(voice)
         ...     return lilypond_file
@@ -3517,7 +3517,7 @@ def rewrite_sustained(
         ...     tuplets = abjad.select.get(tuplets, [1], 2)
         ...     notes = [abjad.select.notes(_)[:-1] for _ in tuplets]
         ...     rmakers.tie(notes)
-        ...     rmakers.rewrite_sustained(tuplets)
+        ...     rmakers.rewrite_sustained_tuplets(tuplets)
         ...     rmakers.beam(leaf_lists)
         ...     tuplets = abjad.select.tuplets(voice)
         ...     rmakers.extract_trivial(tuplets)
@@ -3561,8 +3561,9 @@ def rewrite_sustained(
             }
 
     """
+    assert _is_tuplet_list(tuplets), repr(tuplets)
     tag = tag.append(_function_name(inspect.currentframe()))
-    for tuplet in abjad.select.tuplets(argument):
+    for tuplet in tuplets:
         if not abjad.get.is_sustained(tuplet):
             continue
         duration = abjad.get.duration(tuplet)
