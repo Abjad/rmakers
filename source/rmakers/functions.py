@@ -82,6 +82,12 @@ def _is_list_of_leaf_lists(argument: object) -> bool:
     return True
 
 
+def _is_pleaf_list(argument: object) -> bool:
+    if not isinstance(argument, list):
+        return False
+    return all(isinstance(_, abjad.Note | abjad.Chord) for _ in argument)
+
+
 def _is_ritardando(leaf_list: typing.Sequence[abjad.Leaf]) -> bool:
     assert _is_leaf_list(leaf_list), repr(leaf_list)
     first_duration = abjad.get.duration(leaf_list[0])
@@ -402,7 +408,7 @@ def beam(
         ...         beam_rests=beam_rests,
         ...         stemlet_length=stemlet_length,
         ...     )
-        ...     rmakers.swap_trivial(voice)
+        ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
         ...     score = lilypond_file["Score"]
         ...     abjad.setting(score).autoBeaming = False
         ...     return lilypond_file
@@ -734,7 +740,7 @@ def beam_groups(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam_groups(leaf_lists)
-        ...     rmakers.swap_trivial(voice)
+        ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -1245,7 +1251,7 @@ def force_diminution(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.swap_trivial(voice)
+        ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
         ...     tuplets = abjad.select.tuplets(voice)
         ...     if force_diminution is True:
         ...         rmakers.force_diminution(tuplets)
@@ -2681,8 +2687,7 @@ def repeat_tie(
             }
 
     """
-    assert _is_leaf_list(pleaves), repr(pleaves)
-    assert all(isinstance(_, abjad.Note | abjad.Chord) for _ in pleaves), repr(pleaves)
+    assert _is_pleaf_list(pleaves), repr(pleaves)
     tag = tag.append(_function_name(inspect.currentframe()))
     for pleaf in pleaves:
         tie = abjad.RepeatTie()
@@ -3327,7 +3332,8 @@ def rewrite_sustained_tuplets(
         ...     tuplets = abjad.select.tuplets(container, level=1)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(container)
+        ...     tuplets = abjad.select.tuplets(container)
+        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.example(components, time_signatures)
         ...     return lilypond_file
@@ -3451,7 +3457,8 @@ def rewrite_sustained_tuplets(
         ...     rmakers.tie(notes)
         ...     rmakers.rewrite_sustained_tuplets(tuplets[-2:])
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(voice)
+        ...     tuplets = abjad.select.tuplets(voice)
+        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8)]
@@ -3610,7 +3617,7 @@ def split_measures(
         voice_ = staff["TimeSignatureVoice"]
         assert isinstance(voice_, abjad.Voice)
         durations = [abjad.get.duration(_) for _ in voice_]
-    assert all(isinstance(_, abjad.Duration) for _ in durations), repr(durations)
+    assert _is_duration_list(durations), repr(durations)
     total_duration = sum(durations)
     music_duration = abjad.get.duration(voice)
     if total_duration != music_duration:
@@ -3622,31 +3629,37 @@ def split_measures(
     abjad.mutate.split(voice[:], durations=durations)
 
 
-def swap_length_1(argument: abjad.Container | list[abjad.Component]) -> None:
+def swap_length_1_tuplets_for_containers(
+    tuplets: collections.abc.Iterable[abjad.Tuplet],
+) -> None:
     """
-    Swaps length-1 tuplets in ``argument`` with containers.
+    Swaps length-1 tuplets in ``tuplets`` for (vanilla) containers.
     """
-    tuplets = abjad.select.tuplets(argument)
+    assert _is_tuplet_list(tuplets), repr(tuplets)
     for tuplet in tuplets:
         if len(tuplet) == 1:
             container = abjad.Container()
             abjad.mutate.swap(tuplet, container)
 
 
-def swap_skip_filled(argument: abjad.Container | list[abjad.Component]) -> None:
+def swap_skip_filled_tuplets_for_containers(
+    tuplets: collections.abc.Iterable[abjad.Tuplet],
+) -> None:
     """
-    Swaps skip-filled tuplets in ``argument`` with containers.
+    Swaps skip-filled tuplets in ``tuplets`` for (vanilla) containers.
     """
-    tuplets = abjad.select.tuplets(argument)
+    assert _is_tuplet_list(tuplets), repr(tuplets)
     for tuplet in tuplets:
         if all(isinstance(_, abjad.Skip) for _ in tuplet):
             container = abjad.Container()
             abjad.mutate.swap(tuplet, container)
 
 
-def swap_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
+def swap_trivial_tuplets_for_containers(
+    tuplets: collections.abc.Iterable[abjad.Tuplet],
+) -> None:
     r"""
-    Swaps trivial tuplets in ``argument`` with containers.
+    Swaps trivial tuplets in ``tuplets`` for containers.
 
     ..  container:: example
 
@@ -3660,7 +3673,7 @@ def swap_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam(leaf_lists)
         ...     tuplets = abjad.select.tuplets(tuplets)[-2:]
-        ...     rmakers.swap_trivial(tuplets)
+        ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (3, 8), (3, 8), (3, 8)]
@@ -3720,7 +3733,7 @@ def swap_trivial(argument: abjad.Container | list[abjad.Component]) -> None:
             }
 
     """
-    tuplets = abjad.select.tuplets(argument)
+    assert _is_tuplet_list(tuplets), repr(tuplets)
     for tuplet in tuplets:
         if tuplet.is_trivial():
             container = abjad.Container()
@@ -4136,8 +4149,7 @@ def tie(
             }
 
     """
-    assert _is_leaf_list(pleaves), repr(pleaves)
-    assert all(isinstance(_, abjad.Note | abjad.Chord) for _ in pleaves), repr(pleaves)
+    assert _is_pleaf_list(pleaves), repr(pleaves)
     tag = tag.append(_function_name(inspect.currentframe()))
     for pleaf in pleaves:
         tie = abjad.Tie()
@@ -4155,7 +4167,7 @@ def time_signatures(pairs: list[tuple[int, int]]) -> list[abjad.TimeSignature]:
 
 
 def tremolo_container(
-    argument: abjad.Container | list[abjad.Component],
+    pleaves: collections.abc.Iterable[abjad.Note | abjad.Chord],
     count: int,
     *,
     tag: abjad.Tag = abjad.Tag(),
@@ -4175,7 +4187,8 @@ def tremolo_container(
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.notes(_) for _ in tuplets]
         ...     groups = [abjad.select.get(_, [0, -1]) for _ in notes]
-        ...     rmakers.tremolo_container(groups, 2)
+        ...     notes = abjad.sequence.flatten(groups)
+        ...     rmakers.tremolo_container(notes, 2)
         ...     rmakers.extract_trivial(tuplets)
         ...     containers = abjad.select.components(voice, abjad.TremoloContainer)
         ...     result = [abjad.slur(_) for _ in containers]
@@ -4248,7 +4261,8 @@ def tremolo_container(
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.notes(_) for _ in tuplets]
         ...     groups = [abjad.select.get(_, [0, -1]) for _ in notes]
-        ...     rmakers.tremolo_container(groups, 4)
+        ...     notes = abjad.sequence.flatten(groups)
+        ...     rmakers.tremolo_container(notes, 4)
         ...     rmakers.extract_trivial(tuplets)
         ...     containers = abjad.select.components(voice, abjad.TremoloContainer)
         ...     result = [abjad.slur(_) for _ in containers]
@@ -4312,21 +4326,22 @@ def tremolo_container(
             }
 
     """
+    assert _is_pleaf_list(pleaves), repr(pleaves)
+    assert isinstance(count, int), repr(count)
     tag = tag.append(_function_name(inspect.currentframe()))
     pitch = abjad.NamedPitch("c'")
-    for leaf in abjad.select.leaves(argument, pitched=True):
-        container_duration = leaf.written_duration()
+    for pleaf in pleaves:
+        container_duration = pleaf.written_duration()
         note_duration = container_duration / (2 * count)
-        assert isinstance(note_duration, abjad.Duration)
         left_note = abjad.Note.from_duration_and_pitch(note_duration, pitch)
         right_note = abjad.Note.from_duration_and_pitch(note_duration, pitch)
         container = abjad.TremoloContainer(count, [left_note, right_note], tag=tag)
-        abjad.mutate.replace(leaf, container)
+        abjad.mutate.replace(pleaf, container)
 
 
-def trivialize(argument: abjad.Container | list[abjad.Component]) -> None:
+def trivialize_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
     r"""
-    Trivializes tuplets in ``argument``.
+    Trivializes tuplets that can be rewritten as 1:1 in ``tuplets``.
 
     ..  container:: example
 
@@ -4412,9 +4427,9 @@ def trivialize(argument: abjad.Container | list[abjad.Component]) -> None:
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.trivialize(voice)
+        ...     rmakers.trivialize_tuplets(tuplets)
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(voice)
+        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -4473,28 +4488,28 @@ def trivialize(argument: abjad.Container | list[abjad.Component]) -> None:
             }
 
     """
-    for tuplet in abjad.select.tuplets(argument):
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    for tuplet in tuplets:
         tuplet.trivialize()
 
 
-# TODO: tuplets: typing.Sequence[abjad.Tuplet]
 def tweak_skip_filled_tuplets_stencil_false(
-    argument: abjad.Container | list[abjad.Component],
+    tuplets: collections.abc.Iterable[abjad.Tuplet],
 ) -> None:
     """
-    Tweaks skip-filled tuplets' stencil false.
+    Tweaks each skip-filled tuplet in ``tuplets`` with ``stencil ##f``.
     """
-    for tuplet in abjad.select.tuplets(argument):
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    for tuplet in tuplets:
         if all(isinstance(_, abjad.Skip) for _ in tuplet):
             abjad.tweak(tuplet, r"\tweak stencil ##f")
 
 
-# TODO: tuplets: typing.Sequence[abjad.Tuplet]
 def tweak_trivial_tuplets_stencil_false(
-    argument: abjad.Container | list[abjad.Component],
+    tuplets: collections.abc.Iterable[abjad.Tuplet],
 ) -> None:
     r"""
-    Tweaks trivial tuplets in ``argument`` with ``stencil ##f``.
+    Tweaks trivial tuplets in ``tuplets`` with ``stencil ##f``.
 
     ..  container:: example
 
@@ -4574,14 +4589,14 @@ def tweak_trivial_tuplets_stencil_false(
             }
 
     """
-    for tuplet in abjad.select.tuplets(argument):
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    for tuplet in tuplets:
         if tuplet.is_trivial():
             abjad.tweak(tuplet, r"\tweak stencil ##f")
 
 
-# TODO: tuplets: typing.Sequence[abjad.Tuplet]
 def tweak_tuplet_number_text_calc_fraction_text(
-    argument: abjad.Container | list[abjad.Component],
+    tuplets: collections.abc.Iterable[abjad.Tuplet],
 ) -> None:
     """
     Tweaks tuplet number text for tuplets in ``argument``. Sets tuplet number
@@ -4594,7 +4609,8 @@ def tweak_tuplet_number_text_calc_fraction_text(
 
     Does not tweak tuplets for which none of these conditions holds.
     """
-    for tuplet in abjad.select.tuplets(argument):
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    for tuplet in tuplets:
         if "text" in vars(abjad.override(tuplet).TupletNumber):
             continue
         if (

@@ -918,7 +918,7 @@ def accelerando(
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.feather_beam(leaf_lists)
         ...     rmakers.duration_bracket(tuplets)
-        ...     rmakers.swap_length_1(voice)
+        ...     rmakers.swap_length_1_tuplets_for_containers(tuplets)
         ...     score = lilypond_file["Score"]
         ...     abjad.override(score).TupletBracket.padding = 2
         ...     abjad.override(score).TupletBracket.bracket_visibility = True
@@ -3149,7 +3149,7 @@ def talea(
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.swap_trivial(voice)
+        ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
         ...     return lilypond_file
 
         ..  container:: example

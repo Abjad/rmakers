@@ -153,12 +153,12 @@ def test():
         ...     )
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.trivialize(voice)
+        ...     rmakers.trivialize_tuplets(tuplets)
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets[:-1]]
         ...     rmakers.tie(leaves)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(voice)
+        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -230,12 +230,12 @@ def test():
         ...     )
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.trivialize(voice)
+        ...     rmakers.trivialize_tuplets(tuplets)
         ...     notes = abjad.select.notes(voice)[:-1]
         ...     rmakers.tie(notes)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(voice)
+        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
