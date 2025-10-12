@@ -25,6 +25,7 @@ from .functions import (
     on_beat_grace_container,
     reduce_tuplet_ratios,
     repeat_tie,
+    respell_leaves_written_duration_and_dmp,
     respell_tuplets_without_dots,
     rewrite_meter,
     rewrite_rest_filled_tuplets,
@@ -43,7 +44,6 @@ from .functions import (
     unbeam_leaves,
     untie_leaves,
     wrap_in_time_signature_staff,
-    written_duration,
 )
 from .makers import (
     accelerando,
@@ -88,6 +88,7 @@ __all__ = [
     "on_beat_grace_container",
     "reduce_tuplet_ratios",
     "repeat_tie",
+    "respell_leaves_written_duration_and_dmp",
     "respell_tuplets_without_dots",
     "rewrite_meter",
     "rewrite_rest_filled_tuplets",
@@ -108,5 +109,4 @@ __all__ = [
     "unbeam_leaves",
     "untie_leaves",
     "wrap_in_time_signature_staff",
-    "written_duration",
 ]

@@ -151,7 +151,7 @@ def _make_beamable_groups(
 
 
 def _make_time_signature_staff(
-    time_signatures: typing.Sequence[abjad.TimeSignature],
+    time_signatures: collections.abc.Iterable[abjad.TimeSignature],
 ) -> abjad.Score:
     assert _is_time_signature_list(time_signatures), repr(time_signatures)
     assert time_signatures, repr(time_signatures)
@@ -2706,6 +2706,24 @@ def reduce_tuplet_ratios(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
             tuplet.multiplier().numerator,
         )
         tuplet.set_ratio(ratio)
+
+
+def respell_leaves_written_duration_and_dmp(
+    leaves: collections.abc.Iterable[abjad.Leaf],
+    written_duration: abjad.Duration,
+) -> None:
+    """
+    Respells written duration and DMP of each leaf in ``leaves``.
+    """
+    assert _is_leaf_list(leaves), repr(leaves)
+    assert isinstance(written_duration, abjad.Duration), repr(written_duration)
+    for leaf in leaves:
+        old_duration = leaf.written_duration()
+        if written_duration == old_duration:
+            continue
+        leaf.set_written_duration(written_duration)
+        fraction = old_duration / written_duration
+        leaf.set_dmp(fraction.as_integer_ratio())
 
 
 def respell_tuplets_without_dots(
@@ -5642,8 +5660,8 @@ def untie_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> None:
 
 
 def wrap_in_time_signature_staff(
-    components: typing.Sequence[abjad.Component],
-    time_signatures: typing.Sequence[abjad.TimeSignature],
+    components: collections.abc.Iterable[abjad.Component],
+    time_signatures: collections.abc.Iterable[abjad.TimeSignature],
 ) -> abjad.Voice:
     """
     Wraps ``components`` in two-voice staff.
@@ -5655,26 +5673,8 @@ def wrap_in_time_signature_staff(
     assert _is_component_list(components), repr(components)
     assert _is_time_signature_list(time_signatures), repr(time_signatures)
     score = _make_time_signature_staff(time_signatures)
-    music_voice = score["RhythmMaker.Music"]
-    assert isinstance(music_voice, abjad.Voice), repr(music_voice)
-    music_voice.extend(components)
-    _validate_tuplets(music_voice)
-    return music_voice
-
-
-def written_duration(
-    argument: abjad.Component | list[abjad.Component],
-    duration: abjad.Duration,
-) -> None:
-    """
-    Sets written duration of leaves in ``argument``.
-    """
-    assert isinstance(duration, abjad.Duration), repr(duration)
-    leaves = abjad.select.leaves(argument)
-    for leaf in leaves:
-        old_duration = leaf.written_duration()
-        if duration == old_duration:
-            continue
-        leaf.set_written_duration(duration)
-        fraction = old_duration / duration
-        leaf.set_dmp(fraction.as_integer_ratio())
+    voice = score["RhythmMaker.Music"]
+    assert isinstance(voice, abjad.Voice), repr(voice)
+    voice.extend(components)
+    _validate_tuplets(voice)
+    return voice
