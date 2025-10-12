@@ -709,7 +709,7 @@ def beam(
     tag = tag.append(_function_name(inspect.currentframe()))
     for leaf_list in leaf_lists:
         if do_not_unbeam is False:
-            unbeam(leaf_list)
+            unbeam_leaves(leaf_list)
         abjad.beam(
             leaf_list,
             beam_lone_notes=beam_lone_notes,
@@ -867,7 +867,8 @@ def beam_groups(
     """
     assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
     tag = tag.append(_function_name(inspect.currentframe()))
-    unbeam(leaf_lists)
+    leaves = abjad.select.leaves(leaf_lists)
+    unbeam_leaves(leaves)
     durations = [abjad.get.duration(_) for _ in leaf_lists]
     leaves = abjad.select.leaves(leaf_lists)
     abjad.beam(
@@ -1069,7 +1070,7 @@ def feather_beam(
         assert isinstance(stemlet_length, int | float), repr(stemlet_length)
     tag = tag.append(_function_name(inspect.currentframe()))
     for leaf_list in leaf_lists:
-        unbeam(leaf_list)
+        unbeam_leaves(leaf_list)
         abjad.beam(
             leaf_list,
             beam_rests=beam_rests,
@@ -2839,7 +2840,7 @@ def rewrite_meter(
         for leaf in abjad.iterate.leaves(list_):
             if not abjad.get.parentage(leaf).count(abjad.Tuplet):
                 nontupletted_leaves.append(leaf)
-        unbeam(nontupletted_leaves)
+        unbeam_leaves(nontupletted_leaves)
         meter.rewrite(
             list_,
             boundary_depth=boundary_depth,
@@ -4621,18 +4622,14 @@ def tweak_tuplet_number_text_calc_fraction_text(
             abjad.tweak(tuplet, r"\tweak text #tuplet-number::calc-fraction-text")
 
 
-def unbeam(
-    argument: (
-        abjad.Container
-        | typing.Sequence[abjad.Component]
-        | typing.Sequence[typing.Sequence[abjad.Component]]
-    ),
+def unbeam_leaves(
+    leaves: collections.abc.Sequence[abjad.Leaf],
     *,
     smart: bool = False,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Unbeams leaves in ``argument``.
+    Unbeams each leaf in ``leaves``.
 
     Adjusts adjacent start- and stop-beams when ``smart=True``.
 
@@ -4644,7 +4641,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[:1], smart=True)
+        >>> rmakers.unbeam_leaves(voice[:1], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -4677,7 +4674,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[1:2], smart=True)
+        >>> rmakers.unbeam_leaves(voice[1:2], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -4710,7 +4707,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[2:3], smart=True)
+        >>> rmakers.unbeam_leaves(voice[2:3], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -4745,7 +4742,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[3:4], smart=True)
+        >>> rmakers.unbeam_leaves(voice[3:4], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -4780,7 +4777,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[4:5], smart=True)
+        >>> rmakers.unbeam_leaves(voice[4:5], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -4813,7 +4810,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[5:6], smart=True)
+        >>> rmakers.unbeam_leaves(voice[5:6], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -4850,7 +4847,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[:2], smart=True)
+        >>> rmakers.unbeam_leaves(voice[:2], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -4883,7 +4880,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[1:3], smart=True)
+        >>> rmakers.unbeam_leaves(voice[1:3], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -4916,7 +4913,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[2:4], smart=True)
+        >>> rmakers.unbeam_leaves(voice[2:4], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -4951,7 +4948,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[3:5], smart=True)
+        >>> rmakers.unbeam_leaves(voice[3:5], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -4984,7 +4981,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[4:], smart=True)
+        >>> rmakers.unbeam_leaves(voice[4:], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5021,7 +5018,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[:1], smart=True)
+        >>> rmakers.unbeam_leaves(voice[:1], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5056,7 +5053,7 @@ def unbeam(
         >>> staff = abjad.Staff([voice])
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(voice[1:2], smart=True)
+        >>> rmakers.unbeam_leaves(voice[1:2], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5090,7 +5087,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[2:3], smart=True)
+        >>> rmakers.unbeam_leaves(staff[2:3], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5121,7 +5118,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[3:4], smart=True)
+        >>> rmakers.unbeam_leaves(staff[3:4], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5152,7 +5149,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[4:5], smart=True)
+        >>> rmakers.unbeam_leaves(staff[4:5], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5183,7 +5180,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[5:6], smart=True)
+        >>> rmakers.unbeam_leaves(staff[5:6], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5218,7 +5215,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[:2], smart=True)
+        >>> rmakers.unbeam_leaves(staff[:2], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5249,7 +5246,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[1:3], smart=True)
+        >>> rmakers.unbeam_leaves(staff[1:3], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5278,7 +5275,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[2:4], smart=True)
+        >>> rmakers.unbeam_leaves(staff[2:4], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5309,7 +5306,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[3:5], smart=True)
+        >>> rmakers.unbeam_leaves(staff[3:5], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5338,7 +5335,7 @@ def unbeam(
         >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
         >>> score = abjad.Score([staff])
         >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam(staff[4:], smart=True)
+        >>> rmakers.unbeam_leaves(staff[4:], smart=True)
         >>> abjad.show(score) # doctest: +SKIP
 
         ..  docs::
@@ -5367,8 +5364,8 @@ def unbeam(
             >>
 
     """
-    assert _is_container_or_possibly_nested_component_list(argument), repr(argument)
-    leaves = abjad.select.leaves(argument)
+    assert _is_leaf_list(leaves), repr(leaves)
+    assert isinstance(smart, bool), repr(smart)
     leaf: abjad.Leaf | None
     for leaf in leaves:
         abjad.detach(abjad.BeamCount, leaf)
