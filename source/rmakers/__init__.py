@@ -41,7 +41,7 @@ from .functions import (
     tweak_trivial_tuplets_stencil_false,
     tweak_tuplet_number_text_calc_fraction_text,
     unbeam_leaves,
-    untie,
+    untie_leaves,
     wrap_in_time_signature_staff,
     written_duration,
 )
@@ -106,7 +106,7 @@ __all__ = [
     "tweak_trivial_tuplets_stencil_false",
     "tweak_tuplet_number_text_calc_fraction_text",
     "unbeam_leaves",
-    "untie",
+    "untie_leaves",
     "wrap_in_time_signature_staff",
     "written_duration",
 ]

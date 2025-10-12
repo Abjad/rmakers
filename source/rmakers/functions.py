@@ -3991,7 +3991,8 @@ def tie(
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.untie(voice)
+        ...     leaves = abjad.select.leaves(voice)
+        ...     rmakers.untie_leaves(leaves)
         ...     runs = abjad.select.runs(voice)
         ...     notes = [abjad.select.notes(_)[:-1] for _ in runs]
         ...     notes = abjad.sequence.flatten(notes)
@@ -4060,7 +4061,7 @@ def tie(
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.notes(_)[:-1] for _ in tuplets]
         ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.untie(notes)
+        ...     rmakers.untie_leaves(notes)
         ...     rmakers.tie(notes)
         ...     rmakers.beam(leaf_lists)
         ...     return lilypond_file
@@ -5421,7 +5422,7 @@ def unbeam_leaves(
             abjad.attach(abjad.StartBeam(), leaf, tag=tag)
 
 
-def untie(argument: abjad.Component | list[abjad.Component]) -> None:
+def untie_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> None:
     r"""
     Unties leaves in ``argument``.
 
@@ -5440,7 +5441,7 @@ def untie(argument: abjad.Component | list[abjad.Component]) -> None:
         ...     rmakers.tie(notes)
         ...     notes = abjad.select.notes(voice)
         ...     notes = abjad.select.get(notes, [0], 4)
-        ...     rmakers.untie(notes)
+        ...     rmakers.untie_leaves(notes)
         ...     rmakers.beam(leaf_lists)
         ...     return lilypond_file
 
@@ -5542,7 +5543,7 @@ def untie(argument: abjad.Component | list[abjad.Component]) -> None:
         ...     rmakers.repeat_tie(notes)
         ...     notes = abjad.select.notes(voice)
         ...     notes = abjad.select.get(notes, [0], 4)
-        ...     rmakers.untie(notes)
+        ...     rmakers.untie_leaves(notes)
         ...     rmakers.beam(leaf_lists)
         ...     components = abjad.mutate.eject_contents(voice)
         ...     lilypond_file = rmakers.example(components, time_signatures)
@@ -5634,7 +5635,8 @@ def untie(argument: abjad.Component | list[abjad.Component]) -> None:
             }
 
     """
-    for leaf in abjad.select.leaves(argument):
+    assert _is_leaf_list(leaves), repr(leaves)
+    for leaf in leaves:
         abjad.detach(abjad.Tie, leaf)
         abjad.detach(abjad.RepeatTie, leaf)
 
