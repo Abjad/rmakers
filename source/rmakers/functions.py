@@ -139,220 +139,6 @@ def _make_beamable_groups(
     return beamable_groups
 
 
-# TODO: move inside `make_time_signature_staff()`
-def _make_time_signature_staff(
-    time_signatures: collections.abc.Iterable[abjad.TimeSignature],
-) -> abjad.Score:
-    assert _is_time_signature_list(time_signatures), repr(time_signatures)
-    assert time_signatures, repr(time_signatures)
-    staff = abjad.Staff(simultaneous=True)
-    score = abjad.Score([staff], name="Score")
-    time_signature_voice = abjad.Voice(name="TimeSignatureVoice")
-    staff.append(time_signature_voice)
-    staff.append(abjad.Voice(name="RhythmMaker.Music"))
-    for time_signature in time_signatures:
-        duration = time_signature.pair
-        skip = abjad.Skip("s1", dmp=duration)
-        time_signature_voice.append(skip)
-        abjad.attach(time_signature, skip, context="Staff")
-    return score
-
-
-# TODO: move inside `make_time_signature_staff()`
-def _validate_tuplets(voice: abjad.Voice) -> None:
-    for tuplet in abjad.iterate.components(voice, abjad.Tuplet):
-        assert tuplet.ratio().is_normalized(), repr(tuplet)
-        assert len(tuplet), repr(tuplet)
-
-
-# TODO: typehint & rename
-def after_grace_container(
-    argument: abjad.Component | collections.abc.Sequence[abjad.Component],
-    counts: collections.abc.Sequence[int],
-    *,
-    beam: bool = False,
-    slash: bool = False,
-    tag: abjad.Tag = abjad.Tag(),
-    talea: _classes.Talea = _classes.Talea([1], 8),
-) -> None:
-    r"""
-    Makes (and attaches) after-grace containers.
-
-    ..  container:: example
-
-        >>> def make_lilypond_file(pairs, *, beam=False, slash=False):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [4], extra_counts=[2])
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        ...     lilypond_file = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file["Voice"]
-        ...     notes = [abjad.select.note(_, -1) for _ in tuplets]
-        ...     rmakers.after_grace_container(notes, [1, 4], beam=beam, slash=slash)
-        ...     rmakers.extract_trivial(tuplets)
-        ...     score = lilypond_file["Score"]
-        ...     abjad.setting(score).autoBeaming = False
-        ...     return lilypond_file
-
-    ..  container:: example
-
-        With ``beam=False`` and ``slash=False``:
-
-        >>> pairs = [(3, 4), (3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs, beam=False, slash=False)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            \with
-            {
-                autoBeaming = ##f
-            }
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 5/3
-                        {
-                            \time 3/4
-                            c'4
-                            c'4
-                            c'4
-                            c'4
-                            \afterGrace
-                            c'4
-                            {
-                                c'8
-                            }
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 5/3
-                        {
-                            c'4
-                            c'4
-                            c'4
-                            c'4
-                            \afterGrace
-                            c'4
-                            {
-                                c'8
-                                c'8
-                                c'8
-                                c'8
-                            }
-                        }
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        With ``beam=True`` and ``slash=True``:
-
-        >>> pairs = [(3, 4), (3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs, beam=True, slash=True)
-        >>> score = lilypond_file["Score"]
-        >>> abjad.setting(score).autoBeaming = False
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            \with
-            {
-                autoBeaming = ##f
-            }
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 5/3
-                        {
-                            \time 3/4
-                            c'4
-                            c'4
-                            c'4
-                            c'4
-                            \afterGrace
-                            c'4
-                            {
-                                c'8
-                            }
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 5/3
-                        {
-                            c'4
-                            c'4
-                            c'4
-                            c'4
-                            \afterGrace
-                            c'4
-                            {
-                                \slash
-                                c'8
-                                [
-                                c'8
-                                c'8
-                                c'8
-                                ]
-                            }
-                        }
-                    }
-                }
-            }
-
-        When ``slash=True`` then ``beam`` must also be true.
-
-        Leaves lone after-graces unslashed even when ``slash=True``.
-
-    """
-    tag = tag.append(_function_name(inspect.currentframe()))
-    assert _is_container_or_component_list(argument), repr(argument)
-    assert _is_integer_list(counts), repr(counts)
-    if slash is True:
-        assert beam is True, repr(beam)
-    assert isinstance(talea, _classes.Talea), repr(talea)
-    leaves = abjad.select.leaves(argument, grace=False)
-    counts_cycle = abjad.CyclicTuple(counts)
-    start = 0
-    for i, leaf in enumerate(leaves):
-        count = counts_cycle[i]
-        if not count:
-            continue
-        stop = start + count
-        pitch_list = [abjad.NamedPitch("c'")]
-        durations = abjad.duration.durations(list(talea[start:stop]))
-        notes = abjad.makers.make_leaves([pitch_list], durations, tag=tag)
-        container = abjad.AfterGraceContainer(notes, tag=tag)
-        abjad.attach(container, leaf)
-        if 1 < len(notes):
-            if beam is True:
-                abjad.beam(notes, tag=tag)
-            if slash is True:
-                literal = abjad.LilyPondLiteral(r"\slash", site="before")
-                abjad.attach(literal, notes[0], tag=tag)
-
-
 # TODO: remove?
 def attach_time_signatures(
     voice: abjad.Voice,
@@ -2761,12 +2547,11 @@ def rewrite_meter(
     r"""
     Rewrites meter of components in ``voice``.
 
-    Use ``rmakers.wrap_in_time_signature_staff()`` to make sure ``voice``
-    appears together with time signature information in a staff.
-
-    Rewrites meter:
-
     ..  container:: example
+
+        Rewrites meter. Uses ``rmakers.wrap_in_time_signature_staff()`` to make
+        sure ``voice`` appears together with time signature information in a
+        staff.
 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.time_signatures(pairs)
@@ -5677,7 +5462,6 @@ def untie_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> None:
         abjad.detach(abjad.RepeatTie, leaf)
 
 
-# TODO: rename to `make_time_signature_staff`
 def wrap_in_time_signature_staff(
     components: collections.abc.Iterable[abjad.Component],
     time_signatures: collections.abc.Iterable[abjad.TimeSignature],
@@ -5691,9 +5475,19 @@ def wrap_in_time_signature_staff(
     """
     assert _is_component_list(components), repr(components)
     assert _is_time_signature_list(time_signatures), repr(time_signatures)
-    score = _make_time_signature_staff(time_signatures)
-    voice = score["RhythmMaker.Music"]
-    assert isinstance(voice, abjad.Voice), repr(voice)
+    staff = abjad.Staff(simultaneous=True)
+    abjad.Score([staff], name="Score")
+    time_signature_voice = abjad.Voice(name="TimeSignatureVoice")
+    staff.append(time_signature_voice)
+    voice = abjad.Voice(name="RhythmMaker.Music")
+    staff.append(voice)
+    for time_signature in time_signatures:
+        duration = time_signature.pair
+        skip = abjad.Skip("s1", dmp=duration)
+        time_signature_voice.append(skip)
+        abjad.attach(time_signature, skip, context="Staff")
     voice.extend(components)
-    _validate_tuplets(voice)
+    for tuplet in abjad.iterate.components(voice, abjad.Tuplet):
+        assert tuplet.ratio().is_normalized(), repr(tuplet)
+        assert len(tuplet), repr(tuplet)
     return voice
