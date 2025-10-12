@@ -5,7 +5,6 @@ Rhythm-makers.
 from ._version import __version__
 from .classes import Incise, Interpolation, Spelling, Talea
 from .functions import (
-    attach_time_signatures,
     beam,
     beam_groups,
     duration_bracket,
@@ -62,7 +61,6 @@ __all__ = [
     "Spelling",
     "Talea",
     "accelerando",
-    "attach_time_signatures",
     "beam",
     "beam_groups",
     "duration_bracket",

@@ -139,39 +139,17 @@ def _make_beamable_groups(
     return beamable_groups
 
 
-# TODO: remove?
-def attach_time_signatures(
-    voice: abjad.Voice,
-    time_signatures: collections.abc.Iterable[abjad.TimeSignature],
-) -> None:
-    """
-    Attaches ``time_signatures`` to leaves in ``voice``.
-    """
-    assert _is_time_signature_list(time_signatures), repr(time_signatures)
-    leaves = abjad.select.leaves(voice, grace=False)
-    durations = [_.duration() for _ in time_signatures]
-    parts = abjad.select.partition_by_durations(leaves, durations)
-    previous_time_signature = None
-    for time_signature, part in zip(time_signatures, parts, strict=True):
-        if time_signature != previous_time_signature:
-            leaf = abjad.select.leaf(part, 0)
-            abjad.detach(abjad.TimeSignature, leaf)
-            abjad.attach(time_signature, leaf)
-        previous_time_signature = time_signature
-
-
 # TODO: change to `attach_`
 def beam(
     leaf_lists: collections.abc.Iterable[collections.abc.Sequence[abjad.Leaf]],
     *,
     beam_lone_notes: bool = False,
     beam_rests: bool = False,
-    do_not_unbeam: bool = False,
     stemlet_length: int | float | None = None,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Beams runs of notes in each component in ``leaf_lists``.
+    Beams each run in each leaf list in ``leaf_lists``.
 
     ..  container:: example
 
@@ -194,7 +172,7 @@ def beam(
 
     ..  container:: example
 
-        Beams runs of notes in each tuplet:
+        Beams each run in each tuplet:
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
         >>> lilypond_file = make_lilypond_file(pairs)
@@ -369,9 +347,7 @@ def beam(
 
     ..  container:: example
 
-        By default, ``rmakers.beam()`` unbeams input before applying new beams. All
-        beams are lost in this example because ``rmakers.beam()`` finds no tuplets
-        to beam:
+        By default, ``rmakers.beam()`` unbeams input before applying new beams:
 
         >>> staff = abjad.Staff(r"c'8 [ c'8 c'8 ] c'8 [ c'8 c'8 ] c'8 c'8")
         >>> abjad.setting(staff).autoBeaming = False
@@ -426,69 +402,11 @@ def beam(
                 ]
             }
 
-        Set ``do_not_unbeam=True`` to preserve existing beams:
-
-        >>> staff = abjad.Staff(r"c'8 [ c'8 c'8 ] c'8 [ c'8 c'8 ] c'8 c'8")
-        >>> abjad.setting(staff).autoBeaming = False
-        >>> abjad.show(staff) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(staff)
-            >>> print(string)
-            \new Staff
-            \with
-            {
-                autoBeaming = ##f
-            }
-            {
-                c'8
-                [
-                c'8
-                c'8
-                ]
-                c'8
-                [
-                c'8
-                c'8
-                ]
-                c'8
-                c'8
-            }
-
-        >>> rmakers.beam([[_] for _ in staff], do_not_unbeam=True)
-        >>> abjad.show(staff) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(staff)
-            >>> print(string)
-            \new Staff
-            \with
-            {
-                autoBeaming = ##f
-            }
-            {
-                c'8
-                [
-                c'8
-                c'8
-                ]
-                c'8
-                [
-                c'8
-                c'8
-                ]
-                c'8
-                c'8
-            }
-
     """
     assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
     tag = tag.append(_function_name(inspect.currentframe()))
     for leaf_list in leaf_lists:
-        if do_not_unbeam is False:
-            unbeam_leaves(leaf_list)
+        unbeam_leaves(leaf_list)
         abjad.beam(
             leaf_list,
             beam_lone_notes=beam_lone_notes,
@@ -1531,7 +1449,7 @@ def force_rest(
         ...     rmakers.force_rest(leaves)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
-        ...     rmakers.attach_time_signatures(voice, time_signatures)
+        ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -1662,7 +1580,7 @@ def force_rest(
         ...     rmakers.rewrite_rest_filled_tuplets(tuplets)
         ...     tuplets = abjad.select.tuplets(voice)
         ...     rmakers.extract_trivial(tuplets)
-        ...     rmakers.attach_time_signatures(voice, time_signatures)
+        ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -1717,7 +1635,7 @@ def force_rest(
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
-        ...     rmakers.attach_time_signatures(voice, time_signatures)
+        ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -1782,7 +1700,7 @@ def force_rest(
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
-        ...     rmakers.attach_time_signatures(voice, time_signatures)
+        ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -2952,7 +2870,7 @@ def rewrite_rest_filled_tuplets(
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam(leaf_lists)
         ...     rmakers.rewrite_rest_filled_tuplets(tuplets)
-        ...     rmakers.attach_time_signatures(voice, time_signatures)
+        ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -4013,7 +3931,7 @@ def tremolo_container(
         ...     rmakers.extract_trivial(tuplets)
         ...     containers = abjad.select.components(voice, abjad.TremoloContainer)
         ...     result = [abjad.slur(_) for _ in containers]
-        ...     rmakers.attach_time_signatures(voice, time_signatures)
+        ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
 
         >>> pairs = [(4, 4), (3, 4)]
@@ -4087,7 +4005,7 @@ def tremolo_container(
         ...     rmakers.extract_trivial(tuplets)
         ...     containers = abjad.select.components(voice, abjad.TremoloContainer)
         ...     result = [abjad.slur(_) for _ in containers]
-        ...     rmakers.attach_time_signatures(voice, time_signatures)
+        ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
 
         >>> pairs = [(4, 4), (3, 4)]
