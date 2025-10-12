@@ -19,7 +19,7 @@ def _function_name(frame: types.FrameType | None) -> abjad.Tag:
     return abjad.Tag(string)
 
 
-def _is_accelerando(leaf_list: typing.Sequence[abjad.Leaf]) -> bool:
+def _is_accelerando(leaf_list: collections.abc.Sequence[abjad.Leaf]) -> bool:
     assert _is_leaf_list(leaf_list), repr(leaf_list)
     first_duration = abjad.get.duration(leaf_list[0])
     last_duration = abjad.get.duration(leaf_list[-1])
@@ -42,17 +42,6 @@ def _is_container_or_component_list(argument: object) -> bool:
     if isinstance(argument, abjad.Container):
         return True
     return _is_component_list(argument)
-
-
-def _is_container_or_possibly_nested_component_list(argument: object) -> bool:
-    if isinstance(argument, abjad.Container):
-        return True
-    if _is_component_list(argument) is True:
-        return True
-    if isinstance(argument, list):
-        if all(_is_component_list(_) for _ in argument):
-            return True
-    return False
 
 
 def _is_duration_list(argument: object) -> bool:
@@ -88,7 +77,7 @@ def _is_pleaf_list(argument: object) -> bool:
     return all(isinstance(_, abjad.Note | abjad.Chord) for _ in argument)
 
 
-def _is_ritardando(leaf_list: typing.Sequence[abjad.Leaf]) -> bool:
+def _is_ritardando(leaf_list: collections.abc.Sequence[abjad.Leaf]) -> bool:
     assert _is_leaf_list(leaf_list), repr(leaf_list)
     first_duration = abjad.get.duration(leaf_list[0])
     last_duration = abjad.get.duration(leaf_list[-1])
@@ -108,8 +97,8 @@ def _is_tuplet_list(argument: object) -> bool:
 
 
 def _make_beamable_groups(
-    components: typing.Sequence[abjad.Component],
-    durations: list[abjad.Duration],
+    components: collections.abc.Iterable[abjad.Component],
+    durations: collections.abc.Iterable[abjad.Duration],
 ) -> list[list[abjad.Component]]:
     assert _is_component_list(components), repr(components)
     assert _is_duration_list(durations), repr(durations)
@@ -150,6 +139,7 @@ def _make_beamable_groups(
     return beamable_groups
 
 
+# TODO: move inside `make_time_signature_staff()`
 def _make_time_signature_staff(
     time_signatures: collections.abc.Iterable[abjad.TimeSignature],
 ) -> abjad.Score:
@@ -168,15 +158,17 @@ def _make_time_signature_staff(
     return score
 
 
+# TODO: move inside `make_time_signature_staff()`
 def _validate_tuplets(voice: abjad.Voice) -> None:
     for tuplet in abjad.iterate.components(voice, abjad.Tuplet):
         assert tuplet.ratio().is_normalized(), repr(tuplet)
         assert len(tuplet), repr(tuplet)
 
 
+# TODO: typehint & rename
 def after_grace_container(
-    argument: abjad.Component | typing.Sequence[abjad.Component],
-    counts: typing.Sequence[int],
+    argument: abjad.Component | collections.abc.Sequence[abjad.Component],
+    counts: collections.abc.Sequence[int],
     *,
     beam: bool = False,
     slash: bool = False,
@@ -361,9 +353,10 @@ def after_grace_container(
                 abjad.attach(literal, notes[0], tag=tag)
 
 
+# TODO: remove?
 def attach_time_signatures(
     voice: abjad.Voice,
-    time_signatures: typing.Sequence[abjad.TimeSignature],
+    time_signatures: collections.abc.Iterable[abjad.TimeSignature],
 ) -> None:
     """
     Attaches ``time_signatures`` to leaves in ``voice``.
@@ -372,7 +365,6 @@ def attach_time_signatures(
     leaves = abjad.select.leaves(voice, grace=False)
     durations = [_.duration() for _ in time_signatures]
     parts = abjad.select.partition_by_durations(leaves, durations)
-    assert len(parts) == len(time_signatures)
     previous_time_signature = None
     for time_signature, part in zip(time_signatures, parts, strict=True):
         if time_signature != previous_time_signature:
@@ -382,8 +374,9 @@ def attach_time_signatures(
         previous_time_signature = time_signature
 
 
+# TODO: change to `attach_`
 def beam(
-    leaf_lists: typing.Sequence[typing.Sequence[abjad.Leaf]],
+    leaf_lists: collections.abc.Iterable[collections.abc.Sequence[abjad.Leaf]],
     *,
     beam_lone_notes: bool = False,
     beam_rests: bool = False,
@@ -719,8 +712,9 @@ def beam(
         )
 
 
+# TODO: rename
 def beam_groups(
-    leaf_lists: typing.Sequence[typing.Sequence[abjad.Leaf]],
+    leaf_lists: collections.abc.Iterable[collections.abc.Iterable[abjad.Leaf]],
     *,
     beam_lone_notes: bool = False,
     beam_rests: bool = False,
@@ -882,7 +876,8 @@ def beam_groups(
     )
 
 
-def duration_bracket(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
+# TODO: rename with verb
+def duration_bracket(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
     """
     Overrides ``TupletNumber.text`` of each tuplet in ``tuplets``.
     """
@@ -904,11 +899,14 @@ def duration_bracket(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
         abjad.override(tuplet).TupletNumber.text = string
 
 
+# TODO: create an rmakers/docs.py module
+# TODO: rename to `make_example_lilypond_file()`
+# TODO: move `rmakers.example()` to `rmakers.docs.make_example_lilypond_file()`
 def example(
-    components: typing.Sequence[abjad.Component],
-    time_signatures: typing.Sequence[abjad.TimeSignature],
+    components: collections.abc.Iterable[abjad.Component],
+    time_signatures: collections.abc.Iterable[abjad.TimeSignature],
     *,
-    includes: typing.Sequence[str] | None = None,
+    includes: collections.abc.Iterable[str] | None = None,
 ) -> abjad.LilyPondFile:
     """
     Makes example LilyPond file.
@@ -927,7 +925,8 @@ def example(
     return lilypond_file
 
 
-def extract_rest_filled(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
+# TODO: rename to `extract_rest_filled_tuplets`
+def extract_rest_filled(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
     """
     Extracts each rest-filled tuplet in ``tuplets``.
     """
@@ -937,7 +936,8 @@ def extract_rest_filled(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
             abjad.mutate.extract(tuplet)
 
 
-def extract_trivial(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
+# TODO: rename to `extract_trivial_tuplets`
+def extract_trivial(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
     r"""
     Extracts each trivial tuplet in ``tuplets``.
 
@@ -1015,8 +1015,9 @@ def extract_trivial(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
             abjad.mutate.extract(tuplet)
 
 
+# TODO: rename
 def feather_beam(
-    leaf_lists: typing.Sequence[typing.Sequence[abjad.Leaf]],
+    leaf_lists: collections.abc.Iterable[collections.abc.Sequence[abjad.Leaf]],
     *,
     beam_rests: bool = False,
     stemlet_length: int | float | None = None,
@@ -1084,7 +1085,8 @@ def feather_beam(
             abjad.override(first_leaf).Beam.grow_direction = abjad.LEFT
 
 
-def force_augmentation(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
+# TODO: rename
+def force_augmentation(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
     r"""
     Spells each tuplet in ``tuplets`` as an augmentation.
 
@@ -1238,7 +1240,8 @@ def force_augmentation(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
             tuplet.toggle_prolation()
 
 
-def force_diminution(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
+# TODO: rename
+def force_diminution(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
     r"""
     Spells each tuplet in ``tuplets`` as diminution.
 
@@ -1408,8 +1411,9 @@ def force_diminution(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
             tuplet.toggle_prolation()
 
 
+# TODO: rename to `replace_leaves_with_notes`
 def force_note(
-    leaves: typing.Sequence[abjad.Leaf],
+    leaves: collections.abc.Iterable[abjad.Leaf],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
@@ -1525,8 +1529,9 @@ def force_note(
         abjad.mutate.replace(leaf, [note])
 
 
+# TODO: rename to `replace_ties_with_repeat_ties`
 def force_repeat_tie(
-    leaves: typing.Sequence[abjad.Leaf],
+    leaves: collections.abc.Iterable[abjad.Leaf],
     *,
     tag: abjad.Tag = abjad.Tag(),
     threshold: bool | abjad.Duration | typing.Callable = True,
@@ -1716,8 +1721,9 @@ def force_repeat_tie(
         abjad.attach(repeat_tie, leaf, tag=tag)
 
 
+# TODO: rename to `replace_leaves_with_rests`
 def force_rest(
-    leaves: typing.Sequence[abjad.Leaf],
+    leaves: collections.abc.Iterable[abjad.Leaf],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
@@ -2058,8 +2064,9 @@ def force_rest(
             abjad.detach(abjad.RepeatTie, next_leaf)
 
 
+# TODO: rename to `tag_each_leaf_as_invisible_music`
 def invisible_music(
-    leaves: typing.Sequence[abjad.Leaf],
+    leaves: collections.abc.Iterable[abjad.Leaf],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
@@ -2077,6 +2084,7 @@ def invisible_music(
         abjad.attach(literal_2, leaf, tag=tag_2)
 
 
+# TODO: rename to `make_interpolation`
 def interpolate(
     start_duration: abjad.Duration,
     stop_duration: abjad.Duration,
@@ -2092,8 +2100,9 @@ def interpolate(
     )
 
 
+# TODO: rename to `select_nongrace_leaves_in_each_tuplet` & clean up typehint
 def nongrace_leaves_in_each_tuplet(
-    tuplets: typing.Sequence[abjad.Tuplet],
+    tuplets: collections.abc.Iterable[abjad.Tuplet],
 ) -> list[list[abjad.Leaf]]:
     """
     Selects nongrace leaves in each tuplet in ``tuplets``.
@@ -2104,11 +2113,12 @@ def nongrace_leaves_in_each_tuplet(
     return leaf_lists
 
 
+# TODO: rename with verb
 def on_beat_grace_container(
     voice: abjad.Voice,
     voice_name: str,
-    nongrace_leaf_lists: list[typing.Sequence[abjad.Leaf]],
-    counts: typing.Sequence[int],
+    nongrace_leaf_lists: collections.abc.Iterable[collections.abc.Iterable[abjad.Leaf]],
+    counts: collections.abc.Sequence[int],
     *,
     grace_leaf_duration: abjad.Duration | None = None,
     grace_polyphony_command: abjad.VoiceNumber = abjad.VoiceNumber(1),
@@ -2481,8 +2491,9 @@ def on_beat_grace_container(
         )
 
 
+# TODO: rename to `attach_repeat_tie_to_each_leaf`
 def repeat_tie(
-    pleaves: typing.Iterable[abjad.Note | abjad.Chord],
+    pleaves: collections.abc.Iterable[abjad.Note | abjad.Chord],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
@@ -2695,7 +2706,7 @@ def repeat_tie(
         abjad.attach(tie, pleaf, tag=tag)
 
 
-def reduce_tuplet_ratios(tuplets: typing.Sequence[abjad.Tuplet]) -> None:
+def reduce_tuplet_ratios(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
     """
     Reduces ratio of each tuplet in ``tuplets``.
     """
@@ -2727,7 +2738,7 @@ def respell_leaves_written_duration_and_dmp(
 
 
 def respell_tuplets_without_dots(
-    tuplets: typing.Iterable[abjad.Tuplet],
+    tuplets: collections.abc.Iterable[abjad.Tuplet],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
@@ -2744,7 +2755,7 @@ def rewrite_meter(
     voice: abjad.Voice,
     *,
     boundary_depth: int | None = None,
-    reference_meters: typing.Sequence[abjad.Meter] | None = None,
+    reference_meters: collections.abc.Iterable[abjad.Meter] | None = None,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
@@ -2884,7 +2895,7 @@ def rewrite_meter(
 
 
 def rewrite_rest_filled_tuplets(
-    tuplets: typing.Sequence[abjad.Tuplet],
+    tuplets: collections.abc.Iterable[abjad.Tuplet],
     *,
     spelling: _classes.Spelling | None = None,
     tag: abjad.Tag = abjad.Tag(),
@@ -3239,7 +3250,7 @@ def rewrite_rest_filled_tuplets(
 
 
 def rewrite_sustained_tuplets(
-    tuplets: typing.Iterable[abjad.Tuplet],
+    tuplets: collections.abc.Iterable[abjad.Tuplet],
     *,
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
@@ -3759,6 +3770,7 @@ def swap_trivial_tuplets_for_containers(
             abjad.mutate.swap(tuplet, container)
 
 
+# TODO: rename to `attach_tie_to_each_pleaf`
 def tie(
     pleaves: collections.abc.Iterable[abjad.Note | abjad.Chord],
     *,
@@ -4176,7 +4188,10 @@ def tie(
         abjad.attach(tie, pleaf, tag=tag)
 
 
-def time_signatures(pairs: list[tuple[int, int]]) -> list[abjad.TimeSignature]:
+# TODO: rename to `make_time_signatures()` and move to docs.py
+def time_signatures(
+    pairs: collections.abc.Iterable[tuple[int, int]],
+) -> list[abjad.TimeSignature]:
     """
     Makes time signatures from ``pairs``.
 
@@ -4186,6 +4201,7 @@ def time_signatures(pairs: list[tuple[int, int]]) -> list[abjad.TimeSignature]:
     return [abjad.TimeSignature(_) for _ in pairs]
 
 
+# TODO: rename with verb
 def tremolo_container(
     pleaves: collections.abc.Iterable[abjad.Note | abjad.Chord],
     count: int,
@@ -4641,6 +4657,7 @@ def tweak_tuplet_number_text_calc_fraction_text(
             abjad.tweak(tuplet, r"\tweak text #tuplet-number::calc-fraction-text")
 
 
+# TODO: rename with `detach_`
 def unbeam_leaves(
     leaves: collections.abc.Sequence[abjad.Leaf],
     *,
@@ -5440,6 +5457,7 @@ def unbeam_leaves(
             abjad.attach(abjad.StartBeam(), leaf, tag=tag)
 
 
+# TODO: rename with `detach_`
 def untie_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> None:
     r"""
     Unties leaves in ``argument``.
@@ -5659,6 +5677,7 @@ def untie_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> None:
         abjad.detach(abjad.RepeatTie, leaf)
 
 
+# TODO: rename to `make_time_signature_staff`
 def wrap_in_time_signature_staff(
     components: collections.abc.Iterable[abjad.Component],
     time_signatures: collections.abc.Iterable[abjad.TimeSignature],
