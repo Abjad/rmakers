@@ -5,8 +5,8 @@ Rhythm-makers.
 from ._version import __version__
 from .classes import Incise, Interpolation, Spelling, Talea
 from .functions import (
-    beam,
-    beam_groups,
+    beam_runs,
+    beam_across_leaf_lists,
     duration_bracket,
     example,
     extract_rest_filled,
@@ -61,8 +61,8 @@ __all__ = [
     "Spelling",
     "Talea",
     "accelerando",
-    "beam",
-    "beam_groups",
+    "beam_runs",
+    "beam_across_leaf_lists",
     "duration_bracket",
     "even_division",
     "example",

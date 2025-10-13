@@ -1342,7 +1342,7 @@ def even_division(
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.force_diminution(tuplets)
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -1407,7 +1407,7 @@ def even_division(
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
             ...     leaf_lists = [_[:] for _ in tuplets]
-            ...     rmakers.beam(leaf_lists)
+            ...     rmakers.beam_runs(leaf_lists)
             ...     rmakers.extract_trivial(tuplets)
             ...     return lilypond_file
 
@@ -1472,7 +1472,7 @@ def even_division(
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
             ...     leaf_lists = [_[:] for _ in tuplets]
-            ...     rmakers.beam(leaf_lists)
+            ...     rmakers.beam_runs(leaf_lists)
             ...     rmakers.extract_trivial(tuplets)
             ...     return lilypond_file
 
@@ -1530,7 +1530,7 @@ def even_division(
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
             ...     leaf_lists = [_[:] for _ in tuplets]
-            ...     rmakers.beam(leaf_lists)
+            ...     rmakers.beam_runs(leaf_lists)
             ...     rmakers.extract_trivial(tuplets)
             ...     return lilypond_file
 
@@ -1579,7 +1579,7 @@ def even_division(
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
             ...     leaf_lists = [_[:] for _ in tuplets]
-            ...     rmakers.beam(leaf_lists)
+            ...     rmakers.beam_runs(leaf_lists)
             ...     rmakers.extract_trivial(tuplets)
             ...     return lilypond_file
 
@@ -1633,7 +1633,7 @@ def even_division(
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
             ...     leaf_lists = [_[:] for _ in tuplets]
-            ...     rmakers.beam(leaf_lists)
+            ...     rmakers.beam_runs(leaf_lists)
             ...     rmakers.extract_trivial(tuplets)
             ...     return lilypond_file
 
@@ -1752,7 +1752,7 @@ def even_division(
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
             ...     leaf_lists = [_[:] for _ in tuplets]
-            ...     rmakers.beam(leaf_lists)
+            ...     rmakers.beam_runs(leaf_lists)
             ...     rmakers.extract_trivial(tuplets)
             ...     return lilypond_file
 
@@ -2005,7 +2005,7 @@ def even_division(
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
             ...     leaf_lists = [_[:] for _ in tuplets]
-            ...     rmakers.beam(leaf_lists)
+            ...     rmakers.beam_runs(leaf_lists)
             ...     rmakers.extract_trivial(tuplets)
             ...     return lilypond_file
 
@@ -2262,7 +2262,7 @@ def incised(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -2315,7 +2315,7 @@ def incised(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -2372,7 +2372,7 @@ def incised(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -2425,7 +2425,7 @@ def incised(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -2493,7 +2493,7 @@ def incised(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -2564,7 +2564,7 @@ def incised(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -2643,7 +2643,7 @@ def incised(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [abjad.select.leaves(_) for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -3080,7 +3080,7 @@ def talea(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -3148,7 +3148,7 @@ def talea(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
         ...     return lilypond_file
 
@@ -3372,7 +3372,7 @@ def talea(
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
             ...     leaf_lists = [_[:] for _ in tuplets]
-            ...     rmakers.beam(leaf_lists)
+            ...     rmakers.beam_runs(leaf_lists)
             ...     rmakers.extract_trivial(tuplets)
             ...     return lilypond_file
 
@@ -3433,7 +3433,7 @@ def talea(
             ...     )
             ...     container = abjad.Container(tuplets)
             ...     leaf_lists = [_[:] for _ in tuplets]
-            ...     rmakers.beam(leaf_lists)
+            ...     rmakers.beam_runs(leaf_lists)
             ...     rmakers.extract_trivial(tuplets)
             ...     components = abjad.mutate.eject_contents(container)
             ...     lilypond_file = rmakers.example(components, time_signatures)
@@ -3489,7 +3489,7 @@ def talea(
             ...     lilypond_file = rmakers.example(tuplets, time_signatures)
             ...     voice = lilypond_file["Voice"]
             ...     leaf_lists = [_[:] for _ in tuplets]
-            ...     rmakers.beam(leaf_lists)
+            ...     rmakers.beam_runs(leaf_lists)
             ...     rmakers.extract_trivial(tuplets)
             ...     return lilypond_file
 
@@ -3614,7 +3614,7 @@ def tuplet(
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     return lilypond_file
 
         Makes tuplets with ``3:2`` ratios:

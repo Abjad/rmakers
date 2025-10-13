@@ -266,7 +266,7 @@ Examples that show how to work with rmakers in a statal way.
     ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
     ...     voice = lilypond_file_["Voice"]
     ...     leaf_lists = [_[:] for _ in tuplets]
-    ...     rmakers.beam(leaf_lists)
+    ...     rmakers.beam_runs(leaf_lists)
     ...     rmakers.extract_trivial(tuplets)
     ...     return lilypond_file_, state
 
@@ -397,7 +397,7 @@ Examples that show how to work with rmakers in a statal way.
     ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
     ...     container = abjad.Container(tuplets)
     ...     leaf_lists = [_[:] for _ in tuplets]
-    ...     rmakers.beam(leaf_lists)
+    ...     rmakers.beam_runs(leaf_lists)
     ...     rmakers.extract_trivial(tuplets)
     ...     components = abjad.mutate.eject_contents(container)
     ...     lilypond_file = rmakers.example(components, time_signatures)

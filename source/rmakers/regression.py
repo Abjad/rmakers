@@ -20,7 +20,7 @@ def test():
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     notes = abjad.select.notes(voice)[:-1]
         ...     rmakers.tie(notes)
@@ -91,7 +91,7 @@ def test():
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -157,7 +157,7 @@ def test():
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets[:-1]]
         ...     rmakers.tie(leaves)
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     return lilypond_file
 
@@ -234,7 +234,7 @@ def test():
         ...     notes = abjad.select.notes(voice)[:-1]
         ...     rmakers.tie(notes)
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     return lilypond_file
 

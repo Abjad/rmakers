@@ -139,8 +139,170 @@ def _make_beamable_groups(
     return beamable_groups
 
 
-# TODO: change to `attach_`
-def beam(
+def beam_across_leaf_lists(
+    leaf_lists: collections.abc.Iterable[collections.abc.Iterable[abjad.Leaf]],
+    *,
+    beam_lone_notes: bool = False,
+    beam_rests: bool = False,
+    stemlet_length: int | float | None = None,
+    tag: abjad.Tag = abjad.Tag(),
+) -> None:
+    r"""
+    Beams across ``leaf_lists`` with single span beam.
+
+    ..  container:: example
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.talea(durations, [1], 16)
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     lilypond_file = rmakers.example(tuplets, time_signatures)
+        ...     voice = lilypond_file["Voice"]
+        ...     rmakers.beam_across_leaf_lists(leaf_lists)
+        ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
+        ...     return lilypond_file
+
+        >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        {
+                            \set stemLeftBeamCount = 0
+                            \set stemRightBeamCount = 2
+                            \time 3/8
+                            c'16
+                            [
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 1
+                            c'16
+                        }
+                        {
+                            \set stemLeftBeamCount = 1
+                            \set stemRightBeamCount = 2
+                            \time 4/8
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 1
+                            c'16
+                        }
+                        {
+                            \set stemLeftBeamCount = 1
+                            \set stemRightBeamCount = 2
+                            \time 3/8
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 1
+                            c'16
+                        }
+                        {
+                            \set stemLeftBeamCount = 1
+                            \set stemRightBeamCount = 2
+                            \time 4/8
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 2
+                            c'16
+                            \set stemLeftBeamCount = 2
+                            \set stemRightBeamCount = 0
+                            c'16
+                            ]
+                        }
+                    }
+                }
+            }
+
+    """
+    assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
+    tag = tag.append(_function_name(inspect.currentframe()))
+    leaves = abjad.select.leaves(leaf_lists)
+    unbeam_leaves(leaves)
+    durations = [abjad.get.duration(_) for _ in leaf_lists]
+    leaves = abjad.select.leaves(leaf_lists)
+    abjad.beam(
+        leaves,
+        beam_lone_notes=beam_lone_notes,
+        beam_rests=beam_rests,
+        durations=durations,
+        span_beam_count=1,
+        stemlet_length=stemlet_length,
+        tag=tag,
+    )
+
+
+def beam_runs(
     leaf_lists: collections.abc.Iterable[collections.abc.Sequence[abjad.Leaf]],
     *,
     beam_lone_notes: bool = False,
@@ -149,7 +311,7 @@ def beam(
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Beams each run in each leaf list in ``leaf_lists``.
+    Beams runs in each leaf list in ``leaf_lists``.
 
     ..  container:: example
 
@@ -160,7 +322,7 @@ def beam(
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam(
+        ...     rmakers.beam_runs(
         ...         leaf_lists,
         ...         beam_rests=beam_rests,
         ...         stemlet_length=stemlet_length,
@@ -347,7 +509,7 @@ def beam(
 
     ..  container:: example
 
-        By default, ``rmakers.beam()`` unbeams input before applying new beams:
+        By default, ``rmakers.beam_runs()`` unbeams input before applying new beams:
 
         >>> staff = abjad.Staff(r"c'8 [ c'8 c'8 ] c'8 [ c'8 c'8 ] c'8 c'8")
         >>> abjad.setting(staff).autoBeaming = False
@@ -377,7 +539,7 @@ def beam(
                 c'8
             }
 
-        >>> rmakers.beam([staff[:]])
+        >>> rmakers.beam_runs([staff[:]])
         >>> abjad.show(staff) # doctest: +SKIP
 
         ..  docs::
@@ -414,170 +576,6 @@ def beam(
             stemlet_length=stemlet_length,
             tag=tag,
         )
-
-
-# TODO: rename
-def beam_groups(
-    leaf_lists: collections.abc.Iterable[collections.abc.Iterable[abjad.Leaf]],
-    *,
-    beam_lone_notes: bool = False,
-    beam_rests: bool = False,
-    stemlet_length: int | float | None = None,
-    tag: abjad.Tag = abjad.Tag(),
-) -> None:
-    r"""
-    Beams ``leaf_lists`` with single span beam.
-
-    ..  container:: example
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [1], 16)
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam_groups(leaf_lists)
-        ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
-        ...     return lilypond_file
-
-        >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        {
-                            \set stemLeftBeamCount = 0
-                            \set stemRightBeamCount = 2
-                            \time 3/8
-                            c'16
-                            [
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 1
-                            c'16
-                        }
-                        {
-                            \set stemLeftBeamCount = 1
-                            \set stemRightBeamCount = 2
-                            \time 4/8
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 1
-                            c'16
-                        }
-                        {
-                            \set stemLeftBeamCount = 1
-                            \set stemRightBeamCount = 2
-                            \time 3/8
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 1
-                            c'16
-                        }
-                        {
-                            \set stemLeftBeamCount = 1
-                            \set stemRightBeamCount = 2
-                            \time 4/8
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 2
-                            c'16
-                            \set stemLeftBeamCount = 2
-                            \set stemRightBeamCount = 0
-                            c'16
-                            ]
-                        }
-                    }
-                }
-            }
-
-    """
-    assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
-    tag = tag.append(_function_name(inspect.currentframe()))
-    leaves = abjad.select.leaves(leaf_lists)
-    unbeam_leaves(leaves)
-    durations = [abjad.get.duration(_) for _ in leaf_lists]
-    leaves = abjad.select.leaves(leaf_lists)
-    abjad.beam(
-        leaves,
-        beam_lone_notes=beam_lone_notes,
-        beam_rests=beam_rests,
-        durations=durations,
-        span_beam_count=1,
-        stemlet_length=stemlet_length,
-        tag=tag,
-    )
 
 
 # TODO: rename with verb
@@ -655,7 +653,7 @@ def extract_trivial(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(voice)[-2:]
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
@@ -803,7 +801,7 @@ def force_augmentation(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     if force_augmentation is True:
         ...         rmakers.force_augmentation(tuplets)
         ...     tweak_string = r"\tweak text #tuplet-number::calc-fraction-text"
@@ -958,7 +956,7 @@ def force_diminution(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
         ...     tuplets = abjad.select.tuplets(voice)
         ...     if force_diminution is True:
@@ -1255,7 +1253,7 @@ def force_repeat_tie(
         ...     tuplets = abjad.select.tuplets(voice)[:-1]
         ...     notes = [abjad.select.note(_, -1) for _ in tuplets]
         ...     rmakers.tie(notes)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     return lilypond_file
 
     ..  container:: example
@@ -1448,7 +1446,7 @@ def force_rest(
         ...     leaves = abjad.select.get(leaves, [0, -1])
         ...     rmakers.force_rest(leaves)
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
@@ -1515,7 +1513,7 @@ def force_rest(
         ...     rests = abjad.select.get(leaves[:], [0, -1])
         ...     rmakers.force_note(rests)
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.example(components, time_signatures)
@@ -1575,7 +1573,7 @@ def force_rest(
         ...     tuplets = abjad.select.get(tuplets, [1], 2)
         ...     leaves = abjad.select.leaves(tuplets)
         ...     rmakers.force_rest(leaves)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(voice)
         ...     rmakers.rewrite_rest_filled_tuplets(tuplets)
         ...     tuplets = abjad.select.tuplets(voice)
@@ -1633,7 +1631,7 @@ def force_rest(
         ...     leaves = abjad.select.get(leaves, [0, -2, -1])
         ...     rmakers.force_rest(leaves)
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
@@ -1698,7 +1696,7 @@ def force_rest(
         ...     leaves = [abjad.select.leaf(_, 0) for _ in tuplets]
         ...     rmakers.force_rest(leaves)
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
@@ -2217,7 +2215,7 @@ def repeat_tie(
         ...     tuplets = abjad.select.tuplets(voice)[1:]
         ...     notes = [abjad.select.note(_, 0) for _ in tuplets]
         ...     rmakers.repeat_tie(notes)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     components = abjad.mutate.eject_contents(voice)
         ...     lilypond_file = rmakers.example(components, time_signatures)
         ...     return lilypond_file
@@ -2313,7 +2311,7 @@ def repeat_tie(
         ...     notes = [abjad.select.notes(_)[1:] for _ in tuplets]
         ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.repeat_tie(notes)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     components = abjad.mutate.eject_contents(voice)
         ...     lilypond_file = rmakers.example(components, time_signatures)
         ...     return lilypond_file
@@ -2477,7 +2475,7 @@ def rewrite_meter(
         ...     tuplets = rmakers.talea(durations, [5, 4], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     voice = rmakers.wrap_in_time_signature_staff(tuplets, time_signatures)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     rmakers.rewrite_meter(voice)
         ...     components = abjad.mutate.eject_contents(voice)
@@ -2791,7 +2789,7 @@ def rewrite_rest_filled_tuplets(
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -2868,7 +2866,7 @@ def rewrite_rest_filled_tuplets(
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.rewrite_rest_filled_tuplets(tuplets)
         ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
         ...     return lilypond_file
@@ -2976,7 +2974,7 @@ def rewrite_sustained_tuplets(
         ...     tuplets = abjad.select.tuplets(container)[1:3]
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
         ...     rmakers.tie(leaves)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.example(components, time_signatures)
         ...     return lilypond_file
@@ -3064,7 +3062,7 @@ def rewrite_sustained_tuplets(
         ...     rmakers.rewrite_sustained_tuplets(tuplets)
         ...     tuplets = abjad.select.tuplets(container, level=1)
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(container)
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
@@ -3130,7 +3128,7 @@ def rewrite_sustained_tuplets(
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     container = abjad.Container(tuplets)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(container)[1:3]
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
         ...     rmakers.tie(leaves)
@@ -3189,7 +3187,7 @@ def rewrite_sustained_tuplets(
         ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.tie(notes)
         ...     rmakers.rewrite_sustained_tuplets(tuplets[-2:])
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(voice)
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     return lilypond_file
@@ -3264,7 +3262,7 @@ def rewrite_sustained_tuplets(
         ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.tie(notes)
         ...     rmakers.rewrite_sustained_tuplets(tuplets)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(voice)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
@@ -3404,7 +3402,7 @@ def swap_trivial_tuplets_for_containers(
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(tuplets)[-2:]
         ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
         ...     return lilypond_file
@@ -3496,7 +3494,7 @@ def tie(
         ...     tuplets = abjad.select.tuplets(tuplets)[:-1]
         ...     notes = [abjad.select.note(_, -1) for _ in tuplets]
         ...     rmakers.tie(notes)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     return lilypond_file
 
         >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
@@ -3590,7 +3588,7 @@ def tie(
         ...     tuplets = abjad.select.tuplets(tuplets)[:-1]
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
         ...     rmakers.tie(leaves)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(voice)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
@@ -3659,7 +3657,7 @@ def tie(
         ...     tuplets = abjad.select.get(tuplets[:-1], [0], 2)
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
         ...     rmakers.tie(leaves)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(voice)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
@@ -3730,7 +3728,7 @@ def tie(
         ...     notes = [abjad.select.notes(_)[:-1] for _ in runs]
         ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.tie(notes)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial(tuplets)
         ...     return lilypond_file
 
@@ -3796,7 +3794,7 @@ def tie(
         ...     notes = abjad.sequence.flatten(notes)
         ...     rmakers.untie_leaves(notes)
         ...     rmakers.tie(notes)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     return lilypond_file
 
         >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
@@ -4098,7 +4096,7 @@ def trivialize_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -4167,7 +4165,7 @@ def trivialize_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.trivialize_tuplets(tuplets)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     return lilypond_file
 
@@ -4260,7 +4258,7 @@ def tweak_trivial_tuplets_stencil_false(
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.example(tuplets, time_signatures)
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(tuplets)[-2:]
         ...     rmakers.tweak_trivial_tuplets_stencil_false(tuplets)
         ...     return lilypond_file
@@ -5181,7 +5179,7 @@ def untie_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> None:
         ...     notes = abjad.select.notes(voice)
         ...     notes = abjad.select.get(notes, [0], 4)
         ...     rmakers.untie_leaves(notes)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     return lilypond_file
 
         >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
@@ -5283,7 +5281,7 @@ def untie_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> None:
         ...     notes = abjad.select.notes(voice)
         ...     notes = abjad.select.get(notes, [0], 4)
         ...     rmakers.untie_leaves(notes)
-        ...     rmakers.beam(leaf_lists)
+        ...     rmakers.beam_runs(leaf_lists)
         ...     components = abjad.mutate.eject_contents(voice)
         ...     lilypond_file = rmakers.example(components, time_signatures)
         ...     return lilypond_file

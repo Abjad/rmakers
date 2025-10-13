@@ -70,7 +70,7 @@
 #            ...     rmakers.force_rest(
 #            ...         lambda _: abjad.select(_).logical_ties().get([3], 4),
 #            ...     ),
-#            ...     rmakers.beam(),
+#            ...     rmakers.beam_runs(),
 #            ...     rmakers.extract_trivial(),
 #            ...     )
 #
