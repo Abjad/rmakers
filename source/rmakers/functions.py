@@ -660,200 +660,6 @@ def extract_trivial_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> 
             abjad.mutate.extract(tuplet)
 
 
-# TODO: rename to `replace_ties_with_repeat_ties`
-def force_repeat_tie(
-    leaves: collections.abc.Iterable[abjad.Leaf],
-    *,
-    tag: abjad.Tag = abjad.Tag(),
-    threshold: bool | abjad.Duration | typing.Callable = True,
-) -> None:
-    r"""
-    Replaces ties attached to ``leaves`` with repeat-ties.
-
-    ..  container:: example
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         tuplets, time_signatures
-        ...     )
-        ...     voice = lilypond_file["Voice"]
-        ...     tuplets = abjad.select.tuplets(voice)[:-1]
-        ...     notes = [abjad.select.note(_, -1) for _ in tuplets]
-        ...     rmakers.tie(notes)
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     return lilypond_file
-
-    ..  container:: example
-
-        Attaches tie to last note in each nonlast tuplet:
-
-        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tuplet 3/2
-                        {
-                            \time 2/8
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Changes ties to repeat-ties:
-
-        >>> leaves = abjad.select.leaves(lilypond_file["Score"])
-        >>> rmakers.force_repeat_tie(leaves)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tuplet 3/2
-                        {
-                            \time 2/8
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            c'8
-                            ]
-                        }
-                    }
-                }
-            }
-
-    """
-    assert _is_leaf_list(leaves), repr(leaves)
-    tag = tag.append(_function_name(inspect.currentframe()))
-    if callable(threshold):
-        inequality = threshold
-    elif threshold in (None, False):
-
-        def inequality(item):
-            return item < abjad.Duration(0)
-
-    elif threshold is True:
-
-        def inequality(item):
-            return item >= abjad.Duration(0)
-
-    else:
-        assert isinstance(threshold, abjad.Duration)
-
-        def inequality(item):
-            return item >= threshold
-
-    attach_repeat_ties = []
-    for leaf in leaves:
-        if abjad.get.has_indicator(leaf, abjad.Tie):
-            next_leaf = abjad.get.leaf(leaf, 1)
-            if next_leaf is None:
-                continue
-            if not isinstance(next_leaf, abjad.Chord | abjad.Note):
-                continue
-            if abjad.get.has_indicator(next_leaf, abjad.RepeatTie):
-                continue
-            duration = abjad.get.duration(leaf)
-            if not inequality(duration):
-                continue
-            attach_repeat_ties.append(next_leaf)
-            abjad.detach(abjad.Tie, leaf)
-    for leaf in attach_repeat_ties:
-        repeat_tie = abjad.RepeatTie()
-        abjad.attach(repeat_tie, leaf, tag=tag)
-
-
 # TODO: rename to `tag_each_leaf_as_invisible_music`
 def invisible_music(
     leaves: collections.abc.Iterable[abjad.Leaf],
@@ -2084,6 +1890,199 @@ def replace_leaves_with_rests(
         abjad.detach(abjad.RepeatTie, rest)
         if next_leaf is not None:
             abjad.detach(abjad.RepeatTie, next_leaf)
+
+
+def replace_ties_with_repeat_ties(
+    leaves: collections.abc.Iterable[abjad.Leaf],
+    *,
+    tag: abjad.Tag = abjad.Tag(),
+    threshold: bool | abjad.Duration | typing.Callable = True,
+) -> None:
+    r"""
+    Replaces ties attached to ``leaves`` with repeat-ties.
+
+    ..  container:: example
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
+        ...     tuplets = abjad.select.tuplets(voice)[:-1]
+        ...     notes = [abjad.select.note(_, -1) for _ in tuplets]
+        ...     rmakers.tie(notes)
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     return lilypond_file
+
+    ..  container:: example
+
+        Attaches tie to last note in each nonlast tuplet:
+
+        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \tuplet 3/2
+                        {
+                            \time 2/8
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                    }
+                }
+            }
+
+    ..  container:: example
+
+        Changes ties to repeat-ties:
+
+        >>> leaves = abjad.select.leaves(lilypond_file["Score"])
+        >>> rmakers.replace_ties_with_repeat_ties(leaves)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \tuplet 3/2
+                        {
+                            \time 2/8
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            c'8
+                            ]
+                        }
+                    }
+                }
+            }
+
+    """
+    assert _is_leaf_list(leaves), repr(leaves)
+    tag = tag.append(_function_name(inspect.currentframe()))
+    if callable(threshold):
+        inequality = threshold
+    elif threshold in (None, False):
+
+        def inequality(item):
+            return item < abjad.Duration(0)
+
+    elif threshold is True:
+
+        def inequality(item):
+            return item >= abjad.Duration(0)
+
+    else:
+        assert isinstance(threshold, abjad.Duration)
+
+        def inequality(item):
+            return item >= threshold
+
+    attach_repeat_ties = []
+    for leaf in leaves:
+        if abjad.get.has_indicator(leaf, abjad.Tie):
+            next_leaf = abjad.get.leaf(leaf, 1)
+            if next_leaf is None:
+                continue
+            if not isinstance(next_leaf, abjad.Chord | abjad.Note):
+                continue
+            if abjad.get.has_indicator(next_leaf, abjad.RepeatTie):
+                continue
+            duration = abjad.get.duration(leaf)
+            if not inequality(duration):
+                continue
+            attach_repeat_ties.append(next_leaf)
+            abjad.detach(abjad.Tie, leaf)
+    for leaf in attach_repeat_ties:
+        repeat_tie = abjad.RepeatTie()
+        abjad.attach(repeat_tie, leaf, tag=tag)
 
 
 def respell_leaves_written_duration_and_dmp(
