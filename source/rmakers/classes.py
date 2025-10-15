@@ -112,11 +112,13 @@ class Spelling:
         ...         spelling=rmakers.Spelling(increase_monotonic=False),
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file_["Voice"]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam_runs(leaf_lists)
-        ...     rmakers.extract_trivial(tuplets)
-        ...     return lilypond_file_
+        ...     rmakers.extract_trivial_tuplets(tuplets)
+        ...     return lilypond_file
 
         >>> lilypond_file = make_lilypond_file([(3, 4), (3, 4)])
         >>> abjad.show(lilypond_file) # doctest: +SKIP
@@ -170,11 +172,13 @@ class Spelling:
         ...         spelling=rmakers.Spelling(increase_monotonic=True),
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file_["Voice"]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam_runs(leaf_lists)
-        ...     rmakers.extract_trivial(tuplets)
-        ...     return lilypond_file_
+        ...     rmakers.extract_trivial_tuplets(tuplets)
+        ...     return lilypond_file
 
         >>> pairs = [(3, 4), (3, 4)]
         >>> lilypond_file = make_lilypond_file(pairs)
@@ -231,11 +235,13 @@ class Spelling:
         ...         ),
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file_["Voice"]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam_runs(leaf_lists)
-        ...     rmakers.extract_trivial(tuplets)
-        ...     return lilypond_file_
+        ...     rmakers.extract_trivial_tuplets(tuplets)
+        ...     return lilypond_file
 
         >>> pairs = [(3, 4), (3, 4)]
         >>> lilypond_file = make_lilypond_file(pairs)
@@ -297,11 +303,13 @@ class Spelling:
         ...         ),
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file_["Voice"]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam_runs(leaf_lists)
-        ...     rmakers.extract_trivial(tuplets)
-        ...     return lilypond_file_
+        ...     rmakers.extract_trivial_tuplets(tuplets)
+        ...     return lilypond_file
 
         >>> pairs = [(3, 4), (3, 4)]
         >>> lilypond_file = make_lilypond_file(pairs)
@@ -361,9 +369,11 @@ class Spelling:
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     container = abjad.Container(tuplets)
         ...     rmakers.beam_runs(leaf_lists)
-        ...     rmakers.extract_trivial(tuplets)
+        ...     rmakers.extract_trivial_tuplets(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         components, time_signatures
+        ...     )
         ...     return lilypond_file
 
         >>> pairs = [(5, 8), (5, 8), (5, 8)]
@@ -424,9 +434,11 @@ class Spelling:
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     container = abjad.Container(tuplets)
         ...     rmakers.beam_runs(leaf_lists)
-        ...     rmakers.extract_trivial(tuplets)
+        ...     rmakers.extract_trivial_tuplets(tuplets)
         ...     components = abjad.mutate.eject_contents(container)
-        ...     lilypond_file = rmakers.example(components, time_signatures)
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         components, time_signatures
+        ...     )
         ...     return lilypond_file
 
         >>> pairs = [(5, 8), (5, 8), (5, 8)]
@@ -485,10 +497,12 @@ class Spelling:
         ...         ),
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file = rmakers.example(tuplets, time_signatures)
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.beam_runs(leaf_lists)
-        ...     rmakers.extract_trivial(tuplets)
+        ...     rmakers.extract_trivial_tuplets(tuplets)
         ...     return lilypond_file
 
         >>> pairs = [(3, 4), (3, 4)]

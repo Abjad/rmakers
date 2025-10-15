@@ -5,7 +5,7 @@
 #            >>> components = command(durations, previous_segment_stop_state=state)
 #
 #
-#            >>> lilypond_file = rmakers.example(components, durations)
+#            >>> lilypond_file = rmakers.docs.make_example_lilypond_file(components, durations)
 #            >>> abjad.show(lilypond_file) # doctest: +SKIP
 #
 #            ..  docs::
@@ -71,7 +71,7 @@
 #            ...         lambda _: abjad.select(_).logical_ties().get([3], 4),
 #            ...     ),
 #            ...     rmakers.beam_runs(),
-#            ...     rmakers.extract_trivial(),
+#            ...     rmakers.extract_trivial_tuplets(),
 #            ...     )
 #
 #            Incomplete last note is rested here:
@@ -79,7 +79,7 @@
 #            >>> durations = [(3, 8), (4, 8), (3, 8), (4, 8)]
 #            >>> components = stack(durations)
 #
-#            >>> lilypond_file = rmakers.example(components, durations)
+#            >>> lilypond_file = rmakers.docs.make_example_lilypond_file(components, durations)
 #            >>> abjad.show(lilypond_file) # doctest: +SKIP
 #
 #            ..  docs::
@@ -138,7 +138,7 @@
 #            >>> durations = [(3, 8), (4, 8), (3, 8), (4, 8)]
 #            >>> components = stack(durations, previous_state=state)
 #
-#            >>> lilypond_file = rmakers.example(components, durations)
+#            >>> lilypond_file = rmakers.docs.make_example_lilypond_file(components, durations)
 #            >>> abjad.show(lilypond_file) # doctest: +SKIP
 #
 #            ..  docs::
@@ -201,7 +201,7 @@
 #            >>> durations = [(3, 8), (4, 8), (3, 8), (4, 8)]
 #            >>> components = stack(durations, previous_state=state)
 #
-#            >>> lilypond_file = rmakers.example(components, durations)
+#            >>> lilypond_file = rmakers.docs.make_example_lilypond_file(components, durations)
 #            >>> abjad.show(lilypond_file) # doctest: +SKIP
 #
 #            ..  docs::
@@ -259,7 +259,7 @@
 #            >>> durations = [(3, 8), (4, 8), (3, 8), (4, 8)]
 #            >>> components = stack(durations, previous_state=state)
 #
-#            >>> lilypond_file = rmakers.example(components, durations)
+#            >>> lilypond_file = rmakers.docs.make_example_lilypond_file(components, durations)
 #            >>> abjad.show(lilypond_file) # doctest: +SKIP
 #
 #            ..  docs::

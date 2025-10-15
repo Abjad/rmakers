@@ -26,12 +26,15 @@ Examples that show how to work with rmakers in a statal way.
         ...         previous_state=previous_state,
         ...         state=state,
         ...     )
-        ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
-        ...     voice = lilypond_file_["Voice"]
-        ...     rmakers.duration_bracket(tuplets)
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
+        ...     rmakers.override_tuplet_number_text_duration_markup(tuplets)
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.feather_beam(leaf_lists)
-        ...     return lilypond_file_, state
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     rmakers.override_beam_grow_direction(leaf_lists)
+        ...     return lilypond_file, state
 
         >>> pairs = [(3, 8), (4, 8), (3, 8)]
         >>> lilypond_file, state = make_statal_accelerandi(pairs)
@@ -263,12 +266,14 @@ Examples that show how to work with rmakers in a statal way.
     ...         durations, [16, 8, 4], extra_counts=[0, 1],
     ...         previous_state=previous_state, state=state
     ...     )
-    ...     lilypond_file_ = rmakers.example(tuplets, time_signatures)
-    ...     voice = lilypond_file_["Voice"]
+    ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+    ...         tuplets, time_signatures
+    ...     )
+    ...     voice = lilypond_file["Voice"]
     ...     leaf_lists = [_[:] for _ in tuplets]
     ...     rmakers.beam_runs(leaf_lists)
-    ...     rmakers.extract_trivial(tuplets)
-    ...     return lilypond_file_, state
+    ...     rmakers.extract_trivial_tuplets(tuplets)
+    ...     return lilypond_file, state
 
     >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
     >>> lilypond_file, state = make_lilypond_file(pairs)
@@ -398,9 +403,11 @@ Examples that show how to work with rmakers in a statal way.
     ...     container = abjad.Container(tuplets)
     ...     leaf_lists = [_[:] for _ in tuplets]
     ...     rmakers.beam_runs(leaf_lists)
-    ...     rmakers.extract_trivial(tuplets)
+    ...     rmakers.extract_trivial_tuplets(tuplets)
     ...     components = abjad.mutate.eject_contents(container)
-    ...     lilypond_file = rmakers.example(components, time_signatures)
+    ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+    ...         components, time_signatures
+    ...     )
     ...     return lilypond_file, state
 
     ..  container:: example

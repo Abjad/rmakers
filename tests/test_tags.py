@@ -17,9 +17,12 @@ def test_tags_01():
         )
         tuplets = rmakers.accelerando(durations, [interpolation], tag=tag)
         leaf_lists = [_[:] for _ in tuplets]
-        lilypond_file = rmakers.example(tuplets, time_signatures)
-        rmakers.feather_beam(leaf_lists, tag=tag)
-        rmakers.duration_bracket(tuplets)
+        lilypond_file = rmakers.docs.make_example_lilypond_file(
+            tuplets, time_signatures
+        )
+        rmakers.beam_runs(leaf_lists, tag=tag)
+        rmakers.override_beam_grow_direction(leaf_lists, tag=tag)
+        rmakers.override_tuplet_number_text_duration_markup(tuplets)
         return lilypond_file
 
     pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
@@ -51,7 +54,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 63/32
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.feather_beam()
+                          %! rmakers.beam_runs()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.accelerando()
@@ -69,7 +72,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 13/16
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.feather_beam()
+                          %! rmakers.beam_runs()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
                       %! rmakers.accelerando()
@@ -88,7 +91,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 117/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.feather_beam()
+                          %! rmakers.beam_runs()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.accelerando()
@@ -103,7 +106,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 47/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.feather_beam()
+                          %! rmakers.beam_runs()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
                       %! rmakers.accelerando()
@@ -122,7 +125,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 63/32
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.feather_beam()
+                          %! rmakers.beam_runs()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.accelerando()
@@ -140,7 +143,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 13/16
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.feather_beam()
+                          %! rmakers.beam_runs()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
                       %! rmakers.accelerando()
@@ -159,7 +162,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 117/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.feather_beam()
+                          %! rmakers.beam_runs()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.accelerando()
@@ -174,7 +177,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 47/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.feather_beam()
+                          %! rmakers.beam_runs()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
                       %! rmakers.accelerando()
@@ -211,7 +214,9 @@ def test_tags_02():
         leaf_lists = [_[:] for _ in tuplets]
         rmakers.beam_runs(leaf_lists, tag=tag)
         rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        lilypond_file = rmakers.example(tuplets, time_signatures)
+        lilypond_file = rmakers.docs.make_example_lilypond_file(
+            tuplets, time_signatures
+        )
         return lilypond_file
 
     pairs = [(8, 8), (4, 8), (6, 8)]
@@ -308,7 +313,9 @@ def test_tags_03():
             durations, [1, 2, 3, 4], 16, extra_counts=[0, 1], tag=tag
         )
         rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        lilypond_file = rmakers.example(tuplets, time_signatures)
+        lilypond_file = rmakers.docs.make_example_lilypond_file(
+            tuplets, time_signatures
+        )
         leaf_lists = [_[:] for _ in tuplets]
         rmakers.beam_runs(leaf_lists, tag=tag)
         return lilypond_file
@@ -451,7 +458,9 @@ def test_tags_04():
         tag = abjad.Tag("TUPLET_RHYTHM_MAKER")
         tuplets = rmakers.tuplet(durations, [(3, 2)], tag=tag)
         rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        lilypond_file = rmakers.example(tuplets, time_signatures)
+        lilypond_file = rmakers.docs.make_example_lilypond_file(
+            tuplets, time_signatures
+        )
         leaf_lists = [_[:] for _ in tuplets]
         rmakers.beam_runs(leaf_lists, tag=tag)
         return lilypond_file
