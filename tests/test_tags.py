@@ -210,7 +210,7 @@ def test_tags_02():
             talea_denominator=8,
             tag=tag,
         )
-        rmakers.force_augmentation(tuplets)
+        rmakers.toggle_diminished_tuplets(tuplets)
         leaf_lists = [_[:] for _ in tuplets]
         rmakers.beam_runs(leaf_lists, tag=tag)
         rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)

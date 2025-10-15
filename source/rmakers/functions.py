@@ -660,336 +660,6 @@ def extract_trivial_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> 
             abjad.mutate.extract(tuplet)
 
 
-# TODO: rename
-def force_augmentation(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
-    r"""
-    Spells each tuplet in ``tuplets`` as an augmentation.
-
-    ..  container:: example
-
-        >>> def make_lilypond_file(pairs, force_augmentation=False):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         tuplets, time_signatures
-        ...     )
-        ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     if force_augmentation is True:
-        ...         rmakers.force_augmentation(tuplets)
-        ...     tweak_string = r"\tweak text #tuplet-number::calc-fraction-text"
-        ...     for tuplet in tuplets:
-        ...         abjad.tweak(tuplet, tweak_string)
-        ...     score = lilypond_file["Score"]
-        ...     abjad.override(score).TupletBracket.bracket_visibility = True
-        ...     abjad.override(score).TupletBracket.staff_padding = 4.5
-        ...     abjad.setting(score).tupletFullLength = True
-        ...     return lilypond_file
-
-    ..  container:: example
-
-        Without forced augmentation:
-
-        >>> pairs = [(2, 8), (2, 8), (2, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs, force_augmentation=False)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            \with
-            {
-                \override TupletBracket.bracket-visibility = ##t
-                \override TupletBracket.staff-padding = 4.5
-                tupletFullLength = ##t
-            }
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/2
-                        {
-                            \time 2/8
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        With forced augmentation:
-
-        >>> pairs = [(2, 8), (2, 8), (2, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs, force_augmentation=True)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            \with
-            {
-                \override TupletBracket.bracket-visibility = ##t
-                \override TupletBracket.staff-padding = 4.5
-                tupletFullLength = ##t
-            }
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/4
-                        {
-                            \time 2/8
-                            c'16
-                            [
-                            c'16
-                            c'16
-                            ]
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/4
-                        {
-                            c'16
-                            [
-                            c'16
-                            c'16
-                            ]
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/4
-                        {
-                            c'16
-                            [
-                            c'16
-                            c'16
-                            ]
-                        }
-                    }
-                }
-            }
-
-    """
-    assert _is_tuplet_list(tuplets), repr(tuplets)
-    for tuplet in tuplets:
-        if not tuplet.ratio().is_augmented():
-            tuplet.toggle_prolation()
-
-
-# TODO: rename
-def force_diminution(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
-    r"""
-    Spells each tuplet in ``tuplets`` as diminution.
-
-    ..  container:: example
-
-        >>> def make_lilypond_file(pairs, force_diminution=False):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [1], 16, extra_counts=[0, -1])
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         tuplets, time_signatures
-        ...     )
-        ...     voice = lilypond_file["Voice"]
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
-        ...     tuplets = abjad.select.tuplets(voice)
-        ...     if force_diminution is True:
-        ...         rmakers.force_diminution(tuplets)
-        ...     tweak_string = r"\tweak text #tuplet-number::calc-fraction-text"
-        ...     for tuplet in tuplets:
-        ...         abjad.tweak(tuplet, tweak_string)
-        ...     score = lilypond_file["Score"]
-        ...     abjad.override(score).TupletBracket.bracket_visibility = True
-        ...     abjad.override(score).TupletBracket.staff_padding = 4.5
-        ...     abjad.setting(score).tupletFullLength = True
-        ...     return lilypond_file
-
-    ..  container:: example
-
-        Without forced diminution (default):
-
-        >>> pairs = [(1, 4), (1, 4), (1, 4), (1, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs, force_diminution=False)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            \with
-            {
-                \override TupletBracket.bracket-visibility = ##t
-                \override TupletBracket.staff-padding = 4.5
-                tupletFullLength = ##t
-            }
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        {
-                            \time 1/4
-                            c'16
-                            [
-                            c'16
-                            c'16
-                            c'16
-                            ]
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/4
-                        {
-                            c'16
-                            [
-                            c'16
-                            c'16
-                            ]
-                        }
-                        {
-                            c'16
-                            [
-                            c'16
-                            c'16
-                            c'16
-                            ]
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/4
-                        {
-                            c'16
-                            [
-                            c'16
-                            c'16
-                            ]
-                        }
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        With forced diminution (default):
-
-        >>> pairs = [(1, 4), (1, 4), (1, 4), (1, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs, force_diminution=True)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            \with
-            {
-                \override TupletBracket.bracket-visibility = ##t
-                \override TupletBracket.staff-padding = 4.5
-                tupletFullLength = ##t
-            }
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        {
-                            \time 1/4
-                            c'16
-                            [
-                            c'16
-                            c'16
-                            c'16
-                            ]
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                        {
-                            c'16
-                            [
-                            c'16
-                            c'16
-                            c'16
-                            ]
-                        }
-                        \tweak text #tuplet-number::calc-fraction-text
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                    }
-                }
-            }
-
-    """
-    assert _is_tuplet_list(tuplets), repr(tuplets)
-    for tuplet in tuplets:
-        if not tuplet.ratio().is_diminished():
-            tuplet.toggle_prolation()
-
-
 # TODO: rename to `replace_leaves_with_notes`
 def force_note(
     leaves: collections.abc.Iterable[abjad.Leaf],
@@ -3931,6 +3601,334 @@ def time_signatures(
     """
     assert all(isinstance(_, tuple) for _ in pairs), repr(pairs)
     return [abjad.TimeSignature(_) for _ in pairs]
+
+
+def toggle_diminished_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
+    r"""
+    Toggles prolation of each diminished tuplet in ``tuplets``.
+
+    ..  container:: example
+
+        >>> def make_lilypond_file(pairs, toggle_diminished_tuplets=False):
+        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     if toggle_diminished_tuplets is True:
+        ...         rmakers.toggle_diminished_tuplets(tuplets)
+        ...     tweak_string = r"\tweak text #tuplet-number::calc-fraction-text"
+        ...     for tuplet in tuplets:
+        ...         abjad.tweak(tuplet, tweak_string)
+        ...     score = lilypond_file["Score"]
+        ...     abjad.override(score).TupletBracket.bracket_visibility = True
+        ...     abjad.override(score).TupletBracket.staff_padding = 4.5
+        ...     abjad.setting(score).tupletFullLength = True
+        ...     return lilypond_file
+
+    ..  container:: example
+
+        Without forced augmentation:
+
+        >>> pairs = [(2, 8), (2, 8), (2, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs, toggle_diminished_tuplets=False)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            \with
+            {
+                \override TupletBracket.bracket-visibility = ##t
+                \override TupletBracket.staff-padding = 4.5
+                tupletFullLength = ##t
+            }
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/2
+                        {
+                            \time 2/8
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                    }
+                }
+            }
+
+    ..  container:: example
+
+        With forced augmentation:
+
+        >>> pairs = [(2, 8), (2, 8), (2, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs, toggle_diminished_tuplets=True)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            \with
+            {
+                \override TupletBracket.bracket-visibility = ##t
+                \override TupletBracket.staff-padding = 4.5
+                tupletFullLength = ##t
+            }
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/4
+                        {
+                            \time 2/8
+                            c'16
+                            [
+                            c'16
+                            c'16
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/4
+                        {
+                            c'16
+                            [
+                            c'16
+                            c'16
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/4
+                        {
+                            c'16
+                            [
+                            c'16
+                            c'16
+                            ]
+                        }
+                    }
+                }
+            }
+
+    """
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    for tuplet in tuplets:
+        if not tuplet.ratio().is_augmented():
+            tuplet.toggle_prolation()
+
+
+def toggle_augmented_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
+    r"""
+    Spells each tuplet in ``tuplets`` as diminution.
+
+    ..  container:: example
+
+        >>> def make_lilypond_file(pairs, toggle_augmented_tuplets=False):
+        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.talea(durations, [1], 16, extra_counts=[0, -1])
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     rmakers.swap_trivial_tuplets_for_containers(tuplets)
+        ...     tuplets = abjad.select.tuplets(voice)
+        ...     if toggle_augmented_tuplets is True:
+        ...         rmakers.toggle_augmented_tuplets(tuplets)
+        ...     tweak_string = r"\tweak text #tuplet-number::calc-fraction-text"
+        ...     for tuplet in tuplets:
+        ...         abjad.tweak(tuplet, tweak_string)
+        ...     score = lilypond_file["Score"]
+        ...     abjad.override(score).TupletBracket.bracket_visibility = True
+        ...     abjad.override(score).TupletBracket.staff_padding = 4.5
+        ...     abjad.setting(score).tupletFullLength = True
+        ...     return lilypond_file
+
+    ..  container:: example
+
+        Without forced diminution (default):
+
+        >>> pairs = [(1, 4), (1, 4), (1, 4), (1, 4)]
+        >>> lilypond_file = make_lilypond_file(pairs, toggle_augmented_tuplets=False)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            \with
+            {
+                \override TupletBracket.bracket-visibility = ##t
+                \override TupletBracket.staff-padding = 4.5
+                tupletFullLength = ##t
+            }
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        {
+                            \time 1/4
+                            c'16
+                            [
+                            c'16
+                            c'16
+                            c'16
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/4
+                        {
+                            c'16
+                            [
+                            c'16
+                            c'16
+                            ]
+                        }
+                        {
+                            c'16
+                            [
+                            c'16
+                            c'16
+                            c'16
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/4
+                        {
+                            c'16
+                            [
+                            c'16
+                            c'16
+                            ]
+                        }
+                    }
+                }
+            }
+
+    ..  container:: example
+
+        With forced diminution (default):
+
+        >>> pairs = [(1, 4), (1, 4), (1, 4), (1, 4)]
+        >>> lilypond_file = make_lilypond_file(pairs, toggle_augmented_tuplets=True)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            \with
+            {
+                \override TupletBracket.bracket-visibility = ##t
+                \override TupletBracket.staff-padding = 4.5
+                tupletFullLength = ##t
+            }
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        {
+                            \time 1/4
+                            c'16
+                            [
+                            c'16
+                            c'16
+                            c'16
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                        {
+                            c'16
+                            [
+                            c'16
+                            c'16
+                            c'16
+                            ]
+                        }
+                        \tweak text #tuplet-number::calc-fraction-text
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                    }
+                }
+            }
+
+    """
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    for tuplet in tuplets:
+        if not tuplet.ratio().is_diminished():
+            tuplet.toggle_prolation()
 
 
 # TODO: rename with verb

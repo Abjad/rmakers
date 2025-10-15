@@ -1345,7 +1345,7 @@ def even_division(
         ...         tuplets, time_signatures
         ...     )
         ...     voice = lilypond_file["Voice"]
-        ...     rmakers.force_diminution(tuplets)
+        ...     rmakers.toggle_augmented_tuplets(tuplets)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial_tuplets(tuplets)
