@@ -3605,7 +3605,7 @@ def time_signatures(
 
 def toggle_diminished_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
     r"""
-    Toggles prolation of each diminished tuplet in ``tuplets``.
+    Toggles prolation of diminished tuplets in ``tuplets``.
 
     ..  container:: example
 
@@ -3632,7 +3632,7 @@ def toggle_diminished_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -
 
     ..  container:: example
 
-        Without forced augmentation:
+        Does not toggle diminished tuplets:
 
         >>> pairs = [(2, 8), (2, 8), (2, 8)]
         >>> lilypond_file = make_lilypond_file(pairs, toggle_diminished_tuplets=False)
@@ -3693,7 +3693,7 @@ def toggle_diminished_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -
 
     ..  container:: example
 
-        With forced augmentation:
+        Toggles diminished tuplets:
 
         >>> pairs = [(2, 8), (2, 8), (2, 8)]
         >>> lilypond_file = make_lilypond_file(pairs, toggle_diminished_tuplets=True)
@@ -3755,13 +3755,13 @@ def toggle_diminished_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -
     """
     assert _is_tuplet_list(tuplets), repr(tuplets)
     for tuplet in tuplets:
-        if not tuplet.ratio().is_augmented():
+        if tuplet.ratio().is_diminished() is True:
             tuplet.toggle_prolation()
 
 
 def toggle_augmented_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
     r"""
-    Spells each tuplet in ``tuplets`` as diminution.
+    Toggles prolation of augmented tuplets in ``tuplets``.
 
     ..  container:: example
 
@@ -3790,7 +3790,7 @@ def toggle_augmented_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) ->
 
     ..  container:: example
 
-        Without forced diminution (default):
+        Does not toggle augmented tuplets:
 
         >>> pairs = [(1, 4), (1, 4), (1, 4), (1, 4)]
         >>> lilypond_file = make_lilypond_file(pairs, toggle_augmented_tuplets=False)
@@ -3858,7 +3858,7 @@ def toggle_augmented_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) ->
 
     ..  container:: example
 
-        With forced diminution (default):
+        Toggles augmented tuplets:
 
         >>> pairs = [(1, 4), (1, 4), (1, 4), (1, 4)]
         >>> lilypond_file = make_lilypond_file(pairs, toggle_augmented_tuplets=True)
@@ -3927,7 +3927,7 @@ def toggle_augmented_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) ->
     """
     assert _is_tuplet_list(tuplets), repr(tuplets)
     for tuplet in tuplets:
-        if not tuplet.ratio().is_diminished():
+        if tuplet.ratio().is_augmented() is True:
             tuplet.toggle_prolation()
 
 
