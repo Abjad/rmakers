@@ -67,7 +67,7 @@
 #
 #            >>> stack = rmakers.stack(
 #            ...     rmakers.talea([4], 16, extra_counts=[0, 1, 2]),
-#            ...     rmakers.force_rest(
+#            ...     rmakers.replace_leaves_with_rests(
 #            ...         lambda _: abjad.select(_).logical_ties().get([3], 4),
 #            ...     ),
 #            ...     rmakers.beam_runs(),
