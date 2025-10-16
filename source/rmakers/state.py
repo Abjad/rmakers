@@ -10,7 +10,7 @@ Examples that show how to work with rmakers in a statal way.
         Consumes 3 durations:
 
         >>> def make_statal_accelerandi(pairs, previous_state=None):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     if previous_state is None:
         ...         previous_state = {}
@@ -259,7 +259,7 @@ Examples that show how to work with rmakers in a statal way.
     Fills durations with 16th, 8th, quarter notes. Consumes 5 durations:
 
     >>> def make_lilypond_file(pairs, *, previous_state=None):
-    ...     time_signatures = rmakers.time_signatures(pairs)
+    ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
     ...     durations = [_.duration() for _ in time_signatures]
     ...     state = {}
     ...     tuplets = rmakers.even_division(
@@ -391,7 +391,7 @@ Examples that show how to work with rmakers in a statal way.
     Using ``rmakers.talea()`` with the ``previous_state`` keyword.
 
     >>> def make_lilypond_file(pairs, *, previous_state=None):
-    ...     time_signatures = rmakers.time_signatures(pairs)
+    ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
     ...     durations = [_.duration() for _ in time_signatures]
     ...     state = {}
     ...     tuplets = rmakers.talea(

@@ -125,6 +125,670 @@ def _make_beamable_groups(
     return beamable_groups
 
 
+def attach_invisible_music_commands_to_leaves(
+    leaves: collections.abc.Iterable[abjad.Leaf],
+    *,
+    tag: abjad.Tag = abjad.Tag(),
+) -> None:
+    """
+    Attaches invisible music commands to each leaf in ``leaves``.
+    """
+    assert _is_leaf_list(leaves), repr(leaves)
+    tag = tag.append(_function_name(inspect.currentframe()))
+    tag_1 = tag.append(abjad.Tag("INVISIBLE_MUSIC_COMMAND"))
+    literal_1 = abjad.LilyPondLiteral(r"\abjad-invisible-music", site="before")
+    tag_2 = tag.append(abjad.Tag("INVISIBLE_MUSIC_COLORING"))
+    literal_2 = abjad.LilyPondLiteral(r"\abjad-invisible-music-coloring", site="before")
+    for leaf in leaves:
+        abjad.attach(literal_1, leaf, tag=tag_1, deactivate=True)
+        abjad.attach(literal_2, leaf, tag=tag_2)
+
+
+def attach_repeat_ties_to_pleaves(
+    pleaves: collections.abc.Iterable[abjad.Note | abjad.Chord],
+    *,
+    tag: abjad.Tag = abjad.Tag(),
+) -> None:
+    r"""
+    Attaches repeat-tie to each pitched leaf in ``pleaves``.
+
+    ..  container:: example
+
+        Attaches repeat-tie to first pitched leaf in each nonfirst tuplet:
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     voice = abjad.Voice(tuplets)
+        ...     tuplets = abjad.select.tuplets(voice)[1:]
+        ...     notes = [abjad.select.note(_, 0) for _ in tuplets]
+        ...     rmakers.attach_repeat_ties_to_pleaves(notes)
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     components = abjad.mutate.eject_contents(voice)
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         components, time_signatures
+        ...     )
+        ...     return lilypond_file
+
+        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \tuplet 3/2
+                        {
+                            \time 2/8
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            c'8
+                            ]
+                        }
+                    }
+                }
+            }
+
+    ..  container:: example
+
+        Attaches repeat-ties to nonfirst notes in each tuplet:
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     voice = abjad.Voice(tuplets)
+        ...     tuplets = abjad.select.tuplets(voice)
+        ...     notes = [abjad.select.notes(_)[1:] for _ in tuplets]
+        ...     notes = abjad.sequence.flatten(notes)
+        ...     rmakers.attach_repeat_ties_to_pleaves(notes)
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     components = abjad.mutate.eject_contents(voice)
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         components, time_signatures
+        ...     )
+        ...     return lilypond_file
+
+        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \tuplet 3/2
+                        {
+                            \time 2/8
+                            c'8
+                            [
+                            c'8
+                            \repeatTie
+                            c'8
+                            ]
+                            \repeatTie
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            \repeatTie
+                            c'8
+                            ]
+                            \repeatTie
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            \repeatTie
+                            c'8
+                            ]
+                            \repeatTie
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            \repeatTie
+                            c'8
+                            ]
+                            \repeatTie
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            \repeatTie
+                            c'8
+                            ]
+                            \repeatTie
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            \repeatTie
+                            c'8
+                            ]
+                            \repeatTie
+                        }
+                    }
+                }
+            }
+
+    """
+    assert _is_pleaf_list(pleaves), repr(pleaves)
+    tag = tag.append(_function_name(inspect.currentframe()))
+    for pleaf in pleaves:
+        tie = abjad.RepeatTie()
+        abjad.attach(tie, pleaf, tag=tag)
+
+
+def attach_ties_to_pleaves(
+    pleaves: collections.abc.Iterable[abjad.Note | abjad.Chord],
+    *,
+    tag: abjad.Tag = abjad.Tag(),
+) -> None:
+    r"""
+    Attaches tie to each pitched pleaf in ``pleaves``.
+
+    ..  container:: example
+
+        Attaches tie to last pitched leaf in each nonlast tuplet:
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
+        ...     tuplets = abjad.select.tuplets(tuplets)[:-1]
+        ...     notes = [abjad.select.note(_, -1) for _ in tuplets]
+        ...     rmakers.attach_ties_to_pleaves(notes)
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     return lilypond_file
+
+        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \tuplet 3/2
+                        {
+                            \time 2/8
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            c'8
+                            ]
+                        }
+                    }
+                }
+            }
+
+    ..  container:: example
+
+        Ties the last leaf of nonlast tuplets:
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.talea(durations, [5, 3, 3, 3], 16)
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
+        ...     tuplets = abjad.select.tuplets(tuplets)[:-1]
+        ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
+        ...     rmakers.attach_ties_to_pleaves(leaves)
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     tuplets = abjad.select.tuplets(voice)
+        ...     rmakers.extract_trivial_tuplets(tuplets)
+        ...     return lilypond_file
+
+        >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \time 4/8
+                        c'4
+                        ~
+                        c'16
+                        [
+                        c'8.
+                        ]
+                        ~
+                        \time 3/8
+                        c'8.
+                        [
+                        c'8.
+                        ]
+                        ~
+                        \time 4/8
+                        c'4
+                        ~
+                        c'16
+                        [
+                        c'8.
+                        ]
+                        ~
+                        \time 3/8
+                        c'8.
+                        [
+                        c'8.
+                        ]
+                    }
+                }
+            }
+
+    ..  container:: example
+
+        Ties across every other tuplet:
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.talea(durations, [5, 3, 3, 3], 16)
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
+        ...     tuplets = abjad.select.get(tuplets[:-1], [0], 2)
+        ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
+        ...     rmakers.attach_ties_to_pleaves(leaves)
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     tuplets = abjad.select.tuplets(voice)
+        ...     rmakers.extract_trivial_tuplets(tuplets)
+        ...     return lilypond_file
+
+        >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \time 4/8
+                        c'4
+                        ~
+                        c'16
+                        [
+                        c'8.
+                        ]
+                        ~
+                        \time 3/8
+                        c'8.
+                        [
+                        c'8.
+                        ]
+                        \time 4/8
+                        c'4
+                        ~
+                        c'16
+                        [
+                        c'8.
+                        ]
+                        ~
+                        \time 3/8
+                        c'8.
+                        [
+                        c'8.
+                        ]
+                    }
+                }
+            }
+
+    ..  container:: example
+
+        TIE-CONSECUTIVE-NOTES RECIPE:
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.talea(durations, [5, -3, 3, 3], 16)
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
+        ...     leaves = abjad.select.leaves(voice)
+        ...     rmakers.detach_ties_from_leaves(leaves)
+        ...     runs = abjad.select.runs(voice)
+        ...     notes = [abjad.select.notes(_)[:-1] for _ in runs]
+        ...     notes = abjad.sequence.flatten(notes)
+        ...     rmakers.attach_ties_to_pleaves(notes)
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     rmakers.extract_trivial_tuplets(tuplets)
+        ...     return lilypond_file
+
+        >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \time 4/8
+                        c'4
+                        ~
+                        c'16
+                        r8.
+                        \time 3/8
+                        c'8.
+                        [
+                        ~
+                        c'8.
+                        ]
+                        ~
+                        \time 4/8
+                        c'4
+                        ~
+                        c'16
+                        r8.
+                        \time 3/8
+                        c'8.
+                        [
+                        ~
+                        c'8.
+                        ]
+                    }
+                }
+            }
+
+
+    ..  container:: example
+
+        Attaches ties to nonlast notes in each tuplet:
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
+        ...     notes = [abjad.select.notes(_)[:-1] for _ in tuplets]
+        ...     notes = abjad.sequence.flatten(notes)
+        ...     rmakers.detach_ties_from_leaves(notes)
+        ...     rmakers.attach_ties_to_pleaves(notes)
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     return lilypond_file
+
+        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \tuplet 3/2
+                        {
+                            \time 2/8
+                            c'8
+                            [
+                            ~
+                            c'8
+                            ~
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            ~
+                            c'8
+                            ~
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            ~
+                            c'8
+                            ~
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            ~
+                            c'8
+                            ~
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            ~
+                            c'8
+                            ~
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            ~
+                            c'8
+                            ~
+                            c'8
+                            ]
+                        }
+                    }
+                }
+            }
+
+    """
+    assert _is_pleaf_list(pleaves), repr(pleaves)
+    tag = tag.append(_function_name(inspect.currentframe()))
+    for pleaf in pleaves:
+        tie = abjad.Tie()
+        abjad.attach(tie, pleaf, tag=tag)
+
+
 def beam_across_leaf_lists(
     leaf_lists: collections.abc.Iterable[collections.abc.Iterable[abjad.Leaf]],
     *,
@@ -139,7 +803,7 @@ def beam_across_leaf_lists(
     ..  container:: example
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [1], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -276,7 +940,7 @@ def beam_across_leaf_lists(
     assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
     tag = tag.append(_function_name(inspect.currentframe()))
     leaves = abjad.select.leaves(leaf_lists)
-    unbeam_leaves(leaves)
+    detach_beams_from_leaves(leaves)
     durations = [abjad.get.duration(_) for _ in leaf_lists]
     leaves = abjad.select.leaves(leaf_lists)
     abjad.beam(
@@ -304,7 +968,7 @@ def beam_runs(
     ..  container:: example
 
         >>> def make_lilypond_file(pairs, beam_rests=False, stemlet_length=None):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [1, 1, 1, -1], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -558,7 +1222,7 @@ def beam_runs(
     assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
     tag = tag.append(_function_name(inspect.currentframe()))
     for leaf_list in leaf_lists:
-        unbeam_leaves(leaf_list)
+        detach_beams_from_leaves(leaf_list)
         abjad.beam(
             leaf_list,
             beam_lone_notes=beam_lone_notes,
@@ -566,6 +1230,1030 @@ def beam_runs(
             stemlet_length=stemlet_length,
             tag=tag,
         )
+
+
+def detach_beams_from_leaves(
+    leaves: collections.abc.Sequence[abjad.Leaf],
+    *,
+    smart: bool = False,
+    tag: abjad.Tag = abjad.Tag(),
+) -> None:
+    r"""
+    Detaches beam indicators from each leaf in ``leaves``.
+
+    Adjusts adjacent start- and stop-beams when ``smart=True``.
+
+    ..  container:: example
+
+        Unbeams 1 note:
+
+        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[:1], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        d'8
+                        [
+                        e'8
+                        f'8
+                        g'8
+                        a'8
+                        ]
+                    }
+                }
+            >>
+
+        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[1:2], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        d'8
+                        e'8
+                        [
+                        f'8
+                        g'8
+                        a'8
+                        ]
+                    }
+                }
+            >>
+
+        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[2:3], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        [
+                        d'8
+                        ]
+                        e'8
+                        f'8
+                        [
+                        g'8
+                        a'8
+                        ]
+                    }
+                }
+            >>
+
+        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[3:4], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        [
+                        d'8
+                        e'8
+                        ]
+                        f'8
+                        g'8
+                        [
+                        a'8
+                        ]
+                    }
+                }
+            >>
+
+        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[4:5], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        [
+                        d'8
+                        e'8
+                        f'8
+                        ]
+                        g'8
+                        a'8
+                    }
+                }
+            >>
+
+        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[5:6], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        [
+                        d'8
+                        e'8
+                        f'8
+                        g'8
+                        ]
+                        a'8
+                    }
+                }
+            >>
+
+    ..  container:: example
+
+        Unbeams 2 notes:
+
+        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[:2], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        d'8
+                        e'8
+                        [
+                        f'8
+                        g'8
+                        a'8
+                        ]
+                    }
+                }
+            >>
+
+        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[1:3], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        d'8
+                        e'8
+                        f'8
+                        [
+                        g'8
+                        a'8
+                        ]
+                    }
+                }
+            >>
+
+        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[2:4], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        [
+                        d'8
+                        ]
+                        e'8
+                        f'8
+                        g'8
+                        [
+                        a'8
+                        ]
+                    }
+                }
+            >>
+
+        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[3:5], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        [
+                        d'8
+                        e'8
+                        ]
+                        f'8
+                        g'8
+                        a'8
+                    }
+                }
+            >>
+
+        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[4:], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        [
+                        d'8
+                        e'8
+                        f'8
+                        ]
+                        g'8
+                        a'8
+                    }
+                }
+            >>
+
+    ..  container:: example
+
+        Unbeams 1 note:
+
+        >>> voice = abjad.Voice("c'8 [ d' ] e' [ f' ] g' [ a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[:1], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        d'8
+                        e'8
+                        [
+                        f'8
+                        ]
+                        g'8
+                        [
+                        a'8
+                        ]
+                    }
+                }
+            >>
+
+        >>> voice = abjad.Voice("c'8 [ d' ] e' [ f' ] g' [ a' ]")
+        >>> staff = abjad.Staff([voice])
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(voice[1:2], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    \new Voice
+                    {
+                        c'8
+                        d'8
+                        e'8
+                        [
+                        f'8
+                        ]
+                        g'8
+                        [
+                        a'8
+                        ]
+                    }
+                }
+            >>
+
+        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(staff[2:3], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    c'8
+                    [
+                    d'8
+                    ]
+                    e'8
+                    f'8
+                    g'8
+                    [
+                    a'8
+                    ]
+                }
+            >>
+
+        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(staff[3:4], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    c'8
+                    [
+                    d'8
+                    ]
+                    e'8
+                    f'8
+                    g'8
+                    [
+                    a'8
+                    ]
+                }
+            >>
+
+        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(staff[4:5], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    c'8
+                    [
+                    d'8
+                    ]
+                    e'8
+                    [
+                    f'8
+                    ]
+                    g'8
+                    a'8
+                }
+            >>
+
+        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(staff[5:6], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    c'8
+                    [
+                    d'8
+                    ]
+                    e'8
+                    [
+                    f'8
+                    ]
+                    g'8
+                    a'8
+                }
+            >>
+
+    ..  container:: example
+
+        Unbeams 2 notes:
+
+        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(staff[:2], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    c'8
+                    d'8
+                    e'8
+                    [
+                    f'8
+                    ]
+                    g'8
+                    [
+                    a'8
+                    ]
+                }
+            >>
+
+        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(staff[1:3], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    c'8
+                    d'8
+                    e'8
+                    f'8
+                    g'8
+                    [
+                    a'8
+                    ]
+                }
+            >>
+
+        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(staff[2:4], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    c'8
+                    [
+                    d'8
+                    ]
+                    e'8
+                    f'8
+                    g'8
+                    [
+                    a'8
+                    ]
+                }
+            >>
+
+        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(staff[3:5], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    c'8
+                    [
+                    d'8
+                    ]
+                    e'8
+                    f'8
+                    g'8
+                    a'8
+                }
+            >>
+
+        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
+        >>> score = abjad.Score([staff])
+        >>> abjad.setting(score).autoBeaming = False
+        >>> rmakers.detach_beams_from_leaves(staff[4:], smart=True)
+        >>> abjad.show(score) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \new Score
+            \with
+            {
+                autoBeaming = ##f
+            }
+            <<
+                \new Staff
+                {
+                    c'8
+                    [
+                    d'8
+                    ]
+                    e'8
+                    [
+                    f'8
+                    ]
+                    g'8
+                    a'8
+                }
+            >>
+
+    """
+    assert _is_leaf_list(leaves), repr(leaves)
+    assert isinstance(smart, bool), repr(smart)
+    leaf: abjad.Leaf | None
+    for leaf in leaves:
+        abjad.detach(abjad.BeamCount, leaf)
+        abjad.detach(abjad.StartBeam, leaf)
+        abjad.detach(abjad.StopBeam, leaf)
+    # TODO: move into separate function;
+    #       name could be something like detach_and_move_beams_*()
+    if smart is True:
+        tag = tag.append(_function_name(inspect.currentframe()))
+        unmatched_start_beam = False
+        leaf = leaves[0]
+        leaf = abjad.get.leaf(leaf, -1)
+        if leaf is not None:
+            if abjad.get.has_indicator(leaf, abjad.StopBeam):
+                pass
+            elif abjad.get.has_indicator(leaf, abjad.StartBeam):
+                abjad.detach(abjad.StartBeam, leaf)
+            else:
+                while True:
+                    leaf = abjad.get.leaf(leaf, -1)
+                    if leaf is None:
+                        break
+                    if abjad.get.has_indicator(leaf, abjad.StopBeam):
+                        break
+                    if abjad.get.has_indicator(leaf, abjad.StartBeam):
+                        unmatched_start_beam = True
+                        break
+        unmatched_stop_beam = False
+        leaf = leaves[-1]
+        leaf = abjad.get.leaf(leaf, 1)
+        if leaf is not None:
+            if abjad.get.has_indicator(leaf, abjad.StartBeam):
+                pass
+            elif abjad.get.has_indicator(leaf, abjad.StopBeam):
+                abjad.detach(abjad.StopBeam, leaf)
+            else:
+                while True:
+                    leaf = abjad.get.leaf(leaf, 1)
+                    if leaf is None:
+                        break
+                    if abjad.get.has_indicator(leaf, abjad.StartBeam):
+                        break
+                    if abjad.get.has_indicator(leaf, abjad.StopBeam):
+                        unmatched_stop_beam = True
+                        break
+        if unmatched_start_beam is True:
+            leaf = leaves[0]
+            leaf = abjad.get.leaf(leaf, -1)
+            assert leaf is not None
+            abjad.attach(abjad.StopBeam(), leaf, tag=tag)
+        if unmatched_stop_beam is True:
+            leaf = leaves[-1]
+            leaf = abjad.get.leaf(leaf, 1)
+            assert leaf is not None
+            abjad.attach(abjad.StartBeam(), leaf, tag=tag)
+
+
+def detach_ties_from_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> None:
+    r"""
+    Detaches tie indicators from each leaf in ``leaves``.
+
+    ..  container:: example
+
+        Attaches ties to nonlast notes; then detaches ties from select notes:
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         tuplets, time_signatures
+        ...     )
+        ...     voice = lilypond_file["Voice"]
+        ...     notes = abjad.select.notes(voice)[:-1]
+        ...     rmakers.attach_ties_to_pleaves(notes)
+        ...     notes = abjad.select.notes(voice)
+        ...     notes = abjad.select.get(notes, [0], 4)
+        ...     rmakers.detach_ties_from_leaves(notes)
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     return lilypond_file
+
+        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \tuplet 3/2
+                        {
+                            \time 2/8
+                            c'8
+                            [
+                            c'8
+                            ~
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            ~
+                            c'8
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            ~
+                            c'8
+                            ~
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            ~
+                            c'8
+                            ~
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            ~
+                            c'8
+                            ]
+                            ~
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            ~
+                            c'8
+                            c'8
+                            ]
+                        }
+                    }
+                }
+            }
+
+    ..  container:: example
+
+        Attaches repeat-ties to nonfirst notes; then detaches ties from select notes:
+
+        >>> def make_lilypond_file(pairs):
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
+        ...     durations = abjad.duration.durations(time_signatures)
+        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     leaf_lists = [_[:] for _ in tuplets]
+        ...     voice = abjad.Voice(tuplets)
+        ...     notes = abjad.select.notes(voice)[1:]
+        ...     rmakers.attach_repeat_ties_to_pleaves(notes)
+        ...     notes = abjad.select.notes(voice)
+        ...     notes = abjad.select.get(notes, [0], 4)
+        ...     rmakers.detach_ties_from_leaves(notes)
+        ...     rmakers.beam_runs(leaf_lists)
+        ...     components = abjad.mutate.eject_contents(voice)
+        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
+        ...         components, time_signatures
+        ...     )
+        ...     return lilypond_file
+
+        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
+        >>> lilypond_file = make_lilypond_file(pairs)
+        >>> abjad.show(lilypond_file) # doctest: +SKIP
+
+        ..  docs::
+
+            >>> score = lilypond_file["Score"]
+            >>> string = abjad.lilypond(score)
+            >>> print(string)
+            \context Score = "Score"
+            {
+                \context RhythmicStaff = "Staff"
+                \with
+                {
+                    \override Clef.stencil = ##f
+                }
+                {
+                    \context Voice = "Voice"
+                    {
+                        \tuplet 3/2
+                        {
+                            \time 2/8
+                            c'8
+                            [
+                            c'8
+                            \repeatTie
+                            c'8
+                            ]
+                            \repeatTie
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            c'8
+                            ]
+                            \repeatTie
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            \repeatTie
+                            c'8
+                            ]
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            \repeatTie
+                            c'8
+                            ]
+                            \repeatTie
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            c'8
+                            \repeatTie
+                            c'8
+                            ]
+                            \repeatTie
+                        }
+                        \tuplet 3/2
+                        {
+                            c'8
+                            [
+                            \repeatTie
+                            c'8
+                            c'8
+                            ]
+                            \repeatTie
+                        }
+                    }
+                }
+            }
+
+    """
+    assert _is_leaf_list(leaves), repr(leaves)
+    for leaf in leaves:
+        abjad.detach(abjad.Tie, leaf)
+        abjad.detach(abjad.RepeatTie, leaf)
 
 
 def extract_rest_filled_tuplets(
@@ -587,7 +2275,7 @@ def extract_trivial_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> 
     ..  container:: example
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.even_division(durations, [8])
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -660,433 +2348,6 @@ def extract_trivial_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> 
             abjad.mutate.extract(tuplet)
 
 
-# TODO: rename to `tag_each_leaf_as_invisible_music`
-def invisible_music(
-    leaves: collections.abc.Iterable[abjad.Leaf],
-    *,
-    tag: abjad.Tag = abjad.Tag(),
-) -> None:
-    """
-    Makes ``argument`` invisible.
-    """
-    assert _is_leaf_list(leaves), repr(leaves)
-    tag = tag.append(_function_name(inspect.currentframe()))
-    tag_1 = tag.append(abjad.Tag("INVISIBLE_MUSIC_COMMAND"))
-    literal_1 = abjad.LilyPondLiteral(r"\abjad-invisible-music", site="before")
-    tag_2 = tag.append(abjad.Tag("INVISIBLE_MUSIC_COLORING"))
-    literal_2 = abjad.LilyPondLiteral(r"\abjad-invisible-music-coloring", site="before")
-    for leaf in leaves:
-        abjad.attach(literal_1, leaf, tag=tag_1, deactivate=True)
-        abjad.attach(literal_2, leaf, tag=tag_2)
-
-
-# TODO: rename to `make_interpolation`
-def interpolate(
-    start_duration: abjad.Duration,
-    stop_duration: abjad.Duration,
-    written_duration: abjad.Duration,
-) -> _classes.Interpolation:
-    """
-    Makes interpolation.
-    """
-    return _classes.Interpolation(
-        start_duration,
-        stop_duration,
-        written_duration,
-    )
-
-
-# TODO: rename to `select_nongrace_leaves_in_each_tuplet` & clean up typehint
-def nongrace_leaves_in_each_tuplet(
-    tuplets: collections.abc.Iterable[abjad.Tuplet],
-) -> list[list[abjad.Leaf]]:
-    """
-    Selects nongrace leaves in each tuplet in ``tuplets``.
-    """
-    assert _is_tuplet_list(tuplets), repr(tuplets)
-    leaf_lists = [abjad.select.leaves(_, grace=False) for _ in tuplets]
-    assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
-    return leaf_lists
-
-
-# TODO: rename with verb
-def on_beat_grace_container(
-    voice: abjad.Voice,
-    voice_name: str,
-    nongrace_leaf_lists: collections.abc.Iterable[collections.abc.Iterable[abjad.Leaf]],
-    counts: collections.abc.Sequence[int],
-    *,
-    grace_leaf_duration: abjad.Duration | None = None,
-    grace_polyphony_command: abjad.VoiceNumber = abjad.VoiceNumber(1),
-    nongrace_polyphony_command: abjad.VoiceNumber = abjad.VoiceNumber(2),
-    tag: abjad.Tag = abjad.Tag(),
-    talea: _classes.Talea = _classes.Talea([1], 8),
-) -> None:
-    r"""
-    Makes on-beat grace containers.
-
-    ..  container:: example
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [4], extra_counts=[2])
-        ...     voice = abjad.Voice(tuplets)
-        ...     tuplets = abjad.select.tuplets(voice)
-        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
-        ...     notes = [abjad.select.notes(_) for _ in tuplets]
-        ...     notes = [abjad.select.exclude(_, [0, -1]) for _ in notes]
-        ...     notes = abjad.select.notes(notes)
-        ...     groups = [[_] for _ in notes]
-        ...     rmakers.on_beat_grace_container(
-        ...         voice,
-        ...         "RhythmMaker.Music",
-        ...         groups,
-        ...         [2, 4],
-        ...         grace_leaf_duration=abjad.Duration(1, 28)
-        ...     )
-        ...     components = abjad.mutate.eject_contents(voice)
-        ...     music_voice = abjad.Voice(components, name="RhythmMaker.Music")
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         [music_voice], time_signatures, includes=["abjad.ily"]
-        ...     )
-        ...     staff = lilypond_file["Staff"]
-        ...     abjad.override(staff).TupletBracket.direction = abjad.UP
-        ...     abjad.override(staff).TupletBracket.staff_padding = 5
-        ...     return lilypond_file
-
-        >>> pairs = [(3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                    \override TupletBracket.direction = #up
-                    \override TupletBracket.staff-padding = 5
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \context Voice = "RhythmMaker.Music"
-                        {
-                            \tweak text #tuplet-number::calc-fraction-text
-                            \tuplet 5/3
-                            {
-                                \time 3/4
-                                c'4
-                                <<
-                                    \context Voice = "On_Beat_Grace_Container"
-                                    {
-                                        \set fontSize = #-3
-                                        \slash
-                                        \voiceOne
-                                        <
-                                            \tweak font-size 0
-                                            \tweak transparent ##t
-                                            c'
-                                        >8 * 10/21
-                                        [
-                                        (
-                                        c'8 * 10/21
-                                        )
-                                        ]
-                                    }
-                                    \context Voice = "RhythmMaker.Music"
-                                    {
-                                        \voiceTwo
-                                        c'4
-                                    }
-                                >>
-                                <<
-                                    \context Voice = "On_Beat_Grace_Container"
-                                    {
-                                        \set fontSize = #-3
-                                        \slash
-                                        \voiceOne
-                                        <
-                                            \tweak font-size 0
-                                            \tweak transparent ##t
-                                            c'
-                                        >8 * 10/21
-                                        [
-                                        (
-                                        c'8 * 10/21
-                                        c'8 * 10/21
-                                        c'8 * 10/21
-                                        )
-                                        ]
-                                    }
-                                    \context Voice = "RhythmMaker.Music"
-                                    {
-                                        \voiceTwo
-                                        c'4
-                                    }
-                                >>
-                                <<
-                                    \context Voice = "On_Beat_Grace_Container"
-                                    {
-                                        \set fontSize = #-3
-                                        \slash
-                                        \voiceOne
-                                        <
-                                            \tweak font-size 0
-                                            \tweak transparent ##t
-                                            c'
-                                        >8 * 10/21
-                                        [
-                                        (
-                                        c'8 * 10/21
-                                        )
-                                        ]
-                                    }
-                                    \context Voice = "RhythmMaker.Music"
-                                    {
-                                        \voiceTwo
-                                        c'4
-                                    }
-                                >>
-                                \oneVoice
-                                c'4
-                            }
-                        }
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [5], 16)
-        ...     voice = abjad.Voice(tuplets)
-        ...     rmakers.extract_trivial_tuplets(tuplets)
-        ...     logical_ties = abjad.select.logical_ties(voice)
-        ...     leaf_lists = [list(_) for _ in logical_ties]
-        ...     rmakers.on_beat_grace_container(
-        ...         voice,
-        ...         "RhythmMaker.Music",
-        ...         leaf_lists,
-        ...         [6, 2],
-        ...         grace_leaf_duration=abjad.Duration(1, 28)
-        ...     )
-        ...     components = abjad.mutate.eject_contents(voice)
-        ...     music_voice = abjad.Voice(components, name="RhythmMaker.Music")
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         [music_voice], time_signatures, includes=["abjad.ily"]
-        ...     )
-        ...     return lilypond_file
-
-        >>> pairs = [(3, 4), (3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \context Voice = "RhythmMaker.Music"
-                        {
-                            <<
-                                \context Voice = "On_Beat_Grace_Container"
-                                {
-                                    \set fontSize = #-3
-                                    \slash
-                                    \voiceOne
-                                    <
-                                        \tweak font-size 0
-                                        \tweak transparent ##t
-                                        c'
-                                    >8 * 2/7
-                                    [
-                                    (
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    )
-                                    ]
-                                }
-                                \context Voice = "RhythmMaker.Music"
-                                {
-                                    \time 3/4
-                                    \voiceTwo
-                                    c'4
-                                    ~
-                                    c'16
-                                }
-                            >>
-                            <<
-                                \context Voice = "On_Beat_Grace_Container"
-                                {
-                                    \set fontSize = #-3
-                                    \slash
-                                    \voiceOne
-                                    <
-                                        \tweak font-size 0
-                                        \tweak transparent ##t
-                                        c'
-                                    >8 * 2/7
-                                    [
-                                    (
-                                    c'8 * 2/7
-                                    )
-                                    ]
-                                }
-                                \context Voice = "RhythmMaker.Music"
-                                {
-                                    \voiceTwo
-                                    c'4
-                                    ~
-                                    c'16
-                                }
-                            >>
-                            <<
-                                \context Voice = "On_Beat_Grace_Container"
-                                {
-                                    \set fontSize = #-3
-                                    \slash
-                                    \voiceOne
-                                    <
-                                        \tweak font-size 0
-                                        \tweak transparent ##t
-                                        c'
-                                    >8 * 2/7
-                                    [
-                                    (
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    )
-                                    ]
-                                }
-                                \context Voice = "RhythmMaker.Music"
-                                {
-                                    \voiceTwo
-                                    c'8
-                                    ~
-                                    c'8.
-                                }
-                            >>
-                            <<
-                                \context Voice = "On_Beat_Grace_Container"
-                                {
-                                    \set fontSize = #-3
-                                    \slash
-                                    \voiceOne
-                                    <
-                                        \tweak font-size 0
-                                        \tweak transparent ##t
-                                        c'
-                                    >8 * 2/7
-                                    [
-                                    (
-                                    c'8 * 2/7
-                                    )
-                                    ]
-                                }
-                                \context Voice = "RhythmMaker.Music"
-                                {
-                                    \voiceTwo
-                                    c'4
-                                    ~
-                                    c'16
-                                }
-                            >>
-                            <<
-                                \context Voice = "On_Beat_Grace_Container"
-                                {
-                                    \set fontSize = #-3
-                                    \slash
-                                    \voiceOne
-                                    <
-                                        \tweak font-size 0
-                                        \tweak transparent ##t
-                                        c'
-                                    >8 * 2/7
-                                    [
-                                    (
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    c'8 * 2/7
-                                    )
-                                    ]
-                                }
-                                \context Voice = "RhythmMaker.Music"
-                                {
-                                    \voiceTwo
-                                    c'4
-                                }
-                            >>
-                        }
-                    }
-                }
-            }
-
-    """
-    assert _is_integer_list(counts), repr(counts)
-    assert _is_list_of_leaf_lists(nongrace_leaf_lists), repr(nongrace_leaf_lists)
-    assert isinstance(voice, abjad.Voice), repr(voice)
-    assert isinstance(voice_name, str), repr(voice_name)
-    assert isinstance(talea, _classes.Talea), repr(talea)
-    assert isinstance(grace_polyphony_command, abjad.VoiceNumber), repr(
-        grace_polyphony_command
-    )
-    assert isinstance(nongrace_polyphony_command, abjad.VoiceNumber), repr(
-        nongrace_polyphony_command
-    )
-    tag = tag.append(_function_name(inspect.currentframe()))
-    if voice_name:
-        voice.set_name(voice_name)
-    counts_cycle = abjad.CyclicTuple(counts)
-    start = 0
-    for i, nongrace_leaves in enumerate(nongrace_leaf_lists):
-        assert all(isinstance(_, abjad.Leaf) for _ in nongrace_leaves), repr(
-            nongrace_leaves
-        )
-        count = counts_cycle[i]
-        if not count:
-            continue
-        stop = start + count
-        pitch_list = [abjad.NamedPitch("c'")]
-        durations = abjad.duration.durations(list(talea[start:stop]))
-        leaves = abjad.makers.make_leaves([pitch_list], durations)
-        grace_leaves = [_ for _ in leaves if isinstance(_, abjad.Leaf)]
-        abjad.on_beat_grace_container(
-            grace_leaves,
-            nongrace_leaves,
-            grace_leaf_duration=grace_leaf_duration,
-            grace_polyphony_command=grace_polyphony_command,
-            nongrace_polyphony_command=nongrace_polyphony_command,
-            tag=tag,
-        )
-
-
 def override_beam_grow_direction(
     leaf_lists: collections.abc.Iterable[collections.abc.Sequence[abjad.Leaf]],
     *,
@@ -1144,15 +2405,6 @@ def override_beam_grow_direction(
         assert isinstance(stemlet_length, int | float), repr(stemlet_length)
     tag = tag.append(_function_name(inspect.currentframe()))
     for leaf_list in leaf_lists:
-        """
-        unbeam_leaves(leaf_list)
-        abjad.beam(
-            leaf_list,
-            beam_rests=beam_rests,
-            stemlet_length=stemlet_length,
-            tag=tag,
-        )
-        """
         first_leaf = leaf_list[0]
         last_leaf = leaf_list[-1]
         first_duration = abjad.get.duration(first_leaf)
@@ -1200,225 +2452,6 @@ def reduce_tuplet_ratios(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> Non
         tuplet.set_ratio(ratio)
 
 
-# TODO: rename to `attach_repeat_tie_to_each_leaf`
-def repeat_tie(
-    pleaves: collections.abc.Iterable[abjad.Note | abjad.Chord],
-    *,
-    tag: abjad.Tag = abjad.Tag(),
-) -> None:
-    r"""
-    Attaches repeat-ties to pitched leaves in ``pleaves``.
-
-    ..  container:: example
-
-        Attaches repeat-tie to first pitched leaf in each nonfirst tuplet:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     voice = abjad.Voice(tuplets)
-        ...     tuplets = abjad.select.tuplets(voice)[1:]
-        ...     notes = [abjad.select.note(_, 0) for _ in tuplets]
-        ...     rmakers.repeat_tie(notes)
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     components = abjad.mutate.eject_contents(voice)
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         components, time_signatures
-        ...     )
-        ...     return lilypond_file
-
-        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tuplet 3/2
-                        {
-                            \time 2/8
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            c'8
-                            ]
-                        }
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Attaches repeat-ties to nonfirst notes in each tuplet:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     voice = abjad.Voice(tuplets)
-        ...     tuplets = abjad.select.tuplets(voice)
-        ...     notes = [abjad.select.notes(_)[1:] for _ in tuplets]
-        ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.repeat_tie(notes)
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     components = abjad.mutate.eject_contents(voice)
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         components, time_signatures
-        ...     )
-        ...     return lilypond_file
-
-        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tuplet 3/2
-                        {
-                            \time 2/8
-                            c'8
-                            [
-                            c'8
-                            \repeatTie
-                            c'8
-                            ]
-                            \repeatTie
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            \repeatTie
-                            c'8
-                            ]
-                            \repeatTie
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            \repeatTie
-                            c'8
-                            ]
-                            \repeatTie
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            \repeatTie
-                            c'8
-                            ]
-                            \repeatTie
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            \repeatTie
-                            c'8
-                            ]
-                            \repeatTie
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            \repeatTie
-                            c'8
-                            ]
-                            \repeatTie
-                        }
-                    }
-                }
-            }
-
-    """
-    assert _is_pleaf_list(pleaves), repr(pleaves)
-    tag = tag.append(_function_name(inspect.currentframe()))
-    for pleaf in pleaves:
-        tie = abjad.RepeatTie()
-        abjad.attach(tie, pleaf, tag=tag)
-
-
 def replace_leaves_with_notes(
     leaves: collections.abc.Iterable[abjad.Leaf],
     *,
@@ -1432,7 +2465,7 @@ def replace_leaves_with_notes(
         Changes logical ties 1 and 2 to notes:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     components = rmakers.note(durations)
         ...     container = abjad.Container(components)
@@ -1481,7 +2514,7 @@ def replace_leaves_with_notes(
         Changes leaves to notes with inverted composite pattern:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     components = rmakers.note(durations)
         ...     container = abjad.Container(components)
@@ -1553,7 +2586,7 @@ def replace_leaves_with_rests(
         Forces first and last logical ties to rest:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
@@ -1621,7 +2654,7 @@ def replace_leaves_with_rests(
         Forces all logical ties to rest. Then sustains first and last logical ties:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
         ...     container = abjad.Container(tuplets)
@@ -1684,7 +2717,7 @@ def replace_leaves_with_rests(
         Forces every other tuplet to rest:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -1744,7 +2777,7 @@ def replace_leaves_with_rests(
         Forces the first leaf and the last two leaves to rests:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
@@ -1812,7 +2845,7 @@ def replace_leaves_with_rests(
         Forces first leaf of every tuplet to rest:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
@@ -1904,7 +2937,7 @@ def replace_ties_with_repeat_ties(
     ..  container:: example
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -1914,7 +2947,7 @@ def replace_ties_with_repeat_ties(
         ...     voice = lilypond_file["Voice"]
         ...     tuplets = abjad.select.tuplets(voice)[:-1]
         ...     notes = [abjad.select.note(_, -1) for _ in tuplets]
-        ...     rmakers.tie(notes)
+        ...     rmakers.attach_ties_to_pleaves(notes)
         ...     rmakers.beam_runs(leaf_lists)
         ...     return lilypond_file
 
@@ -2134,7 +3167,7 @@ def rewrite_meter(
         staff.
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [5, 4], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -2236,7 +3269,7 @@ def rewrite_meter(
         for leaf in abjad.iterate.leaves(list_):
             if not abjad.get.parentage(leaf).count(abjad.Tuplet):
                 nontupletted_leaves.append(leaf)
-        unbeam_leaves(nontupletted_leaves)
+        detach_beams_from_leaves(nontupletted_leaves)
         meter.rewrite(
             list_,
             boundary_depth=boundary_depth,
@@ -2275,7 +3308,7 @@ def rewrite_rest_filled_tuplets(
         Does not rewrite rest-filled tuplets:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [-1], 16, extra_counts=[1])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
@@ -2352,7 +3385,7 @@ def rewrite_rest_filled_tuplets(
         Rewrites rest-filled tuplets:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [-1], 16, extra_counts=[1])
         ...     container = abjad.Container(tuplets)
@@ -2399,7 +3432,7 @@ def rewrite_rest_filled_tuplets(
         With spelling specifier:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [-1], 16, extra_counts=[1])
         ...     container = abjad.Container(tuplets)
@@ -2452,7 +3485,7 @@ def rewrite_rest_filled_tuplets(
         Makes rest-filled tuplets:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations, [3, 3, -6, -6], 16, extra_counts=[1, 0]
@@ -2528,7 +3561,7 @@ def rewrite_rest_filled_tuplets(
         Rewrites rest-filled tuplets:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations,
@@ -2640,7 +3673,7 @@ def rewrite_sustained_tuplets(
         rewrite:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations, [6, 5, 5, 4, 1], 16, extra_counts=[2, 1, 1, 1]
@@ -2649,7 +3682,7 @@ def rewrite_sustained_tuplets(
         ...     container = abjad.Container(tuplets)
         ...     tuplets = abjad.select.tuplets(container)[1:3]
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
-        ...     rmakers.tie(leaves)
+        ...     rmakers.attach_ties_to_pleaves(leaves)
         ...     rmakers.beam_runs(leaf_lists)
         ...     components = abjad.mutate.eject_contents(container)
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
@@ -2726,7 +3759,7 @@ def rewrite_sustained_tuplets(
         Rewrite sustained tuplets like this:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations, [6, 5, 5, 4, 1], 16, extra_counts=[2, 1, 1, 1]
@@ -2735,7 +3768,7 @@ def rewrite_sustained_tuplets(
         ...     container = abjad.Container(tuplets)
         ...     tuplets = abjad.select.tuplets(container)[1:3]
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
-        ...     rmakers.tie(leaves)
+        ...     rmakers.attach_ties_to_pleaves(leaves)
         ...     tuplets = abjad.select.tuplets(container)
         ...     rmakers.rewrite_sustained_tuplets(tuplets)
         ...     tuplets = abjad.select.tuplets(container, level=1)
@@ -2801,7 +3834,7 @@ def rewrite_sustained_tuplets(
         like this:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations, [6, 5, 5, 4, 1], 16, extra_counts=[2, 1, 1, 1]
@@ -2811,7 +3844,7 @@ def rewrite_sustained_tuplets(
         ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(container)[1:3]
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
-        ...     rmakers.tie(leaves)
+        ...     rmakers.attach_ties_to_pleaves(leaves)
         ...     tuplets = abjad.select.tuplets(container)
         ...     rmakers.rewrite_sustained_tuplets(tuplets)
         ...     tuplets = abjad.select.tuplets(container)
@@ -2859,7 +3892,7 @@ def rewrite_sustained_tuplets(
     ..  container:: example
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -2869,7 +3902,7 @@ def rewrite_sustained_tuplets(
         ...     voice = lilypond_file["Voice"]
         ...     notes = [abjad.select.notes(_)[:-1] for _ in tuplets]
         ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.tie(notes)
+        ...     rmakers.attach_ties_to_pleaves(notes)
         ...     rmakers.rewrite_sustained_tuplets(tuplets[-2:])
         ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(voice)
@@ -2935,7 +3968,7 @@ def rewrite_sustained_tuplets(
         Sustains every other tuplet:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -2946,7 +3979,7 @@ def rewrite_sustained_tuplets(
         ...     tuplets = abjad.select.get(tuplets, [1], 2)
         ...     notes = [abjad.select.notes(_)[:-1] for _ in tuplets]
         ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.tie(notes)
+        ...     rmakers.attach_ties_to_pleaves(notes)
         ...     rmakers.rewrite_sustained_tuplets(tuplets)
         ...     rmakers.beam_runs(leaf_lists)
         ...     tuplets = abjad.select.tuplets(voice)
@@ -3010,6 +4043,18 @@ def rewrite_sustained_tuplets(
             abjad.detach(abjad.Tie, tuplet[-1])
         abjad.mutate._set_leaf_duration(tuplet[0], duration, tag=tag)
         tuplet.set_ratio(abjad.Ratio(1, 1))
+
+
+def select_nongrace_leaves_by_tuplet(
+    tuplets: collections.abc.Iterable[abjad.Tuplet],
+) -> list[list[abjad.Leaf]]:
+    """
+    Selects nongrace leaves by tuplet.
+    """
+    assert _is_tuplet_list(tuplets), repr(tuplets)
+    leaf_lists = [abjad.select.leaves(_, grace=False) for _ in tuplets]
+    assert _is_list_of_leaf_lists(leaf_lists), repr(leaf_lists)
+    return leaf_lists
 
 
 def split_measures(
@@ -3081,7 +4126,7 @@ def swap_trivial_tuplets_for_containers(
     ..  container:: example
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.even_division(durations, [8])
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -3159,447 +4204,6 @@ def swap_trivial_tuplets_for_containers(
             abjad.mutate.swap(tuplet, container)
 
 
-# TODO: rename to `attach_tie_to_each_pleaf`
-def tie(
-    pleaves: collections.abc.Iterable[abjad.Note | abjad.Chord],
-    *,
-    tag: abjad.Tag = abjad.Tag(),
-) -> None:
-    r"""
-    Attaches ties to pitched leaves in ``argument``.
-
-    ..  container:: example
-
-        Attaches tie to last pitched leaf in each nonlast tuplet:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         tuplets, time_signatures
-        ...     )
-        ...     voice = lilypond_file["Voice"]
-        ...     tuplets = abjad.select.tuplets(tuplets)[:-1]
-        ...     notes = [abjad.select.note(_, -1) for _ in tuplets]
-        ...     rmakers.tie(notes)
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     return lilypond_file
-
-        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tuplet 3/2
-                        {
-                            \time 2/8
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            c'8
-                            ]
-                        }
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Ties the last leaf of nonlast tuplets:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [5, 3, 3, 3], 16)
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         tuplets, time_signatures
-        ...     )
-        ...     voice = lilypond_file["Voice"]
-        ...     tuplets = abjad.select.tuplets(tuplets)[:-1]
-        ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
-        ...     rmakers.tie(leaves)
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     tuplets = abjad.select.tuplets(voice)
-        ...     rmakers.extract_trivial_tuplets(tuplets)
-        ...     return lilypond_file
-
-        >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 4/8
-                        c'4
-                        ~
-                        c'16
-                        [
-                        c'8.
-                        ]
-                        ~
-                        \time 3/8
-                        c'8.
-                        [
-                        c'8.
-                        ]
-                        ~
-                        \time 4/8
-                        c'4
-                        ~
-                        c'16
-                        [
-                        c'8.
-                        ]
-                        ~
-                        \time 3/8
-                        c'8.
-                        [
-                        c'8.
-                        ]
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Ties across every other tuplet:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [5, 3, 3, 3], 16)
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         tuplets, time_signatures
-        ...     )
-        ...     voice = lilypond_file["Voice"]
-        ...     tuplets = abjad.select.get(tuplets[:-1], [0], 2)
-        ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets]
-        ...     rmakers.tie(leaves)
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     tuplets = abjad.select.tuplets(voice)
-        ...     rmakers.extract_trivial_tuplets(tuplets)
-        ...     return lilypond_file
-
-        >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 4/8
-                        c'4
-                        ~
-                        c'16
-                        [
-                        c'8.
-                        ]
-                        ~
-                        \time 3/8
-                        c'8.
-                        [
-                        c'8.
-                        ]
-                        \time 4/8
-                        c'4
-                        ~
-                        c'16
-                        [
-                        c'8.
-                        ]
-                        ~
-                        \time 3/8
-                        c'8.
-                        [
-                        c'8.
-                        ]
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        TIE-CONSECUTIVE-NOTES RECIPE:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [5, -3, 3, 3], 16)
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         tuplets, time_signatures
-        ...     )
-        ...     voice = lilypond_file["Voice"]
-        ...     leaves = abjad.select.leaves(voice)
-        ...     rmakers.untie_leaves(leaves)
-        ...     runs = abjad.select.runs(voice)
-        ...     notes = [abjad.select.notes(_)[:-1] for _ in runs]
-        ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.tie(notes)
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     rmakers.extract_trivial_tuplets(tuplets)
-        ...     return lilypond_file
-
-        >>> pairs = [(4, 8), (3, 8), (4, 8), (3, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \time 4/8
-                        c'4
-                        ~
-                        c'16
-                        r8.
-                        \time 3/8
-                        c'8.
-                        [
-                        ~
-                        c'8.
-                        ]
-                        ~
-                        \time 4/8
-                        c'4
-                        ~
-                        c'16
-                        r8.
-                        \time 3/8
-                        c'8.
-                        [
-                        ~
-                        c'8.
-                        ]
-                    }
-                }
-            }
-
-
-    ..  container:: example
-
-        Attaches ties to nonlast notes in each tuplet:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         tuplets, time_signatures
-        ...     )
-        ...     voice = lilypond_file["Voice"]
-        ...     notes = [abjad.select.notes(_)[:-1] for _ in tuplets]
-        ...     notes = abjad.sequence.flatten(notes)
-        ...     rmakers.untie_leaves(notes)
-        ...     rmakers.tie(notes)
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     return lilypond_file
-
-        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tuplet 3/2
-                        {
-                            \time 2/8
-                            c'8
-                            [
-                            ~
-                            c'8
-                            ~
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            ~
-                            c'8
-                            ~
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            ~
-                            c'8
-                            ~
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            ~
-                            c'8
-                            ~
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            ~
-                            c'8
-                            ~
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            ~
-                            c'8
-                            ~
-                            c'8
-                            ]
-                        }
-                    }
-                }
-            }
-
-    """
-    assert _is_pleaf_list(pleaves), repr(pleaves)
-    tag = tag.append(_function_name(inspect.currentframe()))
-    for pleaf in pleaves:
-        tie = abjad.Tie()
-        abjad.attach(tie, pleaf, tag=tag)
-
-
-# TODO: rename to `make_time_signatures()` and move to docs.py
-def time_signatures(
-    pairs: collections.abc.Iterable[tuple[int, int]],
-) -> list[abjad.TimeSignature]:
-    """
-    Makes time signatures from ``pairs``.
-
-    Documentation helper.
-    """
-    assert all(isinstance(_, tuple) for _ in pairs), repr(pairs)
-    return [abjad.TimeSignature(_) for _ in pairs]
-
-
 def toggle_diminished_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
     r"""
     Toggles prolation of diminished tuplets in ``tuplets``.
@@ -3607,7 +4211,7 @@ def toggle_diminished_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -
     ..  container:: example
 
         >>> def make_lilypond_file(pairs, toggle_diminished_tuplets=False):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -3763,7 +4367,7 @@ def toggle_augmented_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) ->
     ..  container:: example
 
         >>> def make_lilypond_file(pairs, toggle_augmented_tuplets=False):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [1], 16, extra_counts=[0, -1])
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -3928,184 +4532,6 @@ def toggle_augmented_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) ->
             tuplet.toggle_prolation()
 
 
-# TODO: rename with verb
-def tremolo_container(
-    pleaves: collections.abc.Iterable[abjad.Note | abjad.Chord],
-    count: int,
-    *,
-    tag: abjad.Tag = abjad.Tag(),
-) -> None:
-    r"""
-    Replaces pitched leaves in ``argument`` with tremolo containers.
-
-    ..  container:: example
-
-        Repeats figures two times each:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [4])
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         tuplets, time_signatures
-        ...     )
-        ...     voice = lilypond_file["Voice"]
-        ...     notes = [abjad.select.notes(_) for _ in tuplets]
-        ...     groups = [abjad.select.get(_, [0, -1]) for _ in notes]
-        ...     notes = abjad.sequence.flatten(groups)
-        ...     rmakers.tremolo_container(notes, 2)
-        ...     rmakers.extract_trivial_tuplets(tuplets)
-        ...     containers = abjad.select.components(voice, abjad.TremoloContainer)
-        ...     result = [abjad.slur(_) for _ in containers]
-        ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(4, 4), (3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \repeat tremolo 2
-                        {
-                            \time 4/4
-                            c'16
-                            (
-                            c'16
-                            )
-                        }
-                        c'4
-                        c'4
-                        \repeat tremolo 2
-                        {
-                            c'16
-                            (
-                            c'16
-                            )
-                        }
-                        \repeat tremolo 2
-                        {
-                            \time 3/4
-                            c'16
-                            (
-                            c'16
-                            )
-                        }
-                        c'4
-                        \repeat tremolo 2
-                        {
-                            c'16
-                            (
-                            c'16
-                            )
-                        }
-                    }
-                }
-            }
-
-        Repeats figures four times each:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [4])
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         tuplets, time_signatures
-        ...     )
-        ...     voice = lilypond_file["Voice"]
-        ...     notes = [abjad.select.notes(_) for _ in tuplets]
-        ...     groups = [abjad.select.get(_, [0, -1]) for _ in notes]
-        ...     notes = abjad.sequence.flatten(groups)
-        ...     rmakers.tremolo_container(notes, 4)
-        ...     rmakers.extract_trivial_tuplets(tuplets)
-        ...     containers = abjad.select.components(voice, abjad.TremoloContainer)
-        ...     result = [abjad.slur(_) for _ in containers]
-        ...     rmakers.docs.attach_time_signatures(voice, time_signatures)
-        ...     return lilypond_file
-
-        >>> pairs = [(4, 4), (3, 4)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \repeat tremolo 4
-                        {
-                            \time 4/4
-                            c'32
-                            (
-                            c'32
-                            )
-                        }
-                        c'4
-                        c'4
-                        \repeat tremolo 4
-                        {
-                            c'32
-                            (
-                            c'32
-                            )
-                        }
-                        \repeat tremolo 4
-                        {
-                            \time 3/4
-                            c'32
-                            (
-                            c'32
-                            )
-                        }
-                        c'4
-                        \repeat tremolo 4
-                        {
-                            c'32
-                            (
-                            c'32
-                            )
-                        }
-                    }
-                }
-            }
-
-    """
-    assert _is_pleaf_list(pleaves), repr(pleaves)
-    assert isinstance(count, int), repr(count)
-    tag = tag.append(_function_name(inspect.currentframe()))
-    pitch = abjad.NamedPitch("c'")
-    for pleaf in pleaves:
-        container_duration = pleaf.written_duration()
-        note_duration = container_duration / (2 * count)
-        left_note = abjad.Note.from_duration_and_pitch(note_duration, pitch)
-        right_note = abjad.Note.from_duration_and_pitch(note_duration, pitch)
-        container = abjad.TremoloContainer(count, [left_note, right_note], tag=tag)
-        abjad.mutate.replace(pleaf, container)
-
-
 def trivialize_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
     r"""
     Trivializes tuplets that can be rewritten as 1:1 in ``tuplets``.
@@ -4117,7 +4543,7 @@ def trivialize_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
         are not:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations, [3, 3, 6, 6], 16, extra_counts=[0, 4]
@@ -4188,7 +4614,7 @@ def trivialize_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
         true:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations, [3, 3, 6, 6], 16, extra_counts=[0, 4]
@@ -4285,7 +4711,7 @@ def tweak_trivial_tuplets_stencil_false(
     ..  container:: example
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.even_division(durations, [8])
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -4392,1030 +4818,6 @@ def tweak_tuplet_number_text_calc_fraction_text(
             or tuplet.multiplier() == 1
         ):
             abjad.tweak(tuplet, r"\tweak text #tuplet-number::calc-fraction-text")
-
-
-# TODO: rename with `detach_`
-def unbeam_leaves(
-    leaves: collections.abc.Sequence[abjad.Leaf],
-    *,
-    smart: bool = False,
-    tag: abjad.Tag = abjad.Tag(),
-) -> None:
-    r"""
-    Unbeams each leaf in ``leaves``.
-
-    Adjusts adjacent start- and stop-beams when ``smart=True``.
-
-    ..  container:: example
-
-        Unbeams 1 note:
-
-        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[:1], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        d'8
-                        [
-                        e'8
-                        f'8
-                        g'8
-                        a'8
-                        ]
-                    }
-                }
-            >>
-
-        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[1:2], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        d'8
-                        e'8
-                        [
-                        f'8
-                        g'8
-                        a'8
-                        ]
-                    }
-                }
-            >>
-
-        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[2:3], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        [
-                        d'8
-                        ]
-                        e'8
-                        f'8
-                        [
-                        g'8
-                        a'8
-                        ]
-                    }
-                }
-            >>
-
-        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[3:4], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        [
-                        d'8
-                        e'8
-                        ]
-                        f'8
-                        g'8
-                        [
-                        a'8
-                        ]
-                    }
-                }
-            >>
-
-        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[4:5], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        [
-                        d'8
-                        e'8
-                        f'8
-                        ]
-                        g'8
-                        a'8
-                    }
-                }
-            >>
-
-        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[5:6], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        [
-                        d'8
-                        e'8
-                        f'8
-                        g'8
-                        ]
-                        a'8
-                    }
-                }
-            >>
-
-    ..  container:: example
-
-        Unbeams 2 notes:
-
-        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[:2], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        d'8
-                        e'8
-                        [
-                        f'8
-                        g'8
-                        a'8
-                        ]
-                    }
-                }
-            >>
-
-        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[1:3], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        d'8
-                        e'8
-                        f'8
-                        [
-                        g'8
-                        a'8
-                        ]
-                    }
-                }
-            >>
-
-        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[2:4], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        [
-                        d'8
-                        ]
-                        e'8
-                        f'8
-                        g'8
-                        [
-                        a'8
-                        ]
-                    }
-                }
-            >>
-
-        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[3:5], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        [
-                        d'8
-                        e'8
-                        ]
-                        f'8
-                        g'8
-                        a'8
-                    }
-                }
-            >>
-
-        >>> voice = abjad.Voice("c'8 [ d' e' f' g' a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[4:], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        [
-                        d'8
-                        e'8
-                        f'8
-                        ]
-                        g'8
-                        a'8
-                    }
-                }
-            >>
-
-    ..  container:: example
-
-        Unbeams 1 note:
-
-        >>> voice = abjad.Voice("c'8 [ d' ] e' [ f' ] g' [ a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[:1], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        d'8
-                        e'8
-                        [
-                        f'8
-                        ]
-                        g'8
-                        [
-                        a'8
-                        ]
-                    }
-                }
-            >>
-
-        >>> voice = abjad.Voice("c'8 [ d' ] e' [ f' ] g' [ a' ]")
-        >>> staff = abjad.Staff([voice])
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(voice[1:2], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    \new Voice
-                    {
-                        c'8
-                        d'8
-                        e'8
-                        [
-                        f'8
-                        ]
-                        g'8
-                        [
-                        a'8
-                        ]
-                    }
-                }
-            >>
-
-        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(staff[2:3], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    c'8
-                    [
-                    d'8
-                    ]
-                    e'8
-                    f'8
-                    g'8
-                    [
-                    a'8
-                    ]
-                }
-            >>
-
-        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(staff[3:4], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    c'8
-                    [
-                    d'8
-                    ]
-                    e'8
-                    f'8
-                    g'8
-                    [
-                    a'8
-                    ]
-                }
-            >>
-
-        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(staff[4:5], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    c'8
-                    [
-                    d'8
-                    ]
-                    e'8
-                    [
-                    f'8
-                    ]
-                    g'8
-                    a'8
-                }
-            >>
-
-        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(staff[5:6], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    c'8
-                    [
-                    d'8
-                    ]
-                    e'8
-                    [
-                    f'8
-                    ]
-                    g'8
-                    a'8
-                }
-            >>
-
-    ..  container:: example
-
-        Unbeams 2 notes:
-
-        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(staff[:2], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    c'8
-                    d'8
-                    e'8
-                    [
-                    f'8
-                    ]
-                    g'8
-                    [
-                    a'8
-                    ]
-                }
-            >>
-
-        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(staff[1:3], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    c'8
-                    d'8
-                    e'8
-                    f'8
-                    g'8
-                    [
-                    a'8
-                    ]
-                }
-            >>
-
-        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(staff[2:4], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    c'8
-                    [
-                    d'8
-                    ]
-                    e'8
-                    f'8
-                    g'8
-                    [
-                    a'8
-                    ]
-                }
-            >>
-
-        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(staff[3:5], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    c'8
-                    [
-                    d'8
-                    ]
-                    e'8
-                    f'8
-                    g'8
-                    a'8
-                }
-            >>
-
-        >>> staff = abjad.Staff("c'8 [ d' ] e' [ f' ] g' [ a' ]")
-        >>> score = abjad.Score([staff])
-        >>> abjad.setting(score).autoBeaming = False
-        >>> rmakers.unbeam_leaves(staff[4:], smart=True)
-        >>> abjad.show(score) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \new Score
-            \with
-            {
-                autoBeaming = ##f
-            }
-            <<
-                \new Staff
-                {
-                    c'8
-                    [
-                    d'8
-                    ]
-                    e'8
-                    [
-                    f'8
-                    ]
-                    g'8
-                    a'8
-                }
-            >>
-
-    """
-    assert _is_leaf_list(leaves), repr(leaves)
-    assert isinstance(smart, bool), repr(smart)
-    leaf: abjad.Leaf | None
-    for leaf in leaves:
-        abjad.detach(abjad.BeamCount, leaf)
-        abjad.detach(abjad.StartBeam, leaf)
-        abjad.detach(abjad.StopBeam, leaf)
-    if smart is True:
-        tag = tag.append(_function_name(inspect.currentframe()))
-        unmatched_start_beam = False
-        leaf = leaves[0]
-        leaf = abjad.get.leaf(leaf, -1)
-        if leaf is not None:
-            if abjad.get.has_indicator(leaf, abjad.StopBeam):
-                pass
-            elif abjad.get.has_indicator(leaf, abjad.StartBeam):
-                abjad.detach(abjad.StartBeam, leaf)
-            else:
-                while True:
-                    leaf = abjad.get.leaf(leaf, -1)
-                    if leaf is None:
-                        break
-                    if abjad.get.has_indicator(leaf, abjad.StopBeam):
-                        break
-                    if abjad.get.has_indicator(leaf, abjad.StartBeam):
-                        unmatched_start_beam = True
-                        break
-        unmatched_stop_beam = False
-        leaf = leaves[-1]
-        leaf = abjad.get.leaf(leaf, 1)
-        if leaf is not None:
-            if abjad.get.has_indicator(leaf, abjad.StartBeam):
-                pass
-            elif abjad.get.has_indicator(leaf, abjad.StopBeam):
-                abjad.detach(abjad.StopBeam, leaf)
-            else:
-                while True:
-                    leaf = abjad.get.leaf(leaf, 1)
-                    if leaf is None:
-                        break
-                    if abjad.get.has_indicator(leaf, abjad.StartBeam):
-                        break
-                    if abjad.get.has_indicator(leaf, abjad.StopBeam):
-                        unmatched_stop_beam = True
-                        break
-        if unmatched_start_beam is True:
-            leaf = leaves[0]
-            leaf = abjad.get.leaf(leaf, -1)
-            assert leaf is not None
-            abjad.attach(abjad.StopBeam(), leaf, tag=tag)
-        if unmatched_stop_beam is True:
-            leaf = leaves[-1]
-            leaf = abjad.get.leaf(leaf, 1)
-            assert leaf is not None
-            abjad.attach(abjad.StartBeam(), leaf, tag=tag)
-
-
-# TODO: rename with `detach_`
-def untie_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> None:
-    r"""
-    Unties leaves in ``argument``.
-
-    ..  container:: example
-
-        Attaches ties to nonlast notes; then detaches ties from select notes:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         tuplets, time_signatures
-        ...     )
-        ...     voice = lilypond_file["Voice"]
-        ...     notes = abjad.select.notes(voice)[:-1]
-        ...     rmakers.tie(notes)
-        ...     notes = abjad.select.notes(voice)
-        ...     notes = abjad.select.get(notes, [0], 4)
-        ...     rmakers.untie_leaves(notes)
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     return lilypond_file
-
-        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tuplet 3/2
-                        {
-                            \time 2/8
-                            c'8
-                            [
-                            c'8
-                            ~
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            ~
-                            c'8
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            ~
-                            c'8
-                            ~
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            ~
-                            c'8
-                            ~
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            ~
-                            c'8
-                            ]
-                            ~
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            ~
-                            c'8
-                            c'8
-                            ]
-                        }
-                    }
-                }
-            }
-
-    ..  container:: example
-
-        Attaches repeat-ties to nonfirst notes; then detaches ties from select notes:
-
-        >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
-        ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
-        ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     voice = abjad.Voice(tuplets)
-        ...     notes = abjad.select.notes(voice)[1:]
-        ...     rmakers.repeat_tie(notes)
-        ...     notes = abjad.select.notes(voice)
-        ...     notes = abjad.select.get(notes, [0], 4)
-        ...     rmakers.untie_leaves(notes)
-        ...     rmakers.beam_runs(leaf_lists)
-        ...     components = abjad.mutate.eject_contents(voice)
-        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
-        ...         components, time_signatures
-        ...     )
-        ...     return lilypond_file
-
-        >>> pairs = [(2, 8), (2, 8), (2, 8), (2, 8), (2, 8), (2, 8)]
-        >>> lilypond_file = make_lilypond_file(pairs)
-        >>> abjad.show(lilypond_file) # doctest: +SKIP
-
-        ..  docs::
-
-            >>> score = lilypond_file["Score"]
-            >>> string = abjad.lilypond(score)
-            >>> print(string)
-            \context Score = "Score"
-            {
-                \context RhythmicStaff = "Staff"
-                \with
-                {
-                    \override Clef.stencil = ##f
-                }
-                {
-                    \context Voice = "Voice"
-                    {
-                        \tuplet 3/2
-                        {
-                            \time 2/8
-                            c'8
-                            [
-                            c'8
-                            \repeatTie
-                            c'8
-                            ]
-                            \repeatTie
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            c'8
-                            ]
-                            \repeatTie
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            \repeatTie
-                            c'8
-                            ]
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            \repeatTie
-                            c'8
-                            ]
-                            \repeatTie
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            c'8
-                            \repeatTie
-                            c'8
-                            ]
-                            \repeatTie
-                        }
-                        \tuplet 3/2
-                        {
-                            c'8
-                            [
-                            \repeatTie
-                            c'8
-                            c'8
-                            ]
-                            \repeatTie
-                        }
-                    }
-                }
-            }
-
-    """
-    assert _is_leaf_list(leaves), repr(leaves)
-    for leaf in leaves:
-        abjad.detach(abjad.Tie, leaf)
-        abjad.detach(abjad.RepeatTie, leaf)
 
 
 def wrap_in_time_signature_staff(

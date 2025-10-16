@@ -13,7 +13,7 @@ def test():
         true:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.tuplet(durations, [(2, 3), (1, 1)])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
@@ -25,7 +25,7 @@ def test():
         ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.extract_trivial_tuplets(tuplets)
         ...     notes = abjad.select.notes(voice)[:-1]
-        ...     rmakers.tie(notes)
+        ...     rmakers.attach_ties_to_pleaves(notes)
         ...     return lilypond_file
 
         >>> pairs = [(3, 8), (2, 8), (3, 8), (2, 8)]
@@ -87,7 +87,7 @@ def test():
         REGRESSION. End counts leave 5-durated tie in tact:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(durations, [6], 16, end_counts=[1])
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
@@ -150,7 +150,7 @@ def test():
         contain multiple ties:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations, [3, 3, 6, 6], 16, extra_counts=[0, 4]
@@ -161,7 +161,7 @@ def test():
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.trivialize_tuplets(tuplets)
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets[:-1]]
-        ...     rmakers.tie(leaves)
+        ...     rmakers.attach_ties_to_pleaves(leaves)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
@@ -229,7 +229,7 @@ def test():
         contain very long ties:
 
         >>> def make_lilypond_file(pairs):
-        ...     time_signatures = rmakers.time_signatures(pairs)
+        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
         ...     tuplets = rmakers.talea(
         ...         durations, [3, 3, 6, 6], 16, extra_counts=[0, 4]
@@ -240,7 +240,7 @@ def test():
         ...     voice = lilypond_file["Voice"]
         ...     rmakers.trivialize_tuplets(tuplets)
         ...     notes = abjad.select.notes(voice)[:-1]
-        ...     rmakers.tie(notes)
+        ...     rmakers.attach_ties_to_pleaves(notes)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.beam_runs(leaf_lists)
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)

@@ -56,3 +56,13 @@ def make_example_lilypond_file(
     staff.set_lilypond_type("RhythmicStaff")
     abjad.override(staff).Clef.stencil = False
     return lilypond_file
+
+
+def make_time_signatures(
+    pairs: collections.abc.Iterable[tuple[int, int]],
+) -> list[abjad.TimeSignature]:
+    """
+    Makes time signatures from ``pairs``.
+    """
+    assert all(isinstance(_, tuple) for _ in pairs), repr(pairs)
+    return [abjad.TimeSignature(_) for _ in pairs]

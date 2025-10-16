@@ -9,7 +9,7 @@ def test_tags_01():
     """
 
     def make_lilypond_file(pairs):
-        time_signatures = rmakers.time_signatures(pairs)
+        time_signatures = rmakers.docs.make_time_signatures(pairs)
         durations = abjad.duration.durations(time_signatures)
         tag = abjad.Tag("ACCELERANDO_RHYTHM_MAKER")
         interpolation = rmakers.Interpolation(
@@ -197,7 +197,7 @@ def test_tags_02():
 
     def make_lilypond_file(pairs):
         tag = abjad.Tag("INCISED_RHYTHM_MAKER")
-        time_signatures = rmakers.time_signatures(pairs)
+        time_signatures = rmakers.docs.make_time_signatures(pairs)
         durations = abjad.duration.durations(time_signatures)
         tuplets = rmakers.incised(
             durations,
@@ -306,7 +306,7 @@ def test_tags_03():
     """
 
     def make_lilypond_file(pairs):
-        time_signatures = rmakers.time_signatures(pairs)
+        time_signatures = rmakers.docs.make_time_signatures(pairs)
         durations = abjad.duration.durations(time_signatures)
         tag = abjad.Tag("TALEA_RHYTHM_MAKER")
         tuplets = rmakers.talea(
@@ -453,7 +453,7 @@ def test_tags_04():
     """
 
     def make_lilypond_file(pairs):
-        time_signatures = rmakers.time_signatures(pairs)
+        time_signatures = rmakers.docs.make_time_signatures(pairs)
         durations = abjad.duration.durations(time_signatures)
         tag = abjad.Tag("TUPLET_RHYTHM_MAKER")
         tuplets = rmakers.tuplet(durations, [(3, 2)], tag=tag)
