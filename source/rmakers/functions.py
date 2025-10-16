@@ -134,7 +134,7 @@ def attach_beams_to_runs_by_leaf_list(
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Beams runs in each leaf list in ``leaf_lists``.
+    Attaches beams to runs in each leaf list in ``leaf_lists``.
 
     ..  container:: example
 
@@ -1076,7 +1076,7 @@ def attach_span_beams_to_runs_across_leaf_lists(
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Beams across ``leaf_lists`` with single span beam.
+    Attaches span beams to runs across ``leaf_lists``.
 
     ..  container:: example
 
@@ -1239,7 +1239,7 @@ def detach_beams_from_leaves(
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Detaches beam indicators from each leaf in ``leaves``.
+    Detaches beams from each leaf in ``leaves``.
 
     Adjusts adjacent start- and stop-beams when ``smart=True``.
 
@@ -2035,7 +2035,7 @@ def detach_beams_from_leaves(
 
 def detach_ties_from_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> None:
     r"""
-    Detaches tie indicators from each leaf in ``leaves``.
+    Detaches ties from each leaf in ``leaves``.
 
     ..  container:: example
 
@@ -2356,14 +2356,18 @@ def override_beam_grow_direction(
     tag: abjad.Tag = abjad.Tag(),
 ) -> None:
     r"""
-    Overrides ``Beam.grow-direction`` on first leaf in each leaf list in
+    Overrides ``Beam.grow-direction`` on first leaf of each leaf list in
     ``leaf_lists``.
 
     ..  container:: example
 
         >>> def make_lilypond_file():
         ...     voice = abjad.Voice("c'16 d' r f' g'8")
-        ...     rmakers.attach_beams_to_runs_by_leaf_list([voice[:]], beam_rests=True, stemlet_length=1)
+        ...     rmakers.attach_beams_to_runs_by_leaf_list(
+        ...         [voice[:]],
+        ...         beam_rests=True,
+        ...         stemlet_length=1,
+        ...     )
         ...     rmakers.override_beam_grow_direction([voice[:]])
         ...     staff = abjad.Staff([voice])
         ...     score = abjad.Score([staff], name="Score")
