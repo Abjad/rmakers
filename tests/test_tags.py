@@ -20,7 +20,7 @@ def test_tags_01():
         lilypond_file = rmakers.docs.make_example_lilypond_file(
             tuplets, time_signatures
         )
-        rmakers.beam_runs(leaf_lists, tag=tag)
+        rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists, tag=tag)
         rmakers.override_beam_grow_direction(leaf_lists, tag=tag)
         rmakers.override_tuplet_number_text_duration_markup(tuplets)
         return lilypond_file
@@ -54,7 +54,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 63/32
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.accelerando()
@@ -72,7 +72,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 13/16
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
                       %! rmakers.accelerando()
@@ -91,7 +91,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 117/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.accelerando()
@@ -106,7 +106,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 47/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
                       %! rmakers.accelerando()
@@ -125,7 +125,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 63/32
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.accelerando()
@@ -143,7 +143,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 13/16
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
                       %! rmakers.accelerando()
@@ -162,7 +162,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 117/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.accelerando()
@@ -177,7 +177,7 @@ def test_tags_01():
                           %! rmakers.accelerando()
                         c'16 * 47/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
                       %! rmakers.accelerando()
@@ -212,7 +212,7 @@ def test_tags_02():
         )
         rmakers.toggle_diminished_tuplets(tuplets)
         leaf_lists = [_[:] for _ in tuplets]
-        rmakers.beam_runs(leaf_lists, tag=tag)
+        rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists, tag=tag)
         rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         lilypond_file = rmakers.docs.make_example_lilypond_file(
             tuplets, time_signatures
@@ -317,7 +317,7 @@ def test_tags_03():
             tuplets, time_signatures
         )
         leaf_lists = [_[:] for _ in tuplets]
-        rmakers.beam_runs(leaf_lists, tag=tag)
+        rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists, tag=tag)
         return lilypond_file
 
     pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]
@@ -350,7 +350,7 @@ def test_tags_03():
                           %! rmakers.talea()
                         c'16
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! TALEA_RHYTHM_MAKER
                           %! rmakers.talea()
@@ -359,7 +359,7 @@ def test_tags_03():
                           %! rmakers.talea()
                         c'8.
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! TALEA_RHYTHM_MAKER
                       %! rmakers.talea()
@@ -378,7 +378,7 @@ def test_tags_03():
                           %! rmakers.talea()
                         c'16
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! TALEA_RHYTHM_MAKER
                           %! rmakers.talea()
@@ -387,7 +387,7 @@ def test_tags_03():
                           %! rmakers.talea()
                         c'8
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                         ~
                       %! TALEA_RHYTHM_MAKER
@@ -426,13 +426,13 @@ def test_tags_03():
                           %! rmakers.talea()
                         c'8
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! TALEA_RHYTHM_MAKER
                           %! rmakers.talea()
                         c'8.
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                           %! TALEA_RHYTHM_MAKER
                           %! rmakers.talea()
@@ -462,7 +462,7 @@ def test_tags_04():
             tuplets, time_signatures
         )
         leaf_lists = [_[:] for _ in tuplets]
-        rmakers.beam_runs(leaf_lists, tag=tag)
+        rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists, tag=tag)
         return lilypond_file
 
     pairs = [(1, 2), (3, 8), (5, 16), (5, 16)]
@@ -530,13 +530,13 @@ def test_tags_04():
                           %! rmakers.tuplet()
                         c'8.
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! TUPLET_RHYTHM_MAKER
                           %! rmakers.tuplet()
                         c'8
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! TUPLET_RHYTHM_MAKER
                       %! rmakers.tuplet()
@@ -554,13 +554,13 @@ def test_tags_04():
                           %! rmakers.tuplet()
                         c'8.
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! TUPLET_RHYTHM_MAKER
                           %! rmakers.tuplet()
                         c'8
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.beam_runs()
+                          %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! TUPLET_RHYTHM_MAKER
                       %! rmakers.tuplet()

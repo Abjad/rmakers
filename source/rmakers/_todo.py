@@ -70,7 +70,7 @@
 #            ...     rmakers.replace_leaves_with_rests(
 #            ...         lambda _: abjad.select(_).logical_ties().get([3], 4),
 #            ...     ),
-#            ...     rmakers.beam_runs(),
+#            ...     rmakers.attach_beams_to_runs_by_leaf_list(),
 #            ...     rmakers.extract_trivial_tuplets(),
 #            ...     )
 #

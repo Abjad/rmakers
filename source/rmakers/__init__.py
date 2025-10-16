@@ -5,11 +5,11 @@ Rhythm-makers.
 from ._version import __version__
 from .classes import Incise, Interpolation, Spelling, Talea
 from .functions import (
+    attach_beams_to_runs_by_leaf_list,
     attach_invisible_music_commands_to_leaves,
     attach_repeat_ties_to_pleaves,
+    attach_span_beams_to_runs_across_leaf_lists,
     attach_ties_to_pleaves,
-    beam_across_leaf_lists,
-    beam_runs,
     detach_beams_from_leaves,
     detach_ties_from_leaves,
     extract_rest_filled_tuplets,
@@ -56,11 +56,11 @@ __all__ = [
     "Spelling",
     "Talea",
     "accelerando",
+    "attach_beams_to_runs_by_leaf_list",
     "attach_invisible_music_commands_to_leaves",
     "attach_repeat_ties_to_pleaves",
+    "attach_span_beams_to_runs_across_leaf_lists",
     "attach_ties_to_pleaves",
-    "beam_runs",
-    "beam_across_leaf_lists",
     "detach_beams_from_leaves",
     "detach_ties_from_leaves",
     "even_division",

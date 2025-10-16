@@ -22,7 +22,7 @@ def test():
         ...     )
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam_runs(leaf_lists)
+        ...     rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists)
         ...     rmakers.extract_trivial_tuplets(tuplets)
         ...     notes = abjad.select.notes(voice)[:-1]
         ...     rmakers.attach_ties_to_pleaves(notes)
@@ -95,7 +95,7 @@ def test():
         ...     )
         ...     voice = lilypond_file["Voice"]
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam_runs(leaf_lists)
+        ...     rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists)
         ...     rmakers.extract_trivial_tuplets(tuplets)
         ...     return lilypond_file
 
@@ -163,7 +163,7 @@ def test():
         ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets[:-1]]
         ...     rmakers.attach_ties_to_pleaves(leaves)
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam_runs(leaf_lists)
+        ...     rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists)
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     return lilypond_file
 
@@ -242,7 +242,7 @@ def test():
         ...     notes = abjad.select.notes(voice)[:-1]
         ...     rmakers.attach_ties_to_pleaves(notes)
         ...     leaf_lists = [_[:] for _ in tuplets]
-        ...     rmakers.beam_runs(leaf_lists)
+        ...     rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists)
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     return lilypond_file
 
