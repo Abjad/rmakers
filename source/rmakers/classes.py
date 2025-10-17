@@ -573,6 +573,9 @@ class Spelling:
         assert isinstance(self.increase_monotonic, bool), repr(self.increase_monotonic)
 
 
+Pair = tuple[int, int]
+
+
 @dataclasses.dataclass(frozen=True, order=True, slots=True, unsafe_hash=True)
 class Talea:
     """
@@ -715,14 +718,21 @@ class Talea:
         argument %= self.period()
         return argument in cumulative
 
-    # TODO: how do you typehint `argument`?
-    def __getitem__(self, argument) -> tuple[int, int] | list[tuple[int, int]]:
-        """
-        Gets item or slice identified by ``argument``.
+    @typing.overload
+    def __getitem__(self, i: typing.SupportsIndex, /) -> Pair:
+        pass
 
-        Gets item at index:
+    @typing.overload
+    def __getitem__(self, s: slice, /) -> list[Pair]:
+        pass
+
+    def __getitem__(self, argument: typing.SupportsIndex | slice) -> Pair | list[Pair]:
+        """
+        Gets a pair or a list of pairs.
 
         ..  container:: example
+
+            Gets pair at integer index:
 
             >>> talea = rmakers.Talea(
             ...     [2, 1, 3, 2, 4, 1, 1],
@@ -738,7 +748,7 @@ class Talea:
 
         ..  container:: example
 
-            Gets items in slice:
+            Gets list of pairs specified by slice:
 
             >>> for duration in talea[:6]:
             ...     duration
@@ -761,17 +771,15 @@ class Talea:
             (2, 16)
 
         """
-        preamble_counts: list[int | str] = list(self.preamble_counts)
-        counts = list(self.counts)
-        counts_ = abjad.CyclicTuple(preamble_counts + counts)
+        counts_cycle = abjad.CyclicTuple(self.preamble_counts + self.counts)
         if isinstance(argument, int):
-            count = counts_.__getitem__(argument)
+            count = counts_cycle.__getitem__(argument)
             return (count, self.denominator)
-        elif isinstance(argument, slice):
-            counts_ = counts_.__getitem__(argument)
-            result = [(count, self.denominator) for count in counts_]
+        else:
+            assert isinstance(argument, slice), repr(argument)
+            counts_cycle = counts_cycle.__getitem__(argument)
+            result = [(count, self.denominator) for count in counts_cycle]
             return result
-        raise ValueError(argument)
 
     def __iter__(self) -> typing.Iterator[abjad.Duration]:
         """
@@ -779,7 +787,11 @@ class Talea:
 
         ..  container:: example
 
-            >>> talea = rmakers.Talea([2, 1, 3, 2, 4, 1, 1], 16, preamble_counts=[1, 1, 1, 1])
+            >>> talea = rmakers.Talea(
+            ...     [2, 1, 3, 2, 4, 1, 1],
+            ...     16,
+            ...     preamble_counts=[1, 1, 1, 1],
+            ... )
             >>> for duration in talea:
             ...     duration
             ...
@@ -825,7 +837,11 @@ class Talea:
 
         ..  container:: example
 
-            >>> talea = rmakers.Talea([2, 1, 3, 2, 4, 1, 1], 16, preamble_counts=[1, 1, 1, 1])
+            >>> talea = rmakers.Talea(
+            ...     [2, 1, 3, 2, 4, 1, 1],
+            ...     16,
+            ...     preamble_counts=[1, 1, 1, 1],
+            ... )
             >>> talea.counts
             [2, 1, 3, 2, 4, 1, 1]
 
