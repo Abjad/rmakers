@@ -583,7 +583,7 @@ class Talea:
         >>> talea = rmakers.Talea(
         ...     [2, 1, 3, 2, 4, 1, 1],
         ...     16,
-        ...     preamble=[1, 1, 1, 1],
+        ...     preamble_counts=[1, 1, 1, 1],
         ... )
 
     ..  container:: example
@@ -608,7 +608,7 @@ class Talea:
         >>> talea = rmakers.Talea(
         ...     [1, 2, -3, 4],
         ...     32,
-        ...     preamble=[1, 1, 1],
+        ...     preamble_counts=[1, 1, 1],
         ... )
 
         >>> talea.period()
@@ -619,10 +619,10 @@ class Talea:
         >>> talea = rmakers.Talea(
         ...     [2, 1, 3, 2, 4, 1, 1],
         ...     16,
-        ...     preamble=[1, 1, 1, 1],
+        ...     preamble_counts=[1, 1, 1, 1],
         ... )
 
-        >>> talea.preamble
+        >>> talea.preamble_counts
         [1, 1, 1, 1]
 
     ..  container:: example
@@ -630,7 +630,7 @@ class Talea:
         >>> talea = rmakers.Talea(
         ...     [16, -4, 16],
         ...     16,
-        ...     preamble=[1],
+        ...     preamble_counts=[1],
         ... )
 
         >>> for i, duration in enumerate(talea):
@@ -646,8 +646,7 @@ class Talea:
     counts: list[int | str]
     denominator: int
     end_counts: list[int] = dataclasses.field(default_factory=list)
-    # TODO: change `preamble` to `preamble_counts`
-    preamble: list[int] = dataclasses.field(default_factory=list)
+    preamble_counts: list[int] = dataclasses.field(default_factory=list)
 
     def __post_init__(self):
         assert isinstance(self.counts, list), repr(self.counts)
@@ -655,7 +654,7 @@ class Talea:
             assert isinstance(count, int) or count in "+-", repr(count)
         assert abjad.math.is_positive_integer_power_of_two(self.denominator)
         assert _is_integer_list(self.end_counts), repr(self.end_counts)
-        assert _is_integer_list(self.preamble), repr(self.preamble)
+        assert _is_integer_list(self.preamble_counts), repr(self.preamble_counts)
 
     def __contains__(self, argument: int) -> bool:
         """
@@ -663,9 +662,9 @@ class Talea:
 
         ..  container:: example
 
-            With preamble:
+            With preamble counts:
 
-            >>> talea = rmakers.Talea([10],16,preamble=[1, -1, 1])
+            >>> talea = rmakers.Talea([10], 16, preamble_counts=[1, -1, 1])
             >>> for i in range(1, 23 + 1):
             ...     i, i in talea
             ...
@@ -696,12 +695,12 @@ class Talea:
         """
         assert isinstance(argument, int), repr(argument)
         assert 0 < argument, repr(argument)
-        if self.preamble:
-            preamble = [abs(_) for _ in self.preamble]
-            cumulative = abjad.math.cumulative_sums(preamble)[1:]
+        if self.preamble_counts:
+            preamble_counts = [abs(_) for _ in self.preamble_counts]
+            cumulative = abjad.math.cumulative_sums(preamble_counts)[1:]
             if argument in cumulative:
                 return True
-            preamble_weight = abjad.math.weight(preamble, start=0)
+            preamble_weight = abjad.math.weight(preamble_counts, start=0)
         else:
             preamble_weight = 0
         if self.counts is not None:
@@ -728,7 +727,7 @@ class Talea:
             >>> talea = rmakers.Talea(
             ...     [2, 1, 3, 2, 4, 1, 1],
             ...     16,
-            ...     preamble=[1, 1, 1, 1],
+            ...     preamble_counts=[1, 1, 1, 1],
             ... )
 
             >>> talea[0]
@@ -762,9 +761,9 @@ class Talea:
             (2, 16)
 
         """
-        preamble: list[int | str] = list(self.preamble)
+        preamble_counts: list[int | str] = list(self.preamble_counts)
         counts = list(self.counts)
-        counts_ = abjad.CyclicTuple(preamble + counts)
+        counts_ = abjad.CyclicTuple(preamble_counts + counts)
         if isinstance(argument, int):
             count = counts_.__getitem__(argument)
             return (count, self.denominator)
@@ -780,7 +779,7 @@ class Talea:
 
         ..  container:: example
 
-            >>> talea = rmakers.Talea([2, 1, 3, 2, 4, 1, 1], 16, preamble=[1, 1, 1, 1])
+            >>> talea = rmakers.Talea([2, 1, 3, 2, 4, 1, 1], 16, preamble_counts=[1, 1, 1, 1])
             >>> for duration in talea:
             ...     duration
             ...
@@ -797,7 +796,7 @@ class Talea:
             Duration(numerator=1, denominator=16)
 
         """
-        for count in self.preamble or []:
+        for count in self.preamble_counts or []:
             duration = abjad.Duration(count, self.denominator)
             yield duration
         for item in self.counts or []:
@@ -826,7 +825,7 @@ class Talea:
 
         ..  container:: example
 
-            >>> talea = rmakers.Talea([2, 1, 3, 2, 4, 1, 1], 16, preamble=[1, 1, 1, 1])
+            >>> talea = rmakers.Talea([2, 1, 3, 2, 4, 1, 1], 16, preamble_counts=[1, 1, 1, 1])
             >>> talea.counts
             [2, 1, 3, 2, 4, 1, 1]
 
@@ -863,43 +862,43 @@ class Talea:
             raise Exception(f"weight {weight} must be nonnegative.")
         if weight == 0:
             return dataclasses.replace(self)
-        preamble: list[int] = list(self.preamble)
+        preamble_counts: list[int] = list(self.preamble_counts)
         counts = []
         for count in self.counts:
             assert isinstance(count, int), repr(count)
             counts.append(count)
-        if weight < abjad.math.weight(preamble, start=0):
+        if weight < abjad.math.weight(preamble_counts, start=0):
             consumed, remaining = abjad.sequence.split(
-                preamble,
+                preamble_counts,
                 [weight],
                 overhang=True,
             )
-            preamble_ = remaining
-        elif weight == abjad.math.weight(preamble, start=0):
-            preamble_ = []
+            preamble_counts_ = remaining
+        elif weight == abjad.math.weight(preamble_counts, start=0):
+            preamble_counts_ = []
         else:
-            assert abjad.math.weight(preamble, start=0) < weight
-            weight -= abjad.math.weight(preamble, start=0)
-            preamble = counts[:]
+            assert abjad.math.weight(preamble_counts, start=0) < weight
+            weight -= abjad.math.weight(preamble_counts, start=0)
+            preamble_counts = counts[:]
             while True:
-                if weight <= abjad.math.weight(preamble, start=0):
+                if weight <= abjad.math.weight(preamble_counts, start=0):
                     break
-                preamble += counts
-            if abjad.math.weight(preamble, start=0) == weight:
-                consumed, remaining = preamble[:], []
+                preamble_counts += counts
+            if abjad.math.weight(preamble_counts, start=0) == weight:
+                consumed, remaining = preamble_counts[:], []
             else:
                 consumed, remaining = abjad.sequence.split(
-                    preamble,
+                    preamble_counts,
                     [weight],
                     overhang=True,
                 )
-            preamble_ = remaining
+            preamble_counts_ = remaining
         return dataclasses.replace(
             self,
             # TODO: remove typehinting problem that comes with removing list():
             counts=list(counts),
             denominator=self.denominator,
-            preamble=preamble_,
+            preamble_counts=preamble_counts_,
         )
 
     def period(self) -> int:
@@ -928,7 +927,7 @@ class Talea:
             >>> talea = rmakers.Talea(
             ...     [1, 2, -3, 4],
             ...     32,
-            ...     preamble=[1, 1, 1],
+            ...     preamble_counts=[1, 1, 1],
             ... )
 
             >>> talea.period()

@@ -757,7 +757,7 @@ def _make_talea_tuplets(
     multiplier = int(multiplier)
     scaled_end_counts = [multiplier * _ for _ in advanced_talea.end_counts]
     scaled_extra_counts = [multiplier * _ for _ in rotated_extra_counts]
-    scaled_preamble_counts = [multiplier * _ for _ in advanced_talea.preamble]
+    scaled_preamble_counts = [multiplier * _ for _ in advanced_talea.preamble_counts]
     scaled_talea_counts = [multiplier * _ for _ in advanced_talea.counts]
     numerator_lists, expanded_talea = _make_talea_numerator_lists(
         scaled_pairs,
@@ -794,7 +794,7 @@ def _make_talea_tuplets(
     _apply_ties_to_split_notes(
         tuplets,
         advanced_talea.end_counts,
-        advanced_talea.preamble,
+        advanced_talea.preamble_counts,
         unscaled_talea,
         talea,
     )
@@ -805,7 +805,7 @@ def _make_talea_tuplets(
         counts=list(advanced_talea.counts),
         denominator=talea.denominator,
         end_counts=list(advanced_talea.end_counts),
-        preamble=list(advanced_talea.preamble),
+        preamble_counts=list(advanced_talea.preamble_counts),
     )
     if "+" in advanced_talea.counts or "-" in advanced_talea.counts:
         pass
@@ -3095,7 +3095,7 @@ def talea(
     advance: int = 0,
     end_counts: list[int] | None = None,
     extra_counts: list[int] | None = None,
-    preamble: list[int] | None = None,
+    preamble_counts: list[int] | None = None,
     previous_state: dict | None = None,
     read_talea_once_only: bool = False,
     spelling: _classes.Spelling = _classes.Spelling(),
@@ -3398,7 +3398,7 @@ def talea(
 
     ..  container:: example
 
-        Using ``rmakers.talea()`` with the ``preamble`` keyword.
+        Using ``rmakers.talea()`` with the ``preamble_counts`` keyword.
 
         ..  container:: example
 
@@ -3408,7 +3408,7 @@ def talea(
             ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
             ...     durations = abjad.duration.durations(time_signatures)
             ...     tuplets = rmakers.talea(
-            ...         durations, [8, -4, 8], 32, preamble=[1, 1, 1, 1]
+            ...         durations, [8, -4, 8], 32, preamble_counts=[1, 1, 1, 1]
             ...     )
             ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
             ...         tuplets, time_signatures
@@ -3472,7 +3472,7 @@ def talea(
             ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
             ...     durations = abjad.duration.durations(time_signatures)
             ...     tuplets = rmakers.talea(
-            ...         durations, [8, -4, 8], 32, preamble=[32, 32, 32, 32]
+            ...         durations, [8, -4, 8], 32, preamble_counts=[32, 32, 32, 32]
             ...     )
             ...     container = abjad.Container(tuplets)
             ...     leaf_lists = [_[:] for _ in tuplets]
@@ -3591,9 +3591,9 @@ def talea(
     if extra_counts is None:
         extra_counts = []
     assert _is_integer_list(extra_counts), repr(extra_counts)
-    if preamble is None:
-        preamble = []
-    assert _is_integer_list(preamble), repr(preamble)
+    if preamble_counts is None:
+        preamble_counts = []
+    assert _is_integer_list(preamble_counts), repr(preamble_counts)
     if previous_state is None:
         previous_state = {}
     assert isinstance(previous_state, dict)
@@ -3610,7 +3610,7 @@ def talea(
         counts=counts,
         denominator=denominator,
         end_counts=end_counts,
-        preamble=preamble,
+        preamble_counts=preamble_counts,
     )
     talea = talea.advance(advance)
     tuplets = _make_talea_tuplets(
