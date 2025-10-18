@@ -2,6 +2,7 @@
 Makers.
 """
 
+import collections
 import inspect
 import math
 import types
@@ -114,7 +115,7 @@ def _durations_to_lcm_pairs(
 
 
 def _fix_rounding_error(
-    notes: typing.Sequence[abjad.Note],
+    notes: collections.abc.Sequence[abjad.Note],
     total_duration: abjad.Duration,
     interpolation: _classes.Interpolation,
 ) -> None:
@@ -325,7 +326,7 @@ def _is_leaf_or_tuplet_list(argument: object) -> bool:
 
 def _make_accelerando(
     total_duration: abjad.Duration,
-    interpolations: typing.Sequence[_classes.Interpolation],
+    interpolations: collections.abc.Sequence[_classes.Interpolation],
     index: int,
     *,
     tag: abjad.Tag = abjad.Tag(),
@@ -841,7 +842,7 @@ def _package_tuplets(
 
 
 def _round_durations(
-    float_durations: typing.Sequence[float],
+    float_durations: collections.abc.Sequence[float],
     denominator: int,
 ) -> list[abjad.Duration]:
     assert all(isinstance(_, float) for _ in float_durations), repr(float_durations)
@@ -2251,7 +2252,7 @@ def incised(
     talea_denominator: int,
     *,
     body_proportion: tuple[int, ...] = (1,),
-    extra_counts: typing.Sequence[int] | None = None,
+    extra_counts: collections.abc.Sequence[int] | None = None,
     fill_with_rests: bool = False,
     outer_tuplets_only: bool = False,
     prefix_counts: list[int] | None = None,
