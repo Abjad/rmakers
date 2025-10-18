@@ -5,7 +5,6 @@ The rmakers functions.
 import collections
 import inspect
 import types
-import typing
 
 import abjad
 
@@ -2150,7 +2149,7 @@ def replace_ties_with_repeat_ties(
     leaves: collections.abc.Iterable[abjad.Leaf],
     *,
     tag: abjad.Tag = abjad.Tag(),
-    threshold: bool | abjad.Duration | typing.Callable = True,
+    threshold: bool | abjad.Duration | collections.abc.Callable = True,
 ) -> None:
     r"""
     Replaces ties attached to ``leaves`` with repeat-ties.

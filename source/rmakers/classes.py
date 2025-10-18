@@ -4,6 +4,7 @@ The rmakers classes.
 
 from __future__ import annotations
 
+import collections
 import dataclasses
 import typing
 
@@ -781,7 +782,7 @@ class Talea:
             result = [(count, self.denominator) for count in counts_cycle]
             return result
 
-    def __iter__(self) -> typing.Iterator[abjad.Duration]:
+    def __iter__(self) -> collections.abc.Iterator[abjad.Duration]:
         """
         Iterates talea.
 

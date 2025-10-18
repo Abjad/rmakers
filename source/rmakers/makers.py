@@ -6,7 +6,6 @@ import collections
 import inspect
 import math
 import types
-import typing
 
 import abjad
 
