@@ -5,7 +5,7 @@ import rmakers
 
 def test_tags_01():
     """
-    Tags work with ``rmakers.accelerando()``.
+    Tags work with ``rmakers.make_accelerandi()``.
     """
 
     def make_lilypond_file(pairs):
@@ -15,7 +15,7 @@ def test_tags_01():
         interpolation = rmakers.Interpolation(
             *abjad.duration.durations([(1, 8), (1, 20), (1, 16)])
         )
-        tuplets = rmakers.accelerando(durations, [interpolation], tag=tag)
+        tuplets = rmakers.make_accelerandi(durations, [interpolation], tag=tag)
         leaf_lists = [_[:] for _ in tuplets]
         lilypond_file = rmakers.docs.make_example_lilypond_file(
             tuplets, time_signatures
@@ -43,144 +43,144 @@ def test_tags_01():
                 {
                     \override TupletNumber.text = \markup \scale #'(0.75 . 0.75) \rhythm { 2 }
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     \tuplet 1/1
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     {
                         \time 4/8
                         \once \override Beam.grow-direction = #right
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 63/32
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 115/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 91/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 35/32
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 29/32
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 13/16
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     }
                     \revert TupletNumber.text
                     \override TupletNumber.text = \markup \scale #'(0.75 . 0.75) \rhythm { 4. }
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     \tuplet 1/1
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     {
                         \time 3/8
                         \once \override Beam.grow-direction = #right
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 117/64
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 99/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 69/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 13/16
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 47/64
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     }
                     \revert TupletNumber.text
                     \override TupletNumber.text = \markup \scale #'(0.75 . 0.75) \rhythm { 2 }
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     \tuplet 1/1
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     {
                         \time 4/8
                         \once \override Beam.grow-direction = #right
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 63/32
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 115/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 91/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 35/32
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 29/32
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 13/16
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     }
                     \revert TupletNumber.text
                     \override TupletNumber.text = \markup \scale #'(0.75 . 0.75) \rhythm { 4. }
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     \tuplet 1/1
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     {
                         \time 3/8
                         \once \override Beam.grow-direction = #right
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 117/64
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 99/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 69/64
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 13/16
                           %! ACCELERANDO_RHYTHM_MAKER
-                          %! rmakers.accelerando()
+                          %! rmakers.make_accelerandi()
                         c'16 * 47/64
                           %! ACCELERANDO_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! ACCELERANDO_RHYTHM_MAKER
-                      %! rmakers.accelerando()
+                      %! rmakers.make_accelerandi()
                     }
                     \revert TupletNumber.text
                 }
@@ -192,14 +192,14 @@ def test_tags_01():
 
 def test_tags_02():
     """
-    Tags work with rmakers.incised().
+    Tags work with rmakers.make_incised_tuplets().
     """
 
     def make_lilypond_file(pairs):
         tag = abjad.Tag("INCISED_RHYTHM_MAKER")
         time_signatures = rmakers.docs.make_time_signatures(pairs)
         durations = abjad.duration.durations(time_signatures)
-        tuplets = rmakers.incised(
+        tuplets = rmakers.make_incised_tuplets(
             durations,
             extra_counts=[1],
             outer_tuplets_only=True,
@@ -236,62 +236,62 @@ def test_tags_02():
                 \context Voice = "Voice"
                 {
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     \tweak text #tuplet-number::calc-fraction-text
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     \tuplet 9/16
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     {
                         \time 8/8
                           %! INCISED_RHYTHM_MAKER
-                          %! rmakers.incised()
+                          %! rmakers.make_incised_tuplets()
                         r16
                           %! INCISED_RHYTHM_MAKER
-                          %! rmakers.incised()
+                          %! rmakers.make_incised_tuplets()
                         c'2
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     }
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     \tweak text #tuplet-number::calc-fraction-text
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     \tuplet 5/8
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     {
                         \time 4/8
                           %! INCISED_RHYTHM_MAKER
-                          %! rmakers.incised()
+                          %! rmakers.make_incised_tuplets()
                         c'4
                         ~
                           %! INCISED_RHYTHM_MAKER
-                          %! rmakers.incised()
+                          %! rmakers.make_incised_tuplets()
                         c'16
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     }
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     \tweak text #tuplet-number::calc-fraction-text
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     \tuplet 7/12
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     {
                         \time 6/8
                           %! INCISED_RHYTHM_MAKER
-                          %! rmakers.incised()
+                          %! rmakers.make_incised_tuplets()
                         c'4.
                           %! INCISED_RHYTHM_MAKER
-                          %! rmakers.incised()
+                          %! rmakers.make_incised_tuplets()
                         r16
                       %! INCISED_RHYTHM_MAKER
-                      %! rmakers.incised()
+                      %! rmakers.make_incised_tuplets()
                     }
                 }
             }
@@ -302,14 +302,14 @@ def test_tags_02():
 
 def test_tags_03():
     """
-    Tags work with rmakers.talea().
+    Tags work with rmakers.make_talea_tuplets().
     """
 
     def make_lilypond_file(pairs):
         time_signatures = rmakers.docs.make_time_signatures(pairs)
         durations = abjad.duration.durations(time_signatures)
         tag = abjad.Tag("TALEA_RHYTHM_MAKER")
-        tuplets = rmakers.talea(
+        tuplets = rmakers.make_talea_tuplets(
             durations, [1, 2, 3, 4], 16, extra_counts=[0, 1], tag=tag
         )
         rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
@@ -337,108 +337,108 @@ def test_tags_03():
                 \context Voice = "Voice"
                 {
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     \tweak text #tuplet-number::calc-fraction-text
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     \tuplet 1/1
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     {
                         \time 3/8
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'16
                           %! TALEA_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'8
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'8.
                           %! TALEA_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     }
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     \tuplet 9/8
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     {
                         \time 4/8
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'4
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'16
                           %! TALEA_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'8
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'8
                           %! TALEA_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                         ~
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     }
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     \tweak text #tuplet-number::calc-fraction-text
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     \tuplet 1/1
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     {
                         \time 3/8
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'16
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'4
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'16
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     }
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     \tuplet 9/8
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     {
                         \time 4/8
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'8
                           %! TALEA_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'8.
                           %! TALEA_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                           %! TALEA_RHYTHM_MAKER
-                          %! rmakers.talea()
+                          %! rmakers.make_talea_tuplets()
                         c'4
                       %! TALEA_RHYTHM_MAKER
-                      %! rmakers.talea()
+                      %! rmakers.make_talea_tuplets()
                     }
                 }
             }
@@ -449,14 +449,14 @@ def test_tags_03():
 
 def test_tags_04():
     """
-    Tags work with rmakers.tuplet().
+    Tags work with rmakers.make_tuplets().
     """
 
     def make_lilypond_file(pairs):
         time_signatures = rmakers.docs.make_time_signatures(pairs)
         durations = abjad.duration.durations(time_signatures)
         tag = abjad.Tag("TUPLET_RHYTHM_MAKER")
-        tuplets = rmakers.tuplet(durations, [(3, 2)], tag=tag)
+        tuplets = rmakers.make_tuplets(durations, [(3, 2)], tag=tag)
         rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         lilypond_file = rmakers.docs.make_example_lilypond_file(
             tuplets, time_signatures
@@ -482,88 +482,88 @@ def test_tags_04():
                 \context Voice = "Voice"
                 {
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     \tuplet 5/4
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     {
                         \time 1/2
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.tuplet()
+                          %! rmakers.make_tuplets()
                         c'4.
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.tuplet()
+                          %! rmakers.make_tuplets()
                         c'4
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     }
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     \tweak text #tuplet-number::calc-fraction-text
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     \tuplet 5/3
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     {
                         \time 3/8
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.tuplet()
+                          %! rmakers.make_tuplets()
                         c'4.
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.tuplet()
+                          %! rmakers.make_tuplets()
                         c'4
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     }
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     \tweak text #tuplet-number::calc-fraction-text
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     \tuplet 1/1
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     {
                         \time 5/16
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.tuplet()
+                          %! rmakers.make_tuplets()
                         c'8.
                           %! TUPLET_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.tuplet()
+                          %! rmakers.make_tuplets()
                         c'8
                           %! TUPLET_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     }
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     \tweak text #tuplet-number::calc-fraction-text
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     \tuplet 1/1
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     {
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.tuplet()
+                          %! rmakers.make_tuplets()
                         c'8.
                           %! TUPLET_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         [
                           %! TUPLET_RHYTHM_MAKER
-                          %! rmakers.tuplet()
+                          %! rmakers.make_tuplets()
                         c'8
                           %! TUPLET_RHYTHM_MAKER
                           %! rmakers.attach_beams_to_runs_by_leaf_list()
                         ]
                       %! TUPLET_RHYTHM_MAKER
-                      %! rmakers.tuplet()
+                      %! rmakers.make_tuplets()
                     }
                 }
             }

@@ -140,7 +140,7 @@ def attach_beams_to_runs_by_leaf_list(
         >>> def make_lilypond_file(pairs, beam_rests=False, stemlet_length=None):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [1, 1, 1, -1], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [1, 1, 1, -1], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -436,7 +436,7 @@ def attach_repeat_ties_to_pleaves(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     voice = abjad.Voice(tuplets)
         ...     tuplets = abjad.select.tuplets(voice)[1:]
@@ -533,7 +533,7 @@ def attach_repeat_ties_to_pleaves(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     voice = abjad.Voice(tuplets)
         ...     tuplets = abjad.select.tuplets(voice)
@@ -654,7 +654,7 @@ def attach_ties_to_pleaves(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -750,7 +750,7 @@ def attach_ties_to_pleaves(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [5, 3, 3, 3], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [5, 3, 3, 3], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -821,7 +821,7 @@ def attach_ties_to_pleaves(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [5, 3, 3, 3], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [5, 3, 3, 3], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -891,7 +891,7 @@ def attach_ties_to_pleaves(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [5, -3, 3, 3], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [5, -3, 3, 3], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -961,7 +961,7 @@ def attach_ties_to_pleaves(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -1082,7 +1082,7 @@ def attach_span_beams_to_runs_across_leaf_lists(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [1], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [1], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -1260,7 +1260,7 @@ def detach_ties_from_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> Non
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -1365,7 +1365,7 @@ def detach_ties_from_leaves(leaves: collections.abc.Iterable[abjad.Leaf]) -> Non
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     voice = abjad.Voice(tuplets)
         ...     notes = abjad.select.notes(voice)[1:]
@@ -1493,7 +1493,7 @@ def extract_trivial_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> 
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
@@ -1687,7 +1687,7 @@ def replace_leaves_with_notes(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     components = rmakers.note(durations)
+        ...     components = rmakers.make_notes(durations)
         ...     container = abjad.Container(components)
         ...     rmakers.replace_leaves_with_rests(components)
         ...     rests = container[1:3]
@@ -1736,7 +1736,7 @@ def replace_leaves_with_notes(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     components = rmakers.note(durations)
+        ...     components = rmakers.make_notes(durations)
         ...     container = abjad.Container(components)
         ...     leaves = abjad.select.leaves(container)
         ...     rmakers.replace_leaves_with_rests(leaves)
@@ -1808,7 +1808,7 @@ def replace_leaves_with_rests(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [1, 2, 3, 4], 16)
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
         ...     )
@@ -1876,7 +1876,7 @@ def replace_leaves_with_rests(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [1, 2, 3, 4], 16)
         ...     container = abjad.Container(tuplets)
         ...     leaves = abjad.select.leaves(container)
         ...     rmakers.replace_leaves_with_rests(leaves)
@@ -1939,7 +1939,7 @@ def replace_leaves_with_rests(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [1, 2, 3, 4], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -1999,7 +1999,7 @@ def replace_leaves_with_rests(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [1, 2, 3, 4], 16)
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
         ...     )
@@ -2067,7 +2067,7 @@ def replace_leaves_with_rests(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [1, 2, 3, 4], 16)
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
         ...     )
@@ -2159,7 +2159,7 @@ def replace_ties_with_repeat_ties(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -2389,7 +2389,7 @@ def rewrite_meter(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [5, 4], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [5, 4], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     voice = rmakers.wrap_in_time_signature_staff(tuplets, time_signatures)
         ...     rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists)
@@ -2530,7 +2530,7 @@ def rewrite_rest_filled_tuplets(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [-1], 16, extra_counts=[1])
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [-1], 16, extra_counts=[1])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     container = abjad.Container(tuplets)
         ...     tuplets = abjad.select.tuplets(container)
@@ -2607,7 +2607,7 @@ def rewrite_rest_filled_tuplets(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [-1], 16, extra_counts=[1])
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [-1], 16, extra_counts=[1])
         ...     container = abjad.Container(tuplets)
         ...     rmakers.rewrite_rest_filled_tuplets(tuplets)
         ...     tuplets = abjad.select.tuplets(container)
@@ -2654,7 +2654,7 @@ def rewrite_rest_filled_tuplets(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [-1], 16, extra_counts=[1])
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [-1], 16, extra_counts=[1])
         ...     container = abjad.Container(tuplets)
         ...     tuplets = abjad.select.tuplets(container)
         ...     spelling = rmakers.Spelling(increase_monotonic=True)
@@ -2707,7 +2707,7 @@ def rewrite_rest_filled_tuplets(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(
+        ...     tuplets = rmakers.make_talea_tuplets(
         ...         durations, [3, 3, -6, -6], 16, extra_counts=[1, 0]
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -2783,7 +2783,7 @@ def rewrite_rest_filled_tuplets(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(
+        ...     tuplets = rmakers.make_talea_tuplets(
         ...         durations,
         ...         [3, 3, -6, -6],
         ...         16,
@@ -2895,7 +2895,7 @@ def rewrite_sustained_tuplets(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(
+        ...     tuplets = rmakers.make_talea_tuplets(
         ...         durations, [6, 5, 5, 4, 1], 16, extra_counts=[2, 1, 1, 1]
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -2981,7 +2981,7 @@ def rewrite_sustained_tuplets(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(
+        ...     tuplets = rmakers.make_talea_tuplets(
         ...         durations, [6, 5, 5, 4, 1], 16, extra_counts=[2, 1, 1, 1]
         ...     )
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
@@ -3056,7 +3056,7 @@ def rewrite_sustained_tuplets(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(
+        ...     tuplets = rmakers.make_talea_tuplets(
         ...         durations, [6, 5, 5, 4, 1], 16, extra_counts=[2, 1, 1, 1]
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -3114,7 +3114,7 @@ def rewrite_sustained_tuplets(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -3190,7 +3190,7 @@ def rewrite_sustained_tuplets(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [1, 2, 3, 4], 16)
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [1, 2, 3, 4], 16)
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -3348,7 +3348,7 @@ def swap_trivial_tuplets_for_containers(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
@@ -3433,7 +3433,7 @@ def toggle_diminished_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -
         >>> def make_lilypond_file(pairs, toggle_diminished_tuplets=False):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8], extra_counts=[1])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8], extra_counts=[1])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -3589,7 +3589,7 @@ def toggle_augmented_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) ->
         >>> def make_lilypond_file(pairs, toggle_augmented_tuplets=False):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [1], 16, extra_counts=[0, -1])
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [1], 16, extra_counts=[0, -1])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -3765,7 +3765,7 @@ def trivialize_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(
+        ...     tuplets = rmakers.make_talea_tuplets(
         ...         durations, [3, 3, 6, 6], 16, extra_counts=[0, 4]
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -3836,7 +3836,7 @@ def trivialize_tuplets(tuplets: collections.abc.Iterable[abjad.Tuplet]) -> None:
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(
+        ...     tuplets = rmakers.make_talea_tuplets(
         ...         durations, [3, 3, 6, 6], 16, extra_counts=[0, 4]
         ...     )
         ...     leaf_lists = [_[:] for _ in tuplets]
@@ -3933,7 +3933,7 @@ def tweak_trivial_tuplets_stencil_false(
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.even_division(durations, [8])
+        ...     tuplets = rmakers.make_even_division_tuplets(durations, [8])
         ...     leaf_lists = [_[:] for _ in tuplets]
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(

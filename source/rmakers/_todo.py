@@ -66,7 +66,7 @@
 #            REGRESSION. Periodic rest commands also respect state.
 #
 #            >>> stack = rmakers.stack(
-#            ...     rmakers.talea([4], 16, extra_counts=[0, 1, 2]),
+#            ...     rmakers.make_talea_tuplets([4], 16, extra_counts=[0, 1, 2]),
 #            ...     rmakers.replace_leaves_with_rests(
 #            ...         lambda _: abjad.select(_).logical_ties().get([3], 4),
 #            ...     ),

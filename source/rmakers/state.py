@@ -3,7 +3,7 @@ Examples that show how to work with rmakers in a statal way.
 
 ..  container:: example
 
-    Using ``rmakers.accelerando()`` with the ``previous_state`` keyword.
+    Using ``rmakers.make_accelerandi()`` with the ``previous_state`` keyword.
 
     ..  container:: example
 
@@ -20,7 +20,7 @@ Examples that show how to work with rmakers in a statal way.
         ...         abjad.duration.durations([(1, 20), (1, 8), (1, 16)]),
         ...     ]
         ...     interpolations = [rmakers.Interpolation(*_) for _ in duration_lists]
-        ...     tuplets = rmakers.accelerando(
+        ...     tuplets = rmakers.make_accelerandi(
         ...         durations,
         ...         interpolations,
         ...         previous_state=previous_state,
@@ -254,7 +254,7 @@ Examples that show how to work with rmakers in a statal way.
 
 ..  container:: example
 
-    Using ``rmakers.even_division()`` with the ``previous_state`` keyword.
+    Using ``rmakers.make_even_division_tuplets()`` with the ``previous_state`` keyword.
 
     Fills durations with 16th, 8th, quarter notes. Consumes 5 durations:
 
@@ -262,7 +262,7 @@ Examples that show how to work with rmakers in a statal way.
     ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
     ...     durations = [_.duration() for _ in time_signatures]
     ...     state = {}
-    ...     tuplets = rmakers.even_division(
+    ...     tuplets = rmakers.make_even_division_tuplets(
     ...         durations, [16, 8, 4], extra_counts=[0, 1],
     ...         previous_state=previous_state, state=state
     ...     )
@@ -388,13 +388,13 @@ Examples that show how to work with rmakers in a statal way.
 
 ..  container:: example
 
-    Using ``rmakers.talea()`` with the ``previous_state`` keyword.
+    Using ``rmakers.make_talea_tuplets()`` with the ``previous_state`` keyword.
 
     >>> def make_lilypond_file(pairs, *, previous_state=None):
     ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
     ...     durations = [_.duration() for _ in time_signatures]
     ...     state = {}
-    ...     tuplets = rmakers.talea(
+    ...     tuplets = rmakers.make_talea_tuplets(
     ...         durations, [4], 16, extra_counts=[0, 1, 2],
     ...         previous_state=previous_state,
     ...         state=state,

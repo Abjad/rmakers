@@ -15,7 +15,7 @@ def test():
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.tuplet(durations, [(2, 3), (1, 1)])
+        ...     tuplets = rmakers.make_tuplets(durations, [(2, 3), (1, 1)])
         ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
@@ -89,7 +89,7 @@ def test():
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(durations, [6], 16, end_counts=[1])
+        ...     tuplets = rmakers.make_talea_tuplets(durations, [6], 16, end_counts=[1])
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
         ...         tuplets, time_signatures
         ...     )
@@ -152,7 +152,7 @@ def test():
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(
+        ...     tuplets = rmakers.make_talea_tuplets(
         ...         durations, [3, 3, 6, 6], 16, extra_counts=[0, 4]
         ...     )
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
@@ -231,7 +231,7 @@ def test():
         >>> def make_lilypond_file(pairs):
         ...     time_signatures = rmakers.docs.make_time_signatures(pairs)
         ...     durations = abjad.duration.durations(time_signatures)
-        ...     tuplets = rmakers.talea(
+        ...     tuplets = rmakers.make_talea_tuplets(
         ...         durations, [3, 3, 6, 6], 16, extra_counts=[0, 4]
         ...     )
         ...     lilypond_file = rmakers.docs.make_example_lilypond_file(
