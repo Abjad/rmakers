@@ -1,0 +1,182 @@
+rmakers API
+===========
+
+.. toctree::
+   :hidden:
+
+   rmakers/index
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers <rmakers>`
+   :class: section-header
+
+Rhythm-makers.
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers.classes <rmakers--classes>`
+   :class: section-header
+
+The rmakers classes.
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Classes
+   :class: subsection-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~rmakers.classes.Incise
+   ~rmakers.classes.Interpolation
+   ~rmakers.classes.Spelling
+   ~rmakers.classes.Talea
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers.docs <rmakers--docs>`
+   :class: section-header
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: subsection-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~rmakers.docs.attach_time_signatures
+   ~rmakers.docs.make_example_lilypond_file
+   ~rmakers.docs.make_time_signatures
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers.functions <rmakers--functions>`
+   :class: section-header
+
+The rmakers functions.
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: subsection-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~rmakers.functions.attach_beams_to_runs_by_leaf_list
+   ~rmakers.functions.attach_invisible_music_commands_to_leaves
+   ~rmakers.functions.attach_repeat_ties_to_pleaves
+   ~rmakers.functions.attach_span_beams_to_runs_across_leaf_lists
+   ~rmakers.functions.attach_ties_to_pleaves
+   ~rmakers.functions.detach_beams_from_leaves
+   ~rmakers.functions.detach_ties_from_leaves
+   ~rmakers.functions.extract_rest_filled_tuplets
+   ~rmakers.functions.extract_trivial_tuplets
+   ~rmakers.functions.override_beam_grow_direction
+   ~rmakers.functions.override_tuplet_number_text_duration_markup
+   ~rmakers.functions.reduce_tuplet_ratios
+   ~rmakers.functions.replace_leaves_with_notes
+   ~rmakers.functions.replace_leaves_with_rests
+   ~rmakers.functions.replace_ties_with_repeat_ties
+   ~rmakers.functions.respell_leaves_written_duration_and_dmp
+   ~rmakers.functions.respell_tuplets_without_dots
+   ~rmakers.functions.rewrite_meter
+   ~rmakers.functions.rewrite_rest_filled_tuplets
+   ~rmakers.functions.rewrite_sustained_tuplets
+   ~rmakers.functions.select_nongrace_leaves_by_tuplet
+   ~rmakers.functions.split_measures
+   ~rmakers.functions.swap_length_1_tuplets_for_containers
+   ~rmakers.functions.swap_skip_filled_tuplets_for_containers
+   ~rmakers.functions.swap_trivial_tuplets_for_containers
+   ~rmakers.functions.toggle_augmented_tuplets
+   ~rmakers.functions.toggle_diminished_tuplets
+   ~rmakers.functions.trivialize_tuplets
+   ~rmakers.functions.tweak_skip_filled_tuplets_stencil_false
+   ~rmakers.functions.tweak_trivial_tuplets_stencil_false
+   ~rmakers.functions.tweak_tuplet_number_text_calc_fraction_text
+   ~rmakers.functions.wrap_in_time_signature_staff
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers.makers <rmakers--makers>`
+   :class: section-header
+
+Makers.
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: subsection-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~rmakers.makers.make_accelerandi
+   ~rmakers.makers.make_even_division_tuplets
+   ~rmakers.makers.make_incised_tuplets
+   ~rmakers.makers.make_notes
+   ~rmakers.makers.make_notes_with_dmps
+   ~rmakers.makers.make_talea_tuplets
+   ~rmakers.makers.make_tuplets
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers.regression <rmakers--regression>`
+   :class: section-header
+
+Regression.
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: subsection-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~rmakers.regression.test
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: :ref:`rmakers.state <rmakers--state>`
+   :class: section-header
+
+Examples that show how to work with rmakers in a statal way.
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: subsection-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~rmakers.state.sphinx

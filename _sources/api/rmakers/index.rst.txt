@@ -1,0 +1,40 @@
+.. _rmakers:
+
+rmakers
+=======
+
+.. automodule:: rmakers
+
+.. currentmodule:: rmakers
+
+.. container:: svg-container
+
+   .. inheritance-diagram:: rmakers
+      :lineage: rmakers
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Subpackages
+   :class: section-header
+
+.. toctree::
+   :hidden:
+
+   classes
+   docs
+   functions
+   makers
+   regression
+   state
+
+.. autosummary::
+   :nosignatures:
+
+   classes
+   docs
+   functions
+   makers
+   regression
+   state

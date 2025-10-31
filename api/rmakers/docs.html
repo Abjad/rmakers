@@ -1,0 +1,165 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>docs &mdash; rmakers  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/abjad.css?v=582143d1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/uqbar.css?v=e6773f5c" />
+
+  
+    <link rel="canonical" href="https://abjad.github.io/rmakersapi/rmakers/docs.html"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/ga.js"></script>
+      <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="functions" href="functions.html" />
+    <link rel="prev" title="classes" href="classes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #BB2299" >
+
+
+    <a href="../../index.html" class="icon icon-home" alt="Documentation
+    Home"> rmakers 3.31
+
+
+
+</a>
+
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">rmakers API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #BB2299" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">rmakers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+
+<div class="rst-content style-external-links">
+
+    
+
+
+    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+    <div itemprop="articleBody">
+    
+  <section id="module-rmakers.docs">
+<span id="docs"></span><span id="rmakers-docs"></span><h1>docs<a class="headerlink" href="#module-rmakers.docs" title="Link to this heading"></a></h1>
+<div class="svg-container docutils container">
+</div>
+<hr/><p class="section-header rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rmakers.docs.attach_time_signatures" title="rmakers.docs.attach_time_signatures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attach_time_signatures</span></code></a></p></td>
+<td><p>Attaches <code class="docutils literal notranslate"><span class="pre">time_signatures</span></code> to leaves in <code class="docutils literal notranslate"><span class="pre">voice</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#rmakers.docs.make_example_lilypond_file" title="rmakers.docs.make_example_lilypond_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_example_lilypond_file</span></code></a></p></td>
+<td><p>Makes example LilyPond file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rmakers.docs.make_time_signatures" title="rmakers.docs.make_time_signatures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_time_signatures</span></code></a></p></td>
+<td><p>Makes time signatures from <code class="docutils literal notranslate"><span class="pre">pairs</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="rmakers.docs.attach_time_signatures">
+<span class="sig-prename descclassname"><span class="pre">rmakers.docs.</span></span><span class="sig-name descname"><span class="pre">attach_time_signatures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Voice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_signatures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">TimeSignature</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/rmakers/docs.html#attach_time_signatures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rmakers.docs.attach_time_signatures" title="Link to this definition"></a></dt>
+<dd><p>Attaches <code class="docutils literal notranslate"><span class="pre">time_signatures</span></code> to leaves in <code class="docutils literal notranslate"><span class="pre">voice</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rmakers.docs.make_example_lilypond_file">
+<span class="sig-prename descclassname"><span class="pre">rmakers.docs.</span></span><span class="sig-name descname"><span class="pre">make_example_lilypond_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Component</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_signatures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">TimeSignature</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">includes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">LilyPondFile</span></span></span><a class="reference internal" href="../../_modules/rmakers/docs.html#make_example_lilypond_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rmakers.docs.make_example_lilypond_file" title="Link to this definition"></a></dt>
+<dd><p>Makes example LilyPond file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rmakers.docs.make_time_signatures">
+<span class="sig-prename descclassname"><span class="pre">rmakers.docs.</span></span><span class="sig-name descname"><span class="pre">make_time_signatures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><span class="pre">TimeSignature</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/rmakers/docs.html#make_time_signatures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rmakers.docs.make_time_signatures" title="Link to this definition"></a></dt>
+<dd><p>Makes time signatures from <code class="docutils literal notranslate"><span class="pre">pairs</span></code>.</p>
+</dd></dl>
+
+</section>
+
+
+    </div>
+    
+    </div>
+    
+
+<footer>
+  
+    <hr/>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="functions.html" class="btn btn-neutral float-right" title="functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="classes.html" class="btn btn-neutral float-left" title="classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2008-2025, Trevor Bača.
+      <span class="lastupdated">
+        Last updated on Oct 31, 2025.
+      </span>
+
+    </p>
+  </div> 
+
+</footer>
+
+</div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

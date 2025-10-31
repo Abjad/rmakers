@@ -1,0 +1,120 @@
+.. _rmakers--functions:
+
+functions
+=========
+
+.. automodule:: rmakers.functions
+
+.. currentmodule:: rmakers.functions
+
+.. container:: svg-container
+
+   .. inheritance-diagram:: rmakers
+      :lineage: rmakers.functions
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: section-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~attach_beams_to_runs_by_leaf_list
+   ~attach_invisible_music_commands_to_leaves
+   ~attach_repeat_ties_to_pleaves
+   ~attach_span_beams_to_runs_across_leaf_lists
+   ~attach_ties_to_pleaves
+   ~detach_beams_from_leaves
+   ~detach_ties_from_leaves
+   ~extract_rest_filled_tuplets
+   ~extract_trivial_tuplets
+   ~override_beam_grow_direction
+   ~override_tuplet_number_text_duration_markup
+   ~reduce_tuplet_ratios
+   ~replace_leaves_with_notes
+   ~replace_leaves_with_rests
+   ~replace_ties_with_repeat_ties
+   ~respell_leaves_written_duration_and_dmp
+   ~respell_tuplets_without_dots
+   ~rewrite_meter
+   ~rewrite_rest_filled_tuplets
+   ~rewrite_sustained_tuplets
+   ~select_nongrace_leaves_by_tuplet
+   ~split_measures
+   ~swap_length_1_tuplets_for_containers
+   ~swap_skip_filled_tuplets_for_containers
+   ~swap_trivial_tuplets_for_containers
+   ~toggle_augmented_tuplets
+   ~toggle_diminished_tuplets
+   ~trivialize_tuplets
+   ~tweak_skip_filled_tuplets_stencil_false
+   ~tweak_trivial_tuplets_stencil_false
+   ~tweak_tuplet_number_text_calc_fraction_text
+   ~wrap_in_time_signature_staff
+
+.. autofunction:: attach_beams_to_runs_by_leaf_list
+
+.. autofunction:: attach_invisible_music_commands_to_leaves
+
+.. autofunction:: attach_repeat_ties_to_pleaves
+
+.. autofunction:: attach_span_beams_to_runs_across_leaf_lists
+
+.. autofunction:: attach_ties_to_pleaves
+
+.. autofunction:: detach_beams_from_leaves
+
+.. autofunction:: detach_ties_from_leaves
+
+.. autofunction:: extract_rest_filled_tuplets
+
+.. autofunction:: extract_trivial_tuplets
+
+.. autofunction:: override_beam_grow_direction
+
+.. autofunction:: override_tuplet_number_text_duration_markup
+
+.. autofunction:: reduce_tuplet_ratios
+
+.. autofunction:: replace_leaves_with_notes
+
+.. autofunction:: replace_leaves_with_rests
+
+.. autofunction:: replace_ties_with_repeat_ties
+
+.. autofunction:: respell_leaves_written_duration_and_dmp
+
+.. autofunction:: respell_tuplets_without_dots
+
+.. autofunction:: rewrite_meter
+
+.. autofunction:: rewrite_rest_filled_tuplets
+
+.. autofunction:: rewrite_sustained_tuplets
+
+.. autofunction:: select_nongrace_leaves_by_tuplet
+
+.. autofunction:: split_measures
+
+.. autofunction:: swap_length_1_tuplets_for_containers
+
+.. autofunction:: swap_skip_filled_tuplets_for_containers
+
+.. autofunction:: swap_trivial_tuplets_for_containers
+
+.. autofunction:: toggle_augmented_tuplets
+
+.. autofunction:: toggle_diminished_tuplets
+
+.. autofunction:: trivialize_tuplets
+
+.. autofunction:: tweak_skip_filled_tuplets_stencil_false
+
+.. autofunction:: tweak_trivial_tuplets_stencil_false
+
+.. autofunction:: tweak_tuplet_number_text_calc_fraction_text
+
+.. autofunction:: wrap_in_time_signature_staff

@@ -1,0 +1,33 @@
+.. _rmakers--docs:
+
+docs
+====
+
+.. automodule:: rmakers.docs
+
+.. currentmodule:: rmakers.docs
+
+.. container:: svg-container
+
+   .. inheritance-diagram:: rmakers
+      :lineage: rmakers.docs
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: section-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~attach_time_signatures
+   ~make_example_lilypond_file
+   ~make_time_signatures
+
+.. autofunction:: attach_time_signatures
+
+.. autofunction:: make_example_lilypond_file
+
+.. autofunction:: make_time_signatures

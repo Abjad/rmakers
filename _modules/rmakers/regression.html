@@ -1,0 +1,432 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rmakers.regression &mdash; rmakers  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/abjad.css?v=582143d1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/uqbar.css?v=e6773f5c" />
+
+  
+    <link rel="canonical" href="https://abjad.github.io/rmakers_modules/rmakers/regression.html"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/ga.js"></script>
+      <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #BB2299" >
+
+
+    <a href="../../index.html" class="icon icon-home" alt="Documentation
+    Home"> rmakers 3.31
+
+
+
+</a>
+
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">rmakers API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #BB2299" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">rmakers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+
+<div class="rst-content style-external-links">
+
+    
+
+
+    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+    <div itemprop="articleBody">
+    
+  <h1>Source code for rmakers.regression</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Regression.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="test">
+<a class="viewcode-back" href="../../api/rmakers/regression.html#rmakers.regression.test">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">():</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Regression.</span>
+
+<span class="sd">    ..  container:: example</span>
+
+<span class="sd">        REGRESSION: Very long ties are preserved when ``extract_trivial_tuplets`` is</span>
+<span class="sd">        true:</span>
+
+<span class="sd">        &gt;&gt;&gt; def make_lilypond_file(pairs):</span>
+<span class="sd">        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)</span>
+<span class="sd">        ...     durations = abjad.duration.durations(time_signatures)</span>
+<span class="sd">        ...     tuplets = rmakers.make_tuplets(durations, [(2, 3), (1, 1)])</span>
+<span class="sd">        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)</span>
+<span class="sd">        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(</span>
+<span class="sd">        ...         tuplets, time_signatures</span>
+<span class="sd">        ...     )</span>
+<span class="sd">        ...     voice = lilypond_file[&quot;Voice&quot;]</span>
+<span class="sd">        ...     leaf_lists = [_[:] for _ in tuplets]</span>
+<span class="sd">        ...     rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists)</span>
+<span class="sd">        ...     rmakers.extract_trivial_tuplets(tuplets)</span>
+<span class="sd">        ...     notes = abjad.select.notes(voice)[:-1]</span>
+<span class="sd">        ...     rmakers.attach_ties_to_pleaves(notes)</span>
+<span class="sd">        ...     return lilypond_file</span>
+
+<span class="sd">        &gt;&gt;&gt; pairs = [(3, 8), (2, 8), (3, 8), (2, 8)]</span>
+<span class="sd">        &gt;&gt;&gt; lilypond_file = make_lilypond_file(pairs)</span>
+<span class="sd">        &gt;&gt;&gt; abjad.show(lilypond_file) # doctest: +SKIP</span>
+
+<span class="sd">        ..  docs::</span>
+
+<span class="sd">            &gt;&gt;&gt; score = lilypond_file[&quot;Score&quot;]</span>
+<span class="sd">            &gt;&gt;&gt; string = abjad.lilypond(score)</span>
+<span class="sd">            &gt;&gt;&gt; print(string)</span>
+<span class="sd">            \context Score = &quot;Score&quot;</span>
+<span class="sd">            {</span>
+<span class="sd">                \context RhythmicStaff = &quot;Staff&quot;</span>
+<span class="sd">                \with</span>
+<span class="sd">                {</span>
+<span class="sd">                    \override Clef.stencil = ##f</span>
+<span class="sd">                }</span>
+<span class="sd">                {</span>
+<span class="sd">                    \context Voice = &quot;Voice&quot;</span>
+<span class="sd">                    {</span>
+<span class="sd">                        \tweak text #tuplet-number::calc-fraction-text</span>
+<span class="sd">                        \tuplet 5/3</span>
+<span class="sd">                        {</span>
+<span class="sd">                            \time 3/8</span>
+<span class="sd">                            c&#39;4</span>
+<span class="sd">                            ~</span>
+<span class="sd">                            c&#39;4.</span>
+<span class="sd">                            ~</span>
+<span class="sd">                        }</span>
+<span class="sd">                        \time 2/8</span>
+<span class="sd">                        c&#39;8</span>
+<span class="sd">                        [</span>
+<span class="sd">                        ~</span>
+<span class="sd">                        c&#39;8</span>
+<span class="sd">                        ]</span>
+<span class="sd">                        ~</span>
+<span class="sd">                        \tweak text #tuplet-number::calc-fraction-text</span>
+<span class="sd">                        \tuplet 5/3</span>
+<span class="sd">                        {</span>
+<span class="sd">                            \time 3/8</span>
+<span class="sd">                            c&#39;4</span>
+<span class="sd">                            ~</span>
+<span class="sd">                            c&#39;4.</span>
+<span class="sd">                            ~</span>
+<span class="sd">                        }</span>
+<span class="sd">                        \time 2/8</span>
+<span class="sd">                        c&#39;8</span>
+<span class="sd">                        [</span>
+<span class="sd">                        ~</span>
+<span class="sd">                        c&#39;8</span>
+<span class="sd">                        ]</span>
+<span class="sd">                    }</span>
+<span class="sd">                }</span>
+<span class="sd">            }</span>
+
+<span class="sd">    ..  container:: example</span>
+
+<span class="sd">        REGRESSION. End counts leave 5-durated tie in tact:</span>
+
+<span class="sd">        &gt;&gt;&gt; def make_lilypond_file(pairs):</span>
+<span class="sd">        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)</span>
+<span class="sd">        ...     durations = abjad.duration.durations(time_signatures)</span>
+<span class="sd">        ...     tuplets = rmakers.make_talea_tuplets(durations, [6], 16, end_counts=[1])</span>
+<span class="sd">        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(</span>
+<span class="sd">        ...         tuplets, time_signatures</span>
+<span class="sd">        ...     )</span>
+<span class="sd">        ...     voice = lilypond_file[&quot;Voice&quot;]</span>
+<span class="sd">        ...     leaf_lists = [_[:] for _ in tuplets]</span>
+<span class="sd">        ...     rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists)</span>
+<span class="sd">        ...     rmakers.extract_trivial_tuplets(tuplets)</span>
+<span class="sd">        ...     return lilypond_file</span>
+
+<span class="sd">        &gt;&gt;&gt; pairs = [(3, 8), (3, 8)]</span>
+<span class="sd">        &gt;&gt;&gt; lilypond_file = make_lilypond_file(pairs)</span>
+<span class="sd">        &gt;&gt;&gt; abjad.show(lilypond_file) # doctest: +SKIP</span>
+
+<span class="sd">        ..  docs::</span>
+
+<span class="sd">            &gt;&gt;&gt; score = lilypond_file[&quot;Score&quot;]</span>
+<span class="sd">            &gt;&gt;&gt; string = abjad.lilypond(score)</span>
+<span class="sd">            &gt;&gt;&gt; print(string)</span>
+<span class="sd">            \context Score = &quot;Score&quot;</span>
+<span class="sd">            {</span>
+<span class="sd">                \context RhythmicStaff = &quot;Staff&quot;</span>
+<span class="sd">                \with</span>
+<span class="sd">                {</span>
+<span class="sd">                    \override Clef.stencil = ##f</span>
+<span class="sd">                }</span>
+<span class="sd">                {</span>
+<span class="sd">                    \context Voice = &quot;Voice&quot;</span>
+<span class="sd">                    {</span>
+<span class="sd">                        \time 3/8</span>
+<span class="sd">                        c&#39;4.</span>
+<span class="sd">                        c&#39;4</span>
+<span class="sd">                        ~</span>
+<span class="sd">                        c&#39;16</span>
+<span class="sd">                        [</span>
+<span class="sd">                        c&#39;16</span>
+<span class="sd">                        ]</span>
+<span class="sd">                    }</span>
+<span class="sd">                }</span>
+<span class="sd">            }</span>
+
+<span class="sd">    ..  container:: example</span>
+
+<span class="sd">        REGRESSION. Works when talea advances by period of talea:</span>
+
+<span class="sd">        &gt;&gt;&gt; talea = rmakers.Talea([1, 2, 3, 4], 16)</span>
+<span class="sd">        &gt;&gt;&gt; talea.counts</span>
+<span class="sd">        [1, 2, 3, 4]</span>
+
+<span class="sd">        &gt;&gt;&gt; talea.advance(10).counts</span>
+<span class="sd">        [1, 2, 3, 4]</span>
+
+<span class="sd">        &gt;&gt;&gt; talea.advance(20).counts</span>
+<span class="sd">        [1, 2, 3, 4]</span>
+
+<span class="sd">    ..  container:: example</span>
+
+<span class="sd">        REGRESSION #907a. Rewrites trivializable tuplets even when tuplets</span>
+<span class="sd">        contain multiple ties:</span>
+
+<span class="sd">        &gt;&gt;&gt; def make_lilypond_file(pairs):</span>
+<span class="sd">        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)</span>
+<span class="sd">        ...     durations = abjad.duration.durations(time_signatures)</span>
+<span class="sd">        ...     tuplets = rmakers.make_talea_tuplets(</span>
+<span class="sd">        ...         durations, [3, 3, 6, 6], 16, extra_counts=[0, 4]</span>
+<span class="sd">        ...     )</span>
+<span class="sd">        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(</span>
+<span class="sd">        ...         tuplets, time_signatures</span>
+<span class="sd">        ...     )</span>
+<span class="sd">        ...     voice = lilypond_file[&quot;Voice&quot;]</span>
+<span class="sd">        ...     rmakers.trivialize_tuplets(tuplets)</span>
+<span class="sd">        ...     leaves = [abjad.select.leaf(_, -1) for _ in tuplets[:-1]]</span>
+<span class="sd">        ...     rmakers.attach_ties_to_pleaves(leaves)</span>
+<span class="sd">        ...     leaf_lists = [_[:] for _ in tuplets]</span>
+<span class="sd">        ...     rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists)</span>
+<span class="sd">        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)</span>
+<span class="sd">        ...     return lilypond_file</span>
+
+<span class="sd">        &gt;&gt;&gt; pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]</span>
+<span class="sd">        &gt;&gt;&gt; lilypond_file = make_lilypond_file(pairs)</span>
+<span class="sd">        &gt;&gt;&gt; abjad.show(lilypond_file) # doctest: +SKIP</span>
+
+<span class="sd">        ..  docs::</span>
+
+<span class="sd">            &gt;&gt;&gt; score = lilypond_file[&quot;Score&quot;]</span>
+<span class="sd">            &gt;&gt;&gt; string = abjad.lilypond(score)</span>
+<span class="sd">            &gt;&gt;&gt; print(string)</span>
+<span class="sd">            \context Score = &quot;Score&quot;</span>
+<span class="sd">            {</span>
+<span class="sd">                \context RhythmicStaff = &quot;Staff&quot;</span>
+<span class="sd">                \with</span>
+<span class="sd">                {</span>
+<span class="sd">                    \override Clef.stencil = ##f</span>
+<span class="sd">                }</span>
+<span class="sd">                {</span>
+<span class="sd">                    \context Voice = &quot;Voice&quot;</span>
+<span class="sd">                    {</span>
+<span class="sd">                        \tweak text #tuplet-number::calc-fraction-text</span>
+<span class="sd">                        \tuplet 1/1</span>
+<span class="sd">                        {</span>
+<span class="sd">                            \time 3/8</span>
+<span class="sd">                            c&#39;8.</span>
+<span class="sd">                            [</span>
+<span class="sd">                            c&#39;8.</span>
+<span class="sd">                            ]</span>
+<span class="sd">                            ~</span>
+<span class="sd">                        }</span>
+<span class="sd">                        \tweak text #tuplet-number::calc-fraction-text</span>
+<span class="sd">                        \tuplet 1/1</span>
+<span class="sd">                        {</span>
+<span class="sd">                            \time 4/8</span>
+<span class="sd">                            c&#39;4</span>
+<span class="sd">                            c&#39;4</span>
+<span class="sd">                            ~</span>
+<span class="sd">                        }</span>
+<span class="sd">                        \tweak text #tuplet-number::calc-fraction-text</span>
+<span class="sd">                        \tuplet 1/1</span>
+<span class="sd">                        {</span>
+<span class="sd">                            \time 3/8</span>
+<span class="sd">                            c&#39;8.</span>
+<span class="sd">                            [</span>
+<span class="sd">                            c&#39;8.</span>
+<span class="sd">                            ]</span>
+<span class="sd">                            ~</span>
+<span class="sd">                        }</span>
+<span class="sd">                        \tweak text #tuplet-number::calc-fraction-text</span>
+<span class="sd">                        \tuplet 1/1</span>
+<span class="sd">                        {</span>
+<span class="sd">                            \time 4/8</span>
+<span class="sd">                            c&#39;4</span>
+<span class="sd">                            c&#39;4</span>
+<span class="sd">                        }</span>
+<span class="sd">                    }</span>
+<span class="sd">                }</span>
+<span class="sd">            }</span>
+
+<span class="sd">        REGRESSION #907b. Rewrites trivializable tuplets even when tuplets</span>
+<span class="sd">        contain very long ties:</span>
+
+<span class="sd">        &gt;&gt;&gt; def make_lilypond_file(pairs):</span>
+<span class="sd">        ...     time_signatures = rmakers.docs.make_time_signatures(pairs)</span>
+<span class="sd">        ...     durations = abjad.duration.durations(time_signatures)</span>
+<span class="sd">        ...     tuplets = rmakers.make_talea_tuplets(</span>
+<span class="sd">        ...         durations, [3, 3, 6, 6], 16, extra_counts=[0, 4]</span>
+<span class="sd">        ...     )</span>
+<span class="sd">        ...     lilypond_file = rmakers.docs.make_example_lilypond_file(</span>
+<span class="sd">        ...         tuplets, time_signatures</span>
+<span class="sd">        ...     )</span>
+<span class="sd">        ...     voice = lilypond_file[&quot;Voice&quot;]</span>
+<span class="sd">        ...     rmakers.trivialize_tuplets(tuplets)</span>
+<span class="sd">        ...     notes = abjad.select.notes(voice)[:-1]</span>
+<span class="sd">        ...     rmakers.attach_ties_to_pleaves(notes)</span>
+<span class="sd">        ...     leaf_lists = [_[:] for _ in tuplets]</span>
+<span class="sd">        ...     rmakers.attach_beams_to_runs_by_leaf_list(leaf_lists)</span>
+<span class="sd">        ...     rmakers.tweak_tuplet_number_text_calc_fraction_text(tuplets)</span>
+<span class="sd">        ...     return lilypond_file</span>
+
+<span class="sd">        &gt;&gt;&gt; pairs = [(3, 8), (4, 8), (3, 8), (4, 8)]</span>
+<span class="sd">        &gt;&gt;&gt; lilypond_file = make_lilypond_file(pairs)</span>
+<span class="sd">        &gt;&gt;&gt; abjad.show(lilypond_file) # doctest: +SKIP</span>
+
+<span class="sd">        ..  docs::</span>
+
+<span class="sd">            &gt;&gt;&gt; score = lilypond_file[&quot;Score&quot;]</span>
+<span class="sd">            &gt;&gt;&gt; string = abjad.lilypond(score)</span>
+<span class="sd">            &gt;&gt;&gt; print(string)</span>
+<span class="sd">            \context Score = &quot;Score&quot;</span>
+<span class="sd">            {</span>
+<span class="sd">                \context RhythmicStaff = &quot;Staff&quot;</span>
+<span class="sd">                \with</span>
+<span class="sd">                {</span>
+<span class="sd">                    \override Clef.stencil = ##f</span>
+<span class="sd">                }</span>
+<span class="sd">                {</span>
+<span class="sd">                    \context Voice = &quot;Voice&quot;</span>
+<span class="sd">                    {</span>
+<span class="sd">                        \tweak text #tuplet-number::calc-fraction-text</span>
+<span class="sd">                        \tuplet 1/1</span>
+<span class="sd">                        {</span>
+<span class="sd">                            \time 3/8</span>
+<span class="sd">                            c&#39;8.</span>
+<span class="sd">                            [</span>
+<span class="sd">                            ~</span>
+<span class="sd">                            c&#39;8.</span>
+<span class="sd">                            ]</span>
+<span class="sd">                            ~</span>
+<span class="sd">                        }</span>
+<span class="sd">                        \tweak text #tuplet-number::calc-fraction-text</span>
+<span class="sd">                        \tuplet 1/1</span>
+<span class="sd">                        {</span>
+<span class="sd">                            \time 4/8</span>
+<span class="sd">                            c&#39;4</span>
+<span class="sd">                            ~</span>
+<span class="sd">                            c&#39;4</span>
+<span class="sd">                            ~</span>
+<span class="sd">                        }</span>
+<span class="sd">                        \tweak text #tuplet-number::calc-fraction-text</span>
+<span class="sd">                        \tuplet 1/1</span>
+<span class="sd">                        {</span>
+<span class="sd">                            \time 3/8</span>
+<span class="sd">                            c&#39;8.</span>
+<span class="sd">                            [</span>
+<span class="sd">                            ~</span>
+<span class="sd">                            c&#39;8.</span>
+<span class="sd">                            ]</span>
+<span class="sd">                            ~</span>
+<span class="sd">                        }</span>
+<span class="sd">                        \tweak text #tuplet-number::calc-fraction-text</span>
+<span class="sd">                        \tuplet 1/1</span>
+<span class="sd">                        {</span>
+<span class="sd">                            \time 4/8</span>
+<span class="sd">                            c&#39;4</span>
+<span class="sd">                            ~</span>
+<span class="sd">                            c&#39;4</span>
+<span class="sd">                        }</span>
+<span class="sd">                    }</span>
+<span class="sd">                }</span>
+<span class="sd">            }</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+</pre></div>
+
+    </div>
+    
+    </div>
+    
+
+<footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2008-2025, Trevor Bača.
+      <span class="lastupdated">
+        Last updated on Oct 31, 2025.
+      </span>
+
+    </p>
+  </div> 
+
+</footer>
+
+</div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

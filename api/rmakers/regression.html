@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>regression &mdash; rmakers  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/abjad.css?v=582143d1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/uqbar.css?v=e6773f5c" />
+
+  
+    <link rel="canonical" href="https://abjad.github.io/rmakersapi/rmakers/regression.html"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/ga.js"></script>
+      <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="state" href="state.html" />
+    <link rel="prev" title="makers" href="makers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #BB2299" >
+
+
+    <a href="../../index.html" class="icon icon-home" alt="Documentation
+    Home"> rmakers 3.31
+
+
+
+</a>
+
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">rmakers API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #BB2299" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">rmakers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+
+<div class="rst-content style-external-links">
+
+    
+
+
+    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+    <div itemprop="articleBody">
+    
+  <section id="module-rmakers.regression">
+<span id="regression"></span><span id="rmakers-regression"></span><h1>regression<a class="headerlink" href="#module-rmakers.regression" title="Link to this heading"></a></h1>
+<p>Regression.</p>
+<div class="svg-container docutils container">
+</div>
+<hr/><p class="section-header rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rmakers.regression.test" title="rmakers.regression.test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test</span></code></a></p></td>
+<td><p>Regression.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="rmakers.regression.test">
+<span class="sig-prename descclassname"><span class="pre">rmakers.regression.</span></span><span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rmakers/regression.html#test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rmakers.regression.test" title="Link to this definition"></a></dt>
+<dd><p>Regression.</p>
+<div class="example docutils container">
+<p>REGRESSION: Very long ties are preserved when <code class="docutils literal notranslate"><span class="pre">extract_trivial_tuplets</span></code> is
+true:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">time_signatures</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_time_signatures</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">durations</span> <span class="o">=</span> <span class="n">abjad</span><span class="o">.</span><span class="n">duration</span><span class="o">.</span><span class="n">durations</span><span class="p">(</span><span class="n">time_signatures</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">tuplets</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">make_tuplets</span><span class="p">(</span><span class="n">durations</span><span class="p">,</span> <span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">tweak_tuplet_number_text_calc_fraction_text</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">lilypond_file</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_example_lilypond_file</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">tuplets</span><span class="p">,</span> <span class="n">time_signatures</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">voice</span> <span class="o">=</span> <span class="n">lilypond_file</span><span class="p">[</span><span class="s2">&quot;Voice&quot;</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">leaf_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tuplets</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">attach_beams_to_runs_by_leaf_list</span><span class="p">(</span><span class="n">leaf_lists</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">extract_trivial_tuplets</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">notes</span> <span class="o">=</span> <span class="n">abjad</span><span class="o">.</span><span class="n">select</span><span class="o">.</span><span class="n">notes</span><span class="p">(</span><span class="n">voice</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">attach_ties_to_pleaves</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">lilypond_file</span>
+<span class="gp">... </span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span> <span class="o">=</span> <span class="n">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-764cad04bdb2338c01c138baf0cc35bb3717dceee9353de7570795a5b8385d5c.ly"><img src="../../_images/lilypond-764cad04bdb2338c01c138baf0cc35bb3717dceee9353de7570795a5b8385d5c.cropped.svg"/></a>
+</div></div>
+<div class="example docutils container">
+<p>REGRESSION. End counts leave 5-durated tie in tact:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">time_signatures</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_time_signatures</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">durations</span> <span class="o">=</span> <span class="n">abjad</span><span class="o">.</span><span class="n">duration</span><span class="o">.</span><span class="n">durations</span><span class="p">(</span><span class="n">time_signatures</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">tuplets</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">make_talea_tuplets</span><span class="p">(</span><span class="n">durations</span><span class="p">,</span> <span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="mi">16</span><span class="p">,</span> <span class="n">end_counts</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="n">lilypond_file</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_example_lilypond_file</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">tuplets</span><span class="p">,</span> <span class="n">time_signatures</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">voice</span> <span class="o">=</span> <span class="n">lilypond_file</span><span class="p">[</span><span class="s2">&quot;Voice&quot;</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">leaf_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tuplets</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">attach_beams_to_runs_by_leaf_list</span><span class="p">(</span><span class="n">leaf_lists</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">extract_trivial_tuplets</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">lilypond_file</span>
+<span class="gp">... </span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span> <span class="o">=</span> <span class="n">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-106b1641ad79be351351c93f1d94e8b4ba362e952a1fd1b009a0ce162b7ea65c.ly"><img src="../../_images/lilypond-106b1641ad79be351351c93f1d94e8b4ba362e952a1fd1b009a0ce162b7ea65c.cropped.svg"/></a>
+</div></div>
+<div class="example docutils container">
+<p>REGRESSION. Works when talea advances by period of talea:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">talea</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">Talea</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">talea</span><span class="o">.</span><span class="n">counts</span>
+<span class="go">[1, 2, 3, 4]</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">talea</span><span class="o">.</span><span class="n">advance</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">counts</span>
+<span class="go">[1, 2, 3, 4]</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">talea</span><span class="o">.</span><span class="n">advance</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">counts</span>
+<span class="go">[1, 2, 3, 4]</span>
+</pre></div>
+</div>
+</div>
+<div class="example docutils container">
+<p>REGRESSION #907a. Rewrites trivializable tuplets even when tuplets
+contain multiple ties:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">time_signatures</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_time_signatures</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">durations</span> <span class="o">=</span> <span class="n">abjad</span><span class="o">.</span><span class="n">duration</span><span class="o">.</span><span class="n">durations</span><span class="p">(</span><span class="n">time_signatures</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">tuplets</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">make_talea_tuplets</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">durations</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="mi">16</span><span class="p">,</span> <span class="n">extra_counts</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">lilypond_file</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_example_lilypond_file</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">tuplets</span><span class="p">,</span> <span class="n">time_signatures</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">voice</span> <span class="o">=</span> <span class="n">lilypond_file</span><span class="p">[</span><span class="s2">&quot;Voice&quot;</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">trivialize_tuplets</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">leaves</span> <span class="o">=</span> <span class="p">[</span><span class="n">abjad</span><span class="o">.</span><span class="n">select</span><span class="o">.</span><span class="n">leaf</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tuplets</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">attach_ties_to_pleaves</span><span class="p">(</span><span class="n">leaves</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">leaf_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tuplets</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">attach_beams_to_runs_by_leaf_list</span><span class="p">(</span><span class="n">leaf_lists</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">tweak_tuplet_number_text_calc_fraction_text</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">lilypond_file</span>
+<span class="gp">... </span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span> <span class="o">=</span> <span class="n">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-8a070112410fe6b880416bf1b3effd518401d314c8c882d9ea399f3b07bd12e2.ly"><img src="../../_images/lilypond-8a070112410fe6b880416bf1b3effd518401d314c8c882d9ea399f3b07bd12e2.cropped.svg"/></a>
+</div><p>REGRESSION #907b. Rewrites trivializable tuplets even when tuplets
+contain very long ties:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">time_signatures</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_time_signatures</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">durations</span> <span class="o">=</span> <span class="n">abjad</span><span class="o">.</span><span class="n">duration</span><span class="o">.</span><span class="n">durations</span><span class="p">(</span><span class="n">time_signatures</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">tuplets</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">make_talea_tuplets</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">durations</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="mi">16</span><span class="p">,</span> <span class="n">extra_counts</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">lilypond_file</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_example_lilypond_file</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">tuplets</span><span class="p">,</span> <span class="n">time_signatures</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">voice</span> <span class="o">=</span> <span class="n">lilypond_file</span><span class="p">[</span><span class="s2">&quot;Voice&quot;</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">trivialize_tuplets</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">notes</span> <span class="o">=</span> <span class="n">abjad</span><span class="o">.</span><span class="n">select</span><span class="o">.</span><span class="n">notes</span><span class="p">(</span><span class="n">voice</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">attach_ties_to_pleaves</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">leaf_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tuplets</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">attach_beams_to_runs_by_leaf_list</span><span class="p">(</span><span class="n">leaf_lists</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">tweak_tuplet_number_text_calc_fraction_text</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">lilypond_file</span>
+<span class="gp">... </span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span> <span class="o">=</span> <span class="n">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-2ceff0e98c92194dcb95cb724891e68ff14987331f17aea82a7900048670962b.ly"><img src="../../_images/lilypond-2ceff0e98c92194dcb95cb724891e68ff14987331f17aea82a7900048670962b.cropped.svg"/></a>
+</div></div>
+</dd></dl>
+
+</section>
+
+
+    </div>
+    
+    </div>
+    
+
+<footer>
+  
+    <hr/>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="state.html" class="btn btn-neutral float-right" title="state" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="makers.html" class="btn btn-neutral float-left" title="makers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2008-2025, Trevor Bača.
+      <span class="lastupdated">
+        Last updated on Oct 31, 2025.
+      </span>
+
+    </p>
+  </div> 
+
+</footer>
+
+</div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

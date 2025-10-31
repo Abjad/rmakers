@@ -1,0 +1,45 @@
+.. _rmakers--makers:
+
+makers
+======
+
+.. automodule:: rmakers.makers
+
+.. currentmodule:: rmakers.makers
+
+.. container:: svg-container
+
+   .. inheritance-diagram:: rmakers
+      :lineage: rmakers.makers
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Functions
+   :class: section-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~make_accelerandi
+   ~make_even_division_tuplets
+   ~make_incised_tuplets
+   ~make_notes
+   ~make_notes_with_dmps
+   ~make_talea_tuplets
+   ~make_tuplets
+
+.. autofunction:: make_accelerandi
+
+.. autofunction:: make_even_division_tuplets
+
+.. autofunction:: make_incised_tuplets
+
+.. autofunction:: make_notes
+
+.. autofunction:: make_notes_with_dmps
+
+.. autofunction:: make_talea_tuplets
+
+.. autofunction:: make_tuplets

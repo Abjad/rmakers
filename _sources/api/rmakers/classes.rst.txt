@@ -1,0 +1,275 @@
+.. _rmakers--classes:
+
+classes
+=======
+
+.. automodule:: rmakers.classes
+
+.. currentmodule:: rmakers.classes
+
+.. container:: svg-container
+
+   .. inheritance-diagram:: rmakers
+      :lineage: rmakers.classes
+
+.. raw:: html
+
+   <hr/>
+
+.. rubric:: Classes
+   :class: section-header
+
+.. autosummary::
+   :nosignatures:
+
+   ~Incise
+   ~Interpolation
+   ~Spelling
+   ~Talea
+
+.. autoclass:: Incise
+
+   .. raw:: html
+
+      <hr/>
+
+   .. rubric:: Attributes Summary
+      :class: class-header
+
+   .. autosummary::
+      :nosignatures:
+
+      __delattr__
+      __eq__
+      __ge__
+      __gt__
+      __hash__
+      __le__
+      __lt__
+      __post_init__
+      __replace__
+      __repr__
+      __setattr__
+
+   .. raw:: html
+
+      <hr/>
+
+   .. rubric:: Special methods
+      :class: class-header
+
+   .. automethod:: Incise.__delattr__
+
+   .. automethod:: Incise.__eq__
+
+   .. automethod:: Incise.__ge__
+
+   .. automethod:: Incise.__gt__
+
+   .. automethod:: Incise.__hash__
+
+   .. automethod:: Incise.__le__
+
+   .. automethod:: Incise.__lt__
+
+   .. automethod:: Incise.__post_init__
+
+   .. automethod:: Incise.__replace__
+
+   .. automethod:: Incise.__repr__
+
+   .. automethod:: Incise.__setattr__
+
+.. autoclass:: Interpolation
+
+   .. raw:: html
+
+      <hr/>
+
+   .. rubric:: Attributes Summary
+      :class: class-header
+
+   .. autosummary::
+      :nosignatures:
+
+      __delattr__
+      __eq__
+      __ge__
+      __gt__
+      __hash__
+      __le__
+      __lt__
+      __post_init__
+      __replace__
+      __repr__
+      __setattr__
+      reverse
+
+   .. raw:: html
+
+      <hr/>
+
+   .. rubric:: Special methods
+      :class: class-header
+
+   .. automethod:: Interpolation.__delattr__
+
+   .. automethod:: Interpolation.__eq__
+
+   .. automethod:: Interpolation.__ge__
+
+   .. automethod:: Interpolation.__gt__
+
+   .. automethod:: Interpolation.__hash__
+
+   .. automethod:: Interpolation.__le__
+
+   .. automethod:: Interpolation.__lt__
+
+   .. automethod:: Interpolation.__post_init__
+
+   .. automethod:: Interpolation.__replace__
+
+   .. automethod:: Interpolation.__repr__
+
+   .. automethod:: Interpolation.__setattr__
+
+   .. raw:: html
+
+      <hr/>
+
+   .. rubric:: Methods
+      :class: class-header
+
+   .. automethod:: Interpolation.reverse
+
+.. autoclass:: Spelling
+
+   .. raw:: html
+
+      <hr/>
+
+   .. rubric:: Attributes Summary
+      :class: class-header
+
+   .. autosummary::
+      :nosignatures:
+
+      __delattr__
+      __eq__
+      __ge__
+      __gt__
+      __hash__
+      __le__
+      __lt__
+      __post_init__
+      __replace__
+      __repr__
+      __setattr__
+
+   .. raw:: html
+
+      <hr/>
+
+   .. rubric:: Special methods
+      :class: class-header
+
+   .. automethod:: Spelling.__delattr__
+
+   .. automethod:: Spelling.__eq__
+
+   .. automethod:: Spelling.__ge__
+
+   .. automethod:: Spelling.__gt__
+
+   .. automethod:: Spelling.__hash__
+
+   .. automethod:: Spelling.__le__
+
+   .. automethod:: Spelling.__lt__
+
+   .. automethod:: Spelling.__post_init__
+
+   .. automethod:: Spelling.__replace__
+
+   .. automethod:: Spelling.__repr__
+
+   .. automethod:: Spelling.__setattr__
+
+.. autoclass:: Talea
+
+   .. raw:: html
+
+      <hr/>
+
+   .. rubric:: Attributes Summary
+      :class: class-header
+
+   .. autosummary::
+      :nosignatures:
+
+      __contains__
+      __delattr__
+      __eq__
+      __ge__
+      __getitem__
+      __gt__
+      __hash__
+      __iter__
+      __le__
+      __len__
+      __lt__
+      __post_init__
+      __replace__
+      __repr__
+      __setattr__
+      advance
+      period
+
+   .. raw:: html
+
+      <hr/>
+
+   .. rubric:: Special methods
+      :class: class-header
+
+   .. automethod:: Talea.__contains__
+
+   .. automethod:: Talea.__delattr__
+
+   .. automethod:: Talea.__eq__
+
+   .. automethod:: Talea.__ge__
+
+   .. automethod:: Talea.__getitem__
+
+   .. automethod:: Talea.__gt__
+
+   .. automethod:: Talea.__hash__
+
+   .. automethod:: Talea.__iter__
+
+   .. automethod:: Talea.__le__
+
+   .. automethod:: Talea.__len__
+
+   .. automethod:: Talea.__lt__
+
+   .. automethod:: Talea.__post_init__
+
+   .. automethod:: Talea.__replace__
+
+   .. automethod:: Talea.__repr__
+
+   .. automethod:: Talea.__setattr__
+
+   .. raw:: html
+
+      <hr/>
+
+   .. rubric:: Methods
+      :class: class-header
+
+   .. automethod:: Talea.advance
+
+   .. automethod:: Talea.period

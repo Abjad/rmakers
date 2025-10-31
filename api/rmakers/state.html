@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>state &mdash; rmakers  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/abjad.css?v=582143d1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/uqbar.css?v=e6773f5c" />
+
+  
+    <link rel="canonical" href="https://abjad.github.io/rmakersapi/rmakers/state.html"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/ga.js"></script>
+      <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="regression" href="regression.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #BB2299" >
+
+
+    <a href="../../index.html" class="icon icon-home" alt="Documentation
+    Home"> rmakers 3.31
+
+
+
+</a>
+
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">rmakers API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #BB2299" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">rmakers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+
+<div class="rst-content style-external-links">
+
+    
+
+
+    <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+    <div itemprop="articleBody">
+    
+  <section id="module-rmakers.state">
+<span id="state"></span><span id="rmakers-state"></span><h1>state<a class="headerlink" href="#module-rmakers.state" title="Link to this heading"></a></h1>
+<p>Examples that show how to work with rmakers in a statal way.</p>
+<div class="example docutils container">
+<p>Using <code class="docutils literal notranslate"><span class="pre">rmakers.make_accelerandi()</span></code> with the <code class="docutils literal notranslate"><span class="pre">previous_state</span></code> keyword.</p>
+<div class="example docutils container">
+<p>Consumes 3 durations:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">make_statal_accelerandi</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="n">previous_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">time_signatures</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_time_signatures</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">durations</span> <span class="o">=</span> <span class="n">abjad</span><span class="o">.</span><span class="n">duration</span><span class="o">.</span><span class="n">durations</span><span class="p">(</span><span class="n">time_signatures</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">previous_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">previous_state</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">... </span>    <span class="n">state</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">... </span>    <span class="n">duration_lists</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>        <span class="n">abjad</span><span class="o">.</span><span class="n">duration</span><span class="o">.</span><span class="n">durations</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">)]),</span>
+<span class="gp">... </span>        <span class="n">abjad</span><span class="o">.</span><span class="n">duration</span><span class="o">.</span><span class="n">durations</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">)]),</span>
+<span class="gp">... </span>    <span class="p">]</span>
+<span class="gp">... </span>    <span class="n">interpolations</span> <span class="o">=</span> <span class="p">[</span><span class="n">rmakers</span><span class="o">.</span><span class="n">Interpolation</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">duration_lists</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">tuplets</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">make_accelerandi</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">durations</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">interpolations</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">previous_state</span><span class="o">=</span><span class="n">previous_state</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">lilypond_file</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_example_lilypond_file</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">tuplets</span><span class="p">,</span> <span class="n">time_signatures</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">voice</span> <span class="o">=</span> <span class="n">lilypond_file</span><span class="p">[</span><span class="s2">&quot;Voice&quot;</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">override_tuplet_number_text_duration_markup</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">leaf_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tuplets</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">attach_beams_to_runs_by_leaf_list</span><span class="p">(</span><span class="n">leaf_lists</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">override_beam_grow_direction</span><span class="p">(</span><span class="n">leaf_lists</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">lilypond_file</span><span class="p">,</span> <span class="n">state</span>
+<span class="gp">... </span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">make_statal_accelerandi</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-28065d12d0908090f9e1a31b5925a25502674e31535b232b7d44dea9b783e845.ly"><img src="../../_images/lilypond-28065d12d0908090f9e1a31b5925a25502674e31535b232b7d44dea9b783e845.cropped.svg"/></a>
+</div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">state</span>
+<span class="go">{&#39;durations_consumed&#39;: 3, &#39;logical_ties_produced&#39;: 17}</span>
+</pre></div>
+</div>
+<p>Advances 3 durations; then consumes another 3 durations:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">make_statal_accelerandi</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="n">previous_state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-04cb6ccc4cbac47713a523a6f118de8844bfc198b9b52a698ae635811661d8d6.ly"><img src="../../_images/lilypond-04cb6ccc4cbac47713a523a6f118de8844bfc198b9b52a698ae635811661d8d6.cropped.svg"/></a>
+</div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">state</span>
+<span class="go">{&#39;durations_consumed&#39;: 6, &#39;logical_ties_produced&#39;: 36}</span>
+</pre></div>
+</div>
+<p>Advances 6 durations; then consumes another 3 durations:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">make_statal_accelerandi</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="n">previous_state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-28065d12d0908090f9e1a31b5925a25502674e31535b232b7d44dea9b783e845.ly"><img src="../../_images/lilypond-28065d12d0908090f9e1a31b5925a25502674e31535b232b7d44dea9b783e845.cropped.svg"/></a>
+</div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">state</span>
+<span class="go">{&#39;durations_consumed&#39;: 9, &#39;logical_ties_produced&#39;: 53}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="example docutils container">
+<p>Using <code class="docutils literal notranslate"><span class="pre">rmakers.make_even_division_tuplets()</span></code> with the <code class="docutils literal notranslate"><span class="pre">previous_state</span></code> keyword.</p>
+<p>Fills durations with 16th, 8th, quarter notes. Consumes 5 durations:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">previous_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">time_signatures</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_time_signatures</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">durations</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="o">.</span><span class="n">duration</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">time_signatures</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">state</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">... </span>    <span class="n">tuplets</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">make_even_division_tuplets</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">durations</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">extra_counts</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">previous_state</span><span class="o">=</span><span class="n">previous_state</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">lilypond_file</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_example_lilypond_file</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">tuplets</span><span class="p">,</span> <span class="n">time_signatures</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">voice</span> <span class="o">=</span> <span class="n">lilypond_file</span><span class="p">[</span><span class="s2">&quot;Voice&quot;</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">leaf_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tuplets</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">attach_beams_to_runs_by_leaf_list</span><span class="p">(</span><span class="n">leaf_lists</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">extract_trivial_tuplets</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">lilypond_file</span><span class="p">,</span> <span class="n">state</span>
+<span class="gp">... </span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-ab813ea14b65b71db24258f1aec5c97be82c4d565b58e4f099d1e6aed5d3d601.ly"><img src="../../_images/lilypond-ab813ea14b65b71db24258f1aec5c97be82c4d565b58e4f099d1e6aed5d3d601.cropped.svg"/></a>
+</div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">state</span>
+<span class="go">{&#39;durations_consumed&#39;: 5, &#39;logical_ties_produced&#39;: 15}</span>
+</pre></div>
+</div>
+<p>Advances 5 durations; then consumes another 5 durations:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="n">previous_state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-3edee951426572d851820a6c52f9f9c44246bd702b35fab8754866eee0d17d10.ly"><img src="../../_images/lilypond-3edee951426572d851820a6c52f9f9c44246bd702b35fab8754866eee0d17d10.cropped.svg"/></a>
+</div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">state</span>
+<span class="go">{&#39;durations_consumed&#39;: 10, &#39;logical_ties_produced&#39;: 29}</span>
+</pre></div>
+</div>
+</div>
+<div class="example docutils container">
+<p>Using <code class="docutils literal notranslate"><span class="pre">rmakers.make_talea_tuplets()</span></code> with the <code class="docutils literal notranslate"><span class="pre">previous_state</span></code> keyword.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">previous_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">time_signatures</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_time_signatures</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">durations</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="o">.</span><span class="n">duration</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">time_signatures</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">state</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">... </span>    <span class="n">tuplets</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">make_talea_tuplets</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">durations</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="mi">16</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">extra_counts</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">previous_state</span><span class="o">=</span><span class="n">previous_state</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">tweak_tuplet_number_text_calc_fraction_text</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">container</span> <span class="o">=</span> <span class="n">abjad</span><span class="o">.</span><span class="n">Container</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">leaf_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tuplets</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">attach_beams_to_runs_by_leaf_list</span><span class="p">(</span><span class="n">leaf_lists</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">rmakers</span><span class="o">.</span><span class="n">extract_trivial_tuplets</span><span class="p">(</span><span class="n">tuplets</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">components</span> <span class="o">=</span> <span class="n">abjad</span><span class="o">.</span><span class="n">mutate</span><span class="o">.</span><span class="n">eject_contents</span><span class="p">(</span><span class="n">container</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">lilypond_file</span> <span class="o">=</span> <span class="n">rmakers</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">make_example_lilypond_file</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">components</span><span class="p">,</span> <span class="n">time_signatures</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">lilypond_file</span><span class="p">,</span> <span class="n">state</span>
+<span class="gp">... </span>
+</pre></div>
+</div>
+<div class="example docutils container">
+<p><strong>#1.</strong> This call consumes 4 durations and 31 counts, as shown in
+output <code class="docutils literal notranslate"><span class="pre">state</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-c40e72b3a4f5683ac4c0085781177ceead2f7c7b3438f5fac501270c35739a87.ly"><img src="../../_images/lilypond-c40e72b3a4f5683ac4c0085781177ceead2f7c7b3438f5fac501270c35739a87.cropped.svg"/></a>
+</div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">item</span>
+<span class="gp">... </span>
+<span class="go">(&#39;durations_consumed&#39;, 4)</span>
+<span class="go">(&#39;incomplete_last_note&#39;, True)</span>
+<span class="go">(&#39;logical_ties_produced&#39;, 8)</span>
+<span class="go">(&#39;talea_weight_consumed&#39;, 31)</span>
+</pre></div>
+</div>
+</div>
+<div class="example docutils container">
+<p><strong>#2.</strong> This call advances 4 durations and 31 counts, as read from
+<code class="docutils literal notranslate"><span class="pre">previous_state</span></code>. The function then consumes another 4 durations
+and 32 counts. This equals 8 durations and 63 counts consumed so far,
+as shown in output <code class="docutils literal notranslate"><span class="pre">state</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="n">previous_state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-d2c44c24fa2b756f6eee572aa55005cfe33d40b246c279624761fa6329c2f015.ly"><img src="../../_images/lilypond-d2c44c24fa2b756f6eee572aa55005cfe33d40b246c279624761fa6329c2f015.cropped.svg"/></a>
+</div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">item</span>
+<span class="gp">... </span>
+<span class="go">(&#39;durations_consumed&#39;, 8)</span>
+<span class="go">(&#39;incomplete_last_note&#39;, True)</span>
+<span class="go">(&#39;logical_ties_produced&#39;, 16)</span>
+<span class="go">(&#39;talea_weight_consumed&#39;, 63)</span>
+</pre></div>
+</div>
+</div>
+<div class="example docutils container">
+<p><strong>#3.</strong> This call advances 8 durations and 63 counts, as read from
+<code class="docutils literal notranslate"><span class="pre">previous_state</span></code>. The function then consumes another 4 durations
+and 33 counts. This equals 12 durations and 96 counts consumed so far,
+as shown in output <code class="docutils literal notranslate"><span class="pre">state</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lilypond_file</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">make_lilypond_file</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="n">previous_state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abjad</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">lilypond_file</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="uqbar-book">
+    <a href="../../_images/lilypond-1f4c57c9ffa46e257c988d1354c143bcaf30dedbc1da76d6f2634ddb2155966f.ly"><img src="../../_images/lilypond-1f4c57c9ffa46e257c988d1354c143bcaf30dedbc1da76d6f2634ddb2155966f.cropped.svg"/></a>
+</div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">item</span>
+<span class="gp">... </span>
+<span class="go">(&#39;durations_consumed&#39;, 12)</span>
+<span class="go">(&#39;logical_ties_produced&#39;, 24)</span>
+<span class="go">(&#39;talea_weight_consumed&#39;, 96)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="svg-container docutils container">
+</div>
+<hr/><p class="section-header rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rmakers.state.sphinx" title="rmakers.state.sphinx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sphinx</span></code></a></p></td>
+<td><p>Makes Sphinx read this module.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="rmakers.state.sphinx">
+<span class="sig-prename descclassname"><span class="pre">rmakers.state.</span></span><span class="sig-name descname"><span class="pre">sphinx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rmakers/state.html#sphinx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rmakers.state.sphinx" title="Link to this definition"></a></dt>
+<dd><p>Makes Sphinx read this module.</p>
+</dd></dl>
+
+</section>
+
+
+    </div>
+    
+    </div>
+    
+
+<footer>
+  
+    <hr/>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="regression.html" class="btn btn-neutral float-left" title="regression" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2008-2025, Trevor Bača.
+      <span class="lastupdated">
+        Last updated on Oct 31, 2025.
+      </span>
+
+    </p>
+  </div> 
+
+</footer>
+
+</div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>
